@@ -8,13 +8,16 @@ const SCHOOL_LON = 105.783;
 
 // 1. TẢI MÔ HÌNH AI KHI MỞ WEB
 Promise.all([
-    faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
-    faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
-    faceapi.nets.faceRecognitionNet.loadFromUri('/models')
+    faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
+    faceapi.nets.faceLandmark68Net.loadFromUri('./models'),
+    faceapi.nets.faceRecognitionNet.loadFromUri('./models')
 ]).then(() => {
     statusDiv.innerHTML = "Sẵn sàng! Hãy bấm nút bên dưới.";
     statusDiv.style.color = "blue";
     btnStart.style.display = "inline-block";
+}).catch((error) => {
+    // Thêm dòng catch này để nếu lỗi nó sẽ báo đỏ lên màn hình cho dễ sửa
+    statusDiv.innerHTML = "❌ Lỗi không tải được Model: " + error.message;
 });
 
 // Hàm tính khoảng cách GPS (Công thức Haversine)
