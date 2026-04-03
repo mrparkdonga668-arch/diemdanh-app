@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Điểm Danh AI Sinh Viên</title>
+    <!-- Nhúng thư viện face-api.js qua CDN để không phải tải về -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
+    <script defer src="script.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f9; margin: 0; padding: 20px;}
+        video { width: 100%; max-width: 400px; border-radius: 10px; border: 3px solid #007bff; display: none; margin: 0 auto; }
+        #status { margin-top: 15px; font-weight: bold; color: red; font-size: 18px; }
+        button { padding: 12px 24px; font-size: 18px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;}
+    </style>
+</head>
+<body>
+
+    <h2>Hệ thống Điểm Danh</h2>
+    <div id="status">Đang tải mô hình AI... Vui lòng đợi.</div>
+    
+    <!-- Nơi hiển thị Camera -->
+    <video id="video" autoplay muted playsinline></video>
+    
+    <!-- Ảnh gốc để AI so sánh (Ẩn đi) -->
+    <img id="referenceImage" src="anh_goc.jpg" style="display: none;">
+
+    <br>
+    <button id="btnStart" style="display:none;" onclick="startProcess()">Bắt đầu Điểm Danh</button>
+
+</body>
+</html>
