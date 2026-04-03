@@ -3,8 +3,8 @@ const statusDiv = document.getElementById('status');
 const btnStart = document.getElementById('btnStart');
 
 // Tọa độ giả định của trường học (Bạn thay bằng tọa độ thực tế trên Google Maps)
-const SCHOOL_LAT = 21.037; 
-const SCHOOL_LON = 105.783;
+const SCHOOL_LAT = 20.897007783267334;
+const SCHOOL_LON = 106.67248743684335;
 
 // 1. TẢI MÔ HÌNH AI KHI MỞ WEB
 Promise.all([
