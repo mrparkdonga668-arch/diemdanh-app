@@ -134,7 +134,7 @@ async function startFaceCamera() {
             STUDENT_ID, 
             savedVectors.map(v => new Float32Array(v))
         );
-        const faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.55);
+        const faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.5);
         const detectorOptions = new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.2 });
 
         let livenessState = "CHECK_FACE"; 
