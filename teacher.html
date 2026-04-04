@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Màn hình Máy chiếu Giảng Viên</title>
+    <!-- Thư viện tạo mã QR và Mã hóa -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body { font-family: Arial; text-align: center; background-color: #f4f4f9; margin-top: 50px; }
+        #qrcode { display: flex; justify-content: center; margin: 30px auto; padding: 20px; background: white; width: 300px; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { color: #007bff; font-size: 40px; }
+        .timer { font-size: 24px; color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h1>QUÉT MÃ ĐỂ ĐIỂM DANH</h1>
+    <p>Mã sẽ tự động làm mới sau mỗi <span id="countdown" class="timer">15</span> giây</p>
+    
+    <!-- Nơi chứa mã QR -->
+    <div id="qrcode"></div>
+
+    <script>
+        const SECRET_KEY = "Kh0aH4ngHai_DiemDanh_2026"; // Chìa khóa bí mật, cả thầy và trò đều phải khớp mã này
+        const TIME_WINDOW = 15; // 15 giây đổi QR 1 lần
+        let qrcode = new QRCode(document.getElementById("qrcode"), { width: 256, height: 256 });
+
+        function generateDynamicToken() {
+            // Chia thời gian hiện tại cho 15 giây để tạo ra một "Block thời gian"
+            let timeBlock = Math.floor(Date.now() / 1000 / TIME_WINDOW);
+            // Băm (Hash) Chìa khóa + Block thời gian để tạo ra chuỗi ngẫu nhiên không thể đảo ngược
+            let token = CryptoJS.SHA256(SECRET_KEY + timeBlock).toString();
+            return "DD_" + token.substring(0, 15); // Lấy 15 ký tự cho ngắn gọn
+        }
+
+        function updateQRCode() {
+            let currentToken = generateDynamicToken();
+            qrcode.makeCode(currentToken);
+        }
+
+        // Cập nhật đếm ngược và đổi QR
+        setInterval(() => {
+            let seconds = new Date().getSeconds() % TIME_WINDOW;
+            let timeLeft = TIME_WINDOW - seconds;
+            document.getElementById("countdown").innerText = timeLeft;
+            
+            if (timeLeft === TIME_WINDOW) { // Khi bắt đầu chu kỳ mới
+                updateQRCode();
+            }
+        }, 1000);
+
+        // Chạy lần đầu tiên khi mở web
+        updateQRCode();
+    </script>
+
+</body>
+</html>
