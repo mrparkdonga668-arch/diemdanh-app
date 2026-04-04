@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý & Sinh Trắc Học Thiết Bị</title>
-    <!-- Thư viện giữ nguyên như file cũ của bạn -->
+    <!-- Thư viện giữ nguyên -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
     <style>
@@ -25,7 +25,6 @@
         #status-box { margin-top: 15px; padding: 10px; border-radius: 5px; display: none; font-size: 14px; line-height: 1.5; }
         #ai-loading { color: #ff9800; font-weight: bold; margin-bottom: 15px; }
         
-        /* Hiển thị tiến trình 1/3, 2/3, 3/3 */
         .progress-dots { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
         .dot { width: 15px; height: 15px; border-radius: 50%; background: #ddd; }
         .dot.active { background: #007bff; transform: scale(1.2); }
@@ -49,7 +48,8 @@
 
         <input type="text" id="studentId" placeholder="Nhập Mã Sinh Viên (VD: SV001)">
         
-        <button id="btn-reg" onclick="startCaptureProcess()">📸 Bắt đầu chụp mặt</button>
+        <!-- Thay đổi onclick thành hàm kiểm tra trước -->
+        <button id="btn-reg" onclick="handleRegistration()">📸 Bắt đầu chụp mặt</button>
         <button class="btn-remove" onclick="removeDevice()">🗑️ Hủy liên kết máy này</button>
 
         <div id="status-box"></div>
@@ -71,21 +71,16 @@
             "Quay mặt sang PHẢI một chút"
         ];
 
-        // 1. TẢI MODELS (Giữ nguyên logic file cũ của bạn vì nó chạy ổn định)
         window.onload = async () => {
             try {
-                console.log("Bắt đầu tải Models...");
                 await Promise.all([
                     faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
                     faceapi.nets.faceLandmark68Net.loadFromUri('./models'),
                     faceapi.nets.faceRecognitionNet.loadFromUri('./models')
                 ]);
-                console.log("Tải Models thành công!");
                 startSetupCamera();
             } catch (error) {
-                console.error("Lỗi khi tải Models:", error);
-                aiLoading.innerHTML = "❌ Lỗi: Không thể tải AI (Kiểm tra lại thư mục models)";
-                aiLoading.style.color = "red";
+                aiLoading.innerHTML = "❌ Lỗi: Không thể tải AI";
             }
         };
 
@@ -98,66 +93,84 @@
                 btnReg.style.display = "inline-block";
             } catch (err) {
                 aiLoading.innerHTML = "❌ Lỗi: Không thể mở Camera!";
-                aiLoading.style.color = "red";
             }
         }
 
         function showStatus(message, type) {
             statusBox.style.display = "block";
-            if (type === 'success') {
-                statusBox.style.backgroundColor = "#d4edda";
-                statusBox.style.color = "#155724";
-            } else if (type === 'info') {
-                statusBox.style.backgroundColor = "#e6f7ff";
-                statusBox.style.color = "#0050b3";
-            } else {
-                statusBox.style.backgroundColor = "#f8d7da";
-                statusBox.style.color = "#721c24";
-            }
+            statusBox.style.backgroundColor = type === 'success' ? "#d4edda" : (type === 'info' ? "#e6f7ff" : "#f8d7da");
+            statusBox.style.color = type === 'success' ? "#155724" : (type === 'info' ? "#0050b3" : "#721c24");
             statusBox.innerHTML = message;
         }
 
-        // 2. QUY TRÌNH CHỤP ẢNH TỪNG BƯỚC (Cải tiến chống bấm loạn)
-        async function startCaptureProcess() {
+        // --- HÀM MỚI: KIỂM TRA TRƯỚC KHI CHO CHỤP ---
+        async function handleRegistration() {
             let msv = document.getElementById("studentId").value.trim().toUpperCase();
             if(!msv) { alert("Vui lòng nhập Mã sinh viên!"); return; }
 
-            // Khóa nút bấm để sinh viên không bấm liên tục
+            // Nếu đang ở giữa quá trình chụp (step > 0) thì tiếp tục luôn, không check lại Firebase
+            if (currentStep > 0) {
+                startCaptureProcess(msv);
+                return;
+            }
+
+            btnReg.disabled = true;
+            showStatus("⏳ Đang kiểm tra mã sinh viên trên hệ thống...", 'info');
+
+            try {
+                // Kiểm tra xem MSV đã tồn tại trên Firebase chưa
+                const checkResponse = await fetch(`${FIREBASE_BASE_URL}/devices/${msv}.json`);
+                const existingData = await checkResponse.json();
+
+                if (existingData !== null) {
+                    showStatus(`❌ <b>Lỗi:</b> Mã số sinh viên <b>${msv}</b> đã tồn tại trong hệ thống và thiết bị đã được đăng ký rồi.`, 'error');
+                    btnReg.disabled = false;
+                    return;
+                }
+
+                // Nếu chưa tồn tại, tiến hành chụp mặt
+                startCaptureProcess(msv);
+
+            } catch (error) {
+                console.error(error);
+                showStatus("❌ Lỗi kết nối khi kiểm tra dữ liệu. Vui lòng thử lại.", 'error');
+                btnReg.disabled = false;
+            }
+        }
+
+        // --- CHỈNH SỬA HÀM CHỤP: Nhận tham số MSV ---
+        async function startCaptureProcess(msv) {
             btnReg.disabled = true;
             video.classList.add("video-active");
 
             showStatus(`<b>Bước ${currentStep + 1}/3:</b> ${steps[currentStep]}<br>⏳ Đang phân tích...`, 'info');
             document.getElementById(`dot${currentStep}`).classList.add("active");
 
-            // Đợi 500ms để sinh viên ổn định vị trí sau khi bấm
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise(resolve => setTimeout(resolve, 600));
 
             try {
-                // Sử dụng TinyFaceDetector với cấu hình "dễ tính" hơn (scoreThreshold: 0.1)
                 const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.1 }))
                                                .withFaceLandmarks()
                                                .withFaceDescriptor();
                 
                 if (!detection) {
-                    showStatus(`❌ <b>Không thấy mặt!</b><br>Mẹo: Đứng nơi đủ sáng, không đeo khẩu trang, nhìn rõ vào khung hình.`, 'error');
+                    showStatus(`❌ <b>Không thấy mặt!</b><br>Hãy thử lại góc: ${steps[currentStep]}`, 'error');
                     btnReg.disabled = false;
                     btnReg.innerText = "📸 Thử chụp lại góc này";
                     video.classList.remove("video-active");
                     return;
                 }
 
-                // Nếu thành công:
                 registeredDescriptors.push(Array.from(detection.descriptor));
                 document.getElementById(`dot${currentStep}`).classList.remove("active");
                 document.getElementById(`dot${currentStep}`).classList.add("done");
 
                 if (currentStep < 2) {
                     currentStep++;
-                    showStatus(`✅ Đã ghi nhận góc ${currentStep}.<br><b>Tiếp theo:</b> ${steps[currentStep]}`, 'success');
+                    showStatus(`✅ Đã xong góc ${currentStep}.<br><b>Tiếp theo:</b> ${steps[currentStep]}`, 'success');
                     btnReg.disabled = false;
                     btnReg.innerText = "📸 Chụp góc tiếp theo";
                 } else {
-                    // Xong cả 3 góc
                     saveAllData(msv);
                 }
             } catch (err) {
@@ -177,16 +190,13 @@
                 let randomStr = Math.random().toString(36).substring(2, 10);
                 let deviceToken = CryptoJS.SHA256(msv + randomStr + deviceHash).toString();
 
-                // Mã hóa mảng chứa 3 góc mặt
                 let faceDataString = JSON.stringify(registeredDescriptors);
                 let encryptedFaceData = CryptoJS.AES.encrypt(faceDataString, deviceToken).toString();
 
-                // Lưu Local
                 localStorage.setItem("KHH_STUDENT_ID", msv);
                 localStorage.setItem("KHH_DEVICE_TOKEN", deviceToken);
                 localStorage.setItem("KHH_FACE_DATA", encryptedFaceData);
 
-                // Lưu Firebase
                 const response = await fetch(`${FIREBASE_BASE_URL}/devices/${msv}.json`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
@@ -197,13 +207,13 @@
                 });
 
                 if(response.ok) {
-                    showStatus(`<b>✅ THÀNH CÔNG!</b><br>Đã khóa 3 góc mặt cho MSV: ${msv}.<br>Bạn có thể quay lại trang điểm danh.`, 'success');
+                    showStatus(`<b>✅ THÀNH CÔNG!</b><br>Đã khóa 3 góc mặt cho MSV: ${msv}.`, 'success');
                     btnReg.style.display = "none";
                 } else {
                     throw new Error("Lỗi kết nối Firebase");
                 }
             } catch (error) {
-                showStatus("⚠️ Đã lưu trên máy nhưng lỗi gửi Server. Vẫn có thể điểm danh thử.", 'error');
+                showStatus("⚠️ Đã lưu trên máy nhưng lỗi gửi Server.", 'error');
             }
         }
 
@@ -215,7 +225,7 @@
                 localStorage.clear();
                 let deviceApiUrl = `${FIREBASE_BASE_URL}/devices/${savedMsv}.json`;
                 fetch(deviceApiUrl, { method: "DELETE" }).then(() => {
-                    alert("Đã xóa dữ liệu. Trang sẽ tải lại.");
+                    alert("Đã xóa dữ liệu.");
                     location.reload();
                 });
             }
