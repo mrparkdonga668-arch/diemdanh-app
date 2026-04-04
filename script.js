@@ -78,14 +78,18 @@ video.addEventListener('play', async () => {
     statusDiv.innerHTML = "Đang quét khuôn mặt. Vui lòng nhìn thẳng...";
     
     // Bước A: Trích xuất khuôn mặt từ ảnh gốc (Chỉ làm 1 lần)
-    const refImage = document.getElementById('referenceImage');
-    const refDetection = await faceapi.detectSingleFace(refImage, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+    statusDiv.innerHTML = "Đang tải ảnh hồ sơ để đối chiếu...";
+    try {
+        const refImage = await faceapi.fetchImage('./anh_goc.jpg'); 
+        const refDetection = await faceapi.detectSingleFace(refImage, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+        
+        if (!refDetection) {
+            statusDiv.innerHTML = "❌ Lỗi: Ảnh hồ sơ không đủ tiêu chuẩn (không nhận diện được khuôn mặt).";
+            return;
+        }
+    const faceMatcher = new faceapi.FaceMatcher(refDetection.descriptor, 0.5);
     
-    if (!refDetection) {
-        statusDiv.innerHTML = "Lỗi hệ thống: Ảnh gốc không rõ mặt!";
-        return;
-    }
-    const faceMatcher = new faceapi.FaceMatcher(refDetection.descriptor, 0.5); // Ngưỡng sai số 0.5
+    statusDiv.innerHTML = "Đang quét khuôn mặt. Vui lòng nhìn thẳng...";
 
     // Bước B: Quét liên tục từ Camera
     const scanInterval = setInterval(async () => {
