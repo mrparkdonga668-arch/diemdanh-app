@@ -87,57 +87,67 @@
             return CryptoJS.MD5(fp).toString(); 
         }
 
+        let registeredDescriptors = []; // Mảng chứa các góc mặt
+        let currentStep = 0;
+        const steps = [
+            { label: "Nhìn thẳng vào camera", filter: "front" },
+            { label: "Quay mặt sang TRÁI một chút", filter: "left" },
+            { label: "Quay mặt sang PHẢI một chút", filter: "right" }
+        ];
         // 2. HÀM ĐĂNG KÝ VÀ QUÉT KHUÔN MẶT
         async function registerDevice() {
             let msv = document.getElementById("studentId").value.trim().toUpperCase();
             if(!msv) { alert("Vui lòng nhập Mã sinh viên!"); return; }
 
-            showStatus("⏳ Đang phân tích khuôn mặt...", false);
+            btnReg.disabled = true;
+            showStatus(`⏳ Bước ${currentStep + 1}/3: ${steps[currentStep].label}`, false);
 
             // Bước A: AI Quét mặt từ khung hình Camera hiện tại
             const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
             
             if (!detection) {
-                showStatus("❌ Lỗi: Nhìn thẳng vào Camera và thử lại. Không thấy rõ mặt!", false);
+                showStatus("❌ Không tìm thấy mặt. Hãy thử lại!", false);
+                btnReg.disabled = false;
                 return;
             }
 
-            // Lấy ra 128 số đặc trưng khuôn mặt (Dữ liệu sinh trắc học)
-            const faceVectorArray = Array.from(detection.descriptor); 
-            const faceVectorString = JSON.stringify(faceVectorArray);
+            // Lưu vector của góc này
+            registeredDescriptors.push(Array.from(detection.descriptor));
+            if (currentStep < 2) {
+                currentStep++;
+                showStatus(`✅ Đã ghi nhớ góc ${currentStep}. <br>Tiếp theo: <b>${steps[currentStep].label}</b>`, true);
+                btnReg.innerHTML = "📸 Chụp góc tiếp theo";
+                btnReg.disabled = false;
+            } else {
+                // Đã xong cả 3 góc -> Lưu dữ liệu
+                saveAllData(msv);
+            }
+            
+        }
 
-            // Bước B: Tạo Khóa thiết bị
+        function saveAllData(msv) {
+            showStatus("⏳ Đang mã hóa và bảo mật dữ liệu...", true);
+            
             let fingerprint = getDeviceFingerprint();
             let randomStr = Math.random().toString(36).substring(2, 15);
             let deviceToken = CryptoJS.SHA256(msv + randomStr + fingerprint).toString();
 
-            // Bước C: MÃ HÓA dữ liệu khuôn mặt bằng Khóa thiết bị (AES)
-            let encryptedFaceData = CryptoJS.AES.encrypt(faceVectorString, deviceToken).toString();
+            // MÃ HÓA MẢNG CHỨA 3 GÓC MẶT
+            let faceDataString = JSON.stringify(registeredDescriptors);
+            let encryptedFaceData = CryptoJS.AES.encrypt(faceDataString, deviceToken).toString();
 
-            // Bước D: Lưu vào bộ nhớ máy điện thoại
             localStorage.setItem("KHH_STUDENT_ID", msv);
             localStorage.setItem("KHH_DEVICE_TOKEN", deviceToken);
-            localStorage.setItem("KHH_FACE_DATA", encryptedFaceData); // LƯU DỮ LIỆU KHUÔN MẶT MÃ HÓA
+            localStorage.setItem("KHH_FACE_DATA", encryptedFaceData);
 
-            showStatus("⏳ Đang đồng bộ lên máy chủ khoa...", true);
-
-            // Bước E: Đồng bộ Khóa lên Firebase
-            let deviceApiUrl = `${FIREBASE_BASE_URL}/devices/${msv}.json`;
-            fetch(deviceApiUrl, {
+            // Gửi lên Firebase
+            fetch(`${FIREBASE_BASE_URL}/devices/${msv}.json`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    token: deviceToken,
-                    registered_at: new Date().toLocaleString("vi-VN", {timeZone: "Asia/Ho_Chi_Minh"})
-                })
+                body: JSON.stringify({ token: deviceToken, registered_at: new Date().toISOString() })
             })
-            .then(response => {
-                if(!response.ok) throw new Error("Lỗi Firebase");
-                showStatus(`<b>✅ Hoàn tất!</b><br>Đã khóa khuôn mặt và thiết bị cho: <b>${msv}</b><br><small>Có thể tắt trang này.</small>`, true);
-                document.getElementById("studentId").value = "";
-            })
-            .catch(error => {
-                showStatus("<b>⚠️ Đã lưu trên máy!</b><br>Nhưng lỗi kết nối mạng lên Server.", false);
+            .then(() => {
+                showStatus("<b>✅ THÀNH CÔNG!</b><br>Đã lưu 3 góc mặt bảo mật.", true);
+                btnReg.style.display = "none";
             });
         }
 
