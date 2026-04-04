@@ -81,11 +81,19 @@ video.addEventListener('play', async () => {
     try {
         // Bước A: Tải ảnh gốc
         const refImage = await faceapi.fetchImage('./anh_goc.jpg');
-        const refDetection = await faceapi.detectSingleFace(refImage, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+        
+        // --- THÊM PHẦN NÀY: Cấu hình lại AI để bớt khắt khe với ảnh gốc ---
+        const detectorOptions = new faceapi.TinyFaceDetectorOptions({
+            inputSize: 416,       // Tối ưu hóa kích thước đọc ảnh
+            scoreThreshold: 0.2   // Hạ tiêu chuẩn nhận diện mặt xuống 0.2 (Mặc định là 0.5)
+        });
+        
+        // Đưa cấu hình mới vào hàm nhận diện
+        const refDetection = await faceapi.detectSingleFace(refImage, detectorOptions).withFaceLandmarks().withFaceDescriptor();
         
         if (!refDetection) {
             statusDiv.style.color = "red";
-            statusDiv.innerHTML = "❌ Lỗi: Ảnh gốc không đủ tiêu chuẩn (AI không thấy mặt).";
+            statusDiv.innerHTML = "❌ Lỗi: Ảnh gốc không đủ tiêu chuẩn (AI không thấy mặt). Hãy thử cắt nhỏ ảnh lại chỉ lấy khuôn mặt!";
             return;
         }
         
