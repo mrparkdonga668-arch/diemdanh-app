@@ -75,43 +75,62 @@ async function startCamera() {
 
 // 4. CHẠY AI SO SÁNH KHI CAMERA ĐANG PHÁT
 video.addEventListener('play', async () => {
-    statusDiv.innerHTML = "Đang quét khuôn mặt. Vui lòng nhìn thẳng...";
-    
-    // Bước A: Trích xuất khuôn mặt từ ảnh gốc (Chỉ làm 1 lần)
+    statusDiv.style.color = "blue";
     statusDiv.innerHTML = "Đang tải ảnh hồ sơ để đối chiếu...";
+    
     try {
-        const refImage = await faceapi.fetchImage('./anh_goc.jpg'); 
+        // Bước A: Tải ảnh gốc
+        const refImage = await faceapi.fetchImage('./anh_goc.jpg');
         const refDetection = await faceapi.detectSingleFace(refImage, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
         
         if (!refDetection) {
-            statusDiv.innerHTML = "❌ Lỗi: Ảnh hồ sơ không đủ tiêu chuẩn (không nhận diện được khuôn mặt).";
+            statusDiv.style.color = "red";
+            statusDiv.innerHTML = "❌ Lỗi: Ảnh gốc không đủ tiêu chuẩn (AI không thấy mặt).";
             return;
         }
-    const faceMatcher = new faceapi.FaceMatcher(refDetection.descriptor, 0.5);
-    
-    statusDiv.innerHTML = "Đang quét khuôn mặt. Vui lòng nhìn thẳng...";
-
-    // Bước B: Quét liên tục từ Camera
-    const scanInterval = setInterval(async () => {
-        const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
         
-        if (detection) {
-            const match = faceMatcher.findBestMatch(detection.descriptor);
-            
-            if (match.label !== "unknown") {
-                clearInterval(scanInterval); // Dừng quét
-                video.pause(); // Dừng camera
+        // Ngưỡng 0.5 (Càng nhỏ càng khắt khe. Nếu khó nhận diện quá, bạn có thể tăng lên 0.55 hoặc 0.6)
+        const faceMatcher = new faceapi.FaceMatcher(refDetection.descriptor, 0.5); 
+        
+        statusDiv.innerHTML = "Đang quét khuôn mặt. Vui lòng nhìn thẳng...";
+
+        // Bước B: Vòng lặp quét Camera
+        const scanInterval = setInterval(async () => {
+            try {
+                // Chống lỗi video chưa kịp load kích thước trên điện thoại
+                if (video.videoWidth === 0 || video.videoHeight === 0) return;
+
+                const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
                 
-                statusDiv.style.color = "green";
-                statusDiv.innerHTML = "✅ ĐIỂM DANH THÀNH CÔNG! Đã gửi dữ liệu lên Server.";
-                
-                // Ở ĐÂY LÀ CHỖ BẠN VIẾT CODE GỬI JWT TOKEN LÊN FIREBASE
-                // ... (như bài trước) ...
-            } else {
-                statusDiv.innerHTML = "❌ Khuôn mặt không khớp với hồ sơ!";
+                if (detection) {
+                    const match = faceMatcher.findBestMatch(detection.descriptor);
+                    
+                    if (match.label !== "unknown") {
+                        clearInterval(scanInterval); // Dừng quét
+                        video.pause(); // Dừng camera
+                        
+                        statusDiv.style.color = "green";
+                        // In luôn sai số ra màn hình để bạn dễ xem (VD: Sai số: 0.42)
+                        let distanceStr = (Math.round(match.distance * 100) / 100).toString();
+                        statusDiv.innerHTML = `✅ ĐIỂM DANH THÀNH CÔNG! (Sai số: ${distanceStr})`;
+                    } else {
+                        statusDiv.style.color = "orange";
+                        statusDiv.innerHTML = "⚠️ Khuôn mặt không khớp! Đang quét lại...";
+                    }
+                } else {
+                    // Nếu bị lóa sáng, che mặt... AI sẽ báo dòng này thay vì im lặng
+                    statusDiv.style.color = "red";
+                    statusDiv.innerHTML = "❌ Không nhìn thấy khuôn mặt. Đưa mặt vào giữa và tìm nơi sáng hơn!";
+                }
+            } catch (err) {
+                console.error(err);
+                clearInterval(scanInterval);
+                statusDiv.innerHTML = "❌ Lỗi xử lý AI: " + err.message;
             }
-        } else {
-            statusDiv.innerHTML = "Chưa tìm thấy khuôn mặt trong khung hình...";
-        }
-    }, 1000); // Mỗi 1 giây quét 1 lần để đỡ nóng máy
+        }, 1000); // Quét 1 giây 1 lần
+
+    } catch (error) {
+        statusDiv.style.color = "red";
+        statusDiv.innerHTML = "❌ Lỗi không tải được ảnh gốc. Kiểm tra lại tên file anh_goc.jpg";
+    }
 });
