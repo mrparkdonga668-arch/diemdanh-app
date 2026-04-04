@@ -51,20 +51,23 @@
             statusBox.innerHTML = message;
         }
 
-        // 1. TẢI MÔ HÌNH AI VÀ BẬT CAMERA CHO GIÁO VIÊN
-        const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
-        
-        Promise.all([
-            faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-            faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-            faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
-        ]).then(startSetupCamera)
-        .catch(err => {
-            // Đã thêm lệnh bắt lỗi. Nếu lỗi nó sẽ báo đỏ lên màn hình thay vì bị treo.
-            aiLoading.innerHTML = "❌ Lỗi mạng: Không tải được dữ liệu AI. Hãy tải lại trang!";
-            aiLoading.style.color = "red";
-            console.error("Lỗi chi tiết:", err);
-        });
+        // Đợi trang web load xong hoàn toàn mới chạy AI
+        window.onload = async () => {
+            try {
+                console.log("Bắt đầu tải Models...");
+                await Promise.all([
+                    faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
+                    faceapi.nets.faceLandmark68Net.loadFromUri('./models'),
+                    faceapi.nets.faceRecognitionNet.loadFromUri('./models')
+                ]);
+                console.log("Tải Models thành công!");
+                startSetupCamera();
+            } catch (error) {
+                console.error("Lỗi khi tải Models:", error);
+                aiLoading.innerHTML = "❌ Lỗi: Không thể tải dữ liệu AI (Kiểm tra thư mục models)";
+                aiLoading.style.color = "red";
+            }
+        };
 
         async function startSetupCamera() {
             try {
