@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý & Sinh Trắc Học Thiết Bị</title>
+    <!-- Thư viện mã hóa và AI -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
+    <style>
+        body { font-family: Arial; text-align: center; padding: 20px; background: #e9ecef; }
+        .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
+        input { padding: 12px; font-size: 16px; width: 90%; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { padding: 12px; font-size: 16px; width: 90%; margin-bottom: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-register { background: #007bff; color: white; display: none; } /* Ẩn nút đến khi AI load xong */
+        .btn-remove { background: #dc3545; color: white; margin-top: 10px; }
+        #status-box { margin-top: 15px; padding: 10px; border-radius: 5px; display: none; font-size: 14px;}
+        #video { width: 100%; border-radius: 10px; border: 2px solid #007bff; margin-bottom: 15px; display: none; }
+        #ai-loading { color: #ff9800; font-weight: bold; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🔧 ĐĂNG KÝ THIẾT BỊ</h2>
+        <p style="color: #666; font-size: 13px;">(Quét khuôn mặt và Gắn ID Thiết bị)</p>
+        
+        <div id="ai-loading">⏳ Đang tải AI nhận diện khuôn mặt...</div>
+        <video id="video" autoplay muted playsinline></video>
+
+        <input type="text" id="studentId" placeholder="Nhập Mã Sinh Viên (VD: SV001)">
+        
+        <button id="btn-reg" class="btn-register" onclick="registerDevice()">📸 Chụp khuôn mặt & Cấp quyền</button>
+        <button class="btn-remove" onclick="removeDevice()">🗑️ Hủy liên kết máy này</button>
+
+        <div id="status-box"></div>
+    </div>
+
+    <script>
+        const statusBox = document.getElementById("status-box");
+        const video = document.getElementById("video");
+        const btnReg = document.getElementById("btn-reg");
+        const aiLoading = document.getElementById("ai-loading");
+
+        // --- ĐIỀN LINK FIREBASE CỦA BẠN VÀO ĐÂY ---
+        const FIREBASE_BASE_URL = "[LINK_FIREBASE_CUA_BAN]"; 
+
+        function showStatus(message, isSuccess) {
+            statusBox.style.display = "block";
+            statusBox.style.backgroundColor = isSuccess ? "#d4edda" : "#f8d7da";
+            statusBox.style.color = isSuccess ? "#155724" : "#721c24";
+            statusBox.innerHTML = message;
+        }
+
+        // 1. TẢI MÔ HÌNH AI VÀ BẬT CAMERA CHO GIÁO VIÊN
+        Promise.all([
+            faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
+            faceapi.nets.faceLandmark68Net.loadFromUri('./models'),
+            faceapi.nets.faceRecognitionNet.loadFromUri('./models')
+        ]).then(startSetupCamera);
+
+        async function startSetupCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                video.srcObject = stream;
+                video.style.display = "block";
+                aiLoading.style.display = "none";
+                btnReg.style.display = "inline-block"; // Hiện nút bấm
+            } catch (err) {
+                aiLoading.innerHTML = "❌ Lỗi: Không thể mở Camera!";
+                aiLoading.style.color = "red";
+            }
+        }
+
+        function getDeviceFingerprint() {
+            let fp = navigator.userAgent + screen.width + screen.height + navigator.hardwareConcurrency;
+            return CryptoJS.MD5(fp).toString(); 
+        }
+
+        // 2. HÀM ĐĂNG KÝ VÀ QUÉT KHUÔN MẶT
+        async function registerDevice() {
+            let msv = document.getElementById("studentId").value.trim().toUpperCase();
+            if(!msv) { alert("Vui lòng nhập Mã sinh viên!"); return; }
+
+            showStatus("⏳ Đang phân tích khuôn mặt...", false);
+
+            // Bước A: AI Quét mặt từ khung hình Camera hiện tại
+            const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+            
+            if (!detection) {
+                showStatus("❌ Lỗi: Nhìn thẳng vào Camera và thử lại. Không thấy rõ mặt!", false);
+                return;
+            }
+
+            // Lấy ra 128 số đặc trưng khuôn mặt (Dữ liệu sinh trắc học)
+            const faceVectorArray = Array.from(detection.descriptor); 
+            const faceVectorString = JSON.stringify(faceVectorArray);
+
+            // Bước B: Tạo Khóa thiết bị
+            let fingerprint = getDeviceFingerprint();
+            let randomStr = Math.random().toString(36).substring(2, 15);
+            let deviceToken = CryptoJS.SHA256(msv + randomStr + fingerprint).toString();
+
+            // Bước C: MÃ HÓA dữ liệu khuôn mặt bằng Khóa thiết bị (AES)
+            let encryptedFaceData = CryptoJS.AES.encrypt(faceVectorString, deviceToken).toString();
+
+            // Bước D: Lưu vào bộ nhớ máy điện thoại
+            localStorage.setItem("KHH_STUDENT_ID", msv);
+            localStorage.setItem("KHH_DEVICE_TOKEN", deviceToken);
+            localStorage.setItem("KHH_FACE_DATA", encryptedFaceData); // LƯU DỮ LIỆU KHUÔN MẶT MÃ HÓA
+
+            showStatus("⏳ Đang đồng bộ lên máy chủ khoa...", true);
+
+            // Bước E: Đồng bộ Khóa lên Firebase
+            let deviceApiUrl = `${FIREBASE_BASE_URL}/devices/${msv}.json`;
+            fetch(deviceApiUrl, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    token: deviceToken,
+                    registered_at: new Date().toLocaleString("vi-VN", {timeZone: "Asia/Ho_Chi_Minh"})
+                })
+            })
+            .then(response => {
+                if(!response.ok) throw new Error("Lỗi Firebase");
+                showStatus(`<b>✅ Hoàn tất!</b><br>Đã khóa khuôn mặt và thiết bị cho: <b>${msv}</b><br><small>Có thể tắt trang này.</small>`, true);
+                document.getElementById("studentId").value = "";
+            })
+            .catch(error => {
+                showStatus("<b>⚠️ Đã lưu trên máy!</b><br>Nhưng lỗi kết nối mạng lên Server.", false);
+            });
+        }
+
+        // HÀM XÓA QUYỀN (Cập nhật thêm lệnh xóa Face Data)
+        function removeDevice() {
+            let savedMsv = localStorage.getItem("KHH_STUDENT_ID");
+            if (!savedMsv) { showStatus("Máy chưa được liên kết.", false); return; }
+
+            if (confirm(`Bạn muốn XÓA quyền của [${savedMsv}] trên máy này?`)) {
+                showStatus("⏳ Đang xóa...", false);
+                localStorage.removeItem("KHH_STUDENT_ID");
+                localStorage.removeItem("KHH_DEVICE_TOKEN");
+                localStorage.removeItem("KHH_FACE_DATA"); // Xóa sạch dữ liệu mặt
+
+                let deviceApiUrl = `${FIREBASE_BASE_URL}/devices/${savedMsv}.json`;
+                fetch(deviceApiUrl, { method: "DELETE" })
+                .then(() => { showStatus("<b>Đã thu hồi quyền!</b>", false); document.getElementById("studentId").value = ""; })
+                .catch(() => { showStatus("<b>Lỗi mạng khi xóa Server!</b>", false); });
+            }
+        }
+    </script>
+</body>
+</html>

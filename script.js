@@ -1,3 +1,16 @@
+// --- KIỂM TRA THIẾT BỊ ĐÃ ĐĂNG KÝ CHƯA ---
+const STUDENT_ID = localStorage.getItem("KHH_STUDENT_ID");
+const DEVICE_TOKEN = localStorage.getItem("KHH_DEVICE_TOKEN");
+
+if (!STUDENT_ID || !DEVICE_TOKEN) {
+    document.body.innerHTML = "<h2 style='color:red; text-align:center; margin-top:50px;'>⛔ LỖI: THIẾT BỊ CHƯA ĐĂNG KÝ!<br>Vui lòng mang điện thoại lên văn phòng khoa để làm thủ tục.</h2>";
+    throw new Error("Thiết bị chưa được xác thực"); // Dừng toàn bộ code bên dưới
+}
+
+// Nếu đã đăng ký, hiển thị chào mừng
+console.log("Xác thực máy của MSV: " + STUDENT_ID);
+// Tiếp tục code cũ của bạn ở bên dưới...
+
 const video = document.getElementById('video');
 const qrReaderDiv = document.getElementById('reader');
 const statusDiv = document.getElementById('status');
@@ -104,16 +117,25 @@ async function startFaceCamera() {
         video.srcObject = stream;
     } catch (err) { statusDiv.innerHTML = "❌ Lỗi: Không thể mở Camera trước."; return; }
 
-    statusDiv.innerHTML = "Đang tải ảnh hồ sơ để đối chiếu...";
+    statusDiv.innerHTML = "Đang giải mã sinh trắc học thiết bị...";
     try {
-        const refImage = await faceapi.fetchImage('./anh_goc.jpg');
-        const detectorOptions = new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.2 });
-        const refDetection = await faceapi.detectSingleFace(refImage, detectorOptions).withFaceLandmarks().withFaceDescriptor();
-        
-        if (!refDetection) {
-            statusDiv.innerHTML = "❌ Lỗi: Ảnh gốc không đủ tiêu chuẩn."; return;
+        // Lấy dữ liệu khuôn mặt đã mã hóa từ bộ nhớ máy
+        const encryptedFaceData = localStorage.getItem("KHH_FACE_DATA");
+        if (!encryptedFaceData) {
+            statusDiv.innerHTML = "❌ Lỗi: Máy chưa được chụp ảnh xác thực. Liên hệ Giáo viên."; return;
         }
-        const faceMatcher = new faceapi.FaceMatcher(refDetection.descriptor, 0.5);
+
+        // GIẢI MÃ (Dùng chính Device Token làm chìa khóa)
+        const bytes = CryptoJS.AES.decrypt(encryptedFaceData, DEVICE_TOKEN);
+        const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
+        
+        // Phục hồi lại Mảng 128 con số (Vector)
+        const faceVectorArray = JSON.parse(decryptedString);
+        const originalFaceDescriptor = new Float32Array(faceVectorArray);
+
+        // Đưa vector vào AI để tạo khung so sánh
+        const faceMatcher = new faceapi.FaceMatcher(originalFaceDescriptor, 0.5);
+        const detectorOptions = new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.2 });
         
         // --- QUẢN LÝ TRẠNG THÁI AI ---
         let livenessState = "CHECK_FACE"; // Các trạng thái: CHECK_FACE -> CHECK_TURN -> SUCCESS
@@ -163,6 +185,48 @@ async function startFaceCamera() {
                         
                         statusDiv.style.color = "green";
                         statusDiv.innerHTML = `✅ ĐIỂM DANH THÀNH CÔNG!<br> <small>(Sai số: ${finalDistance} - Đã xác thực thực thể sống)</small>`;
+                        
+                        // --- LOGIC GỬI LÊN SERVER (CÓ CHỮ KÝ HMAC) ---
+                        let currentTime = new Date().toISOString();
+                        
+                        // Khôi phục lại Dấu vân tay phần cứng hiện tại của máy
+                        let currentFingerprint = CryptoJS.MD5(screen.width + screen.height + navigator.hardwareConcurrency).toString();
+                        
+                        // Gói dữ liệu thô (Chưa mã hóa)
+                        let payload = {
+                            student_id: STUDENT_ID,
+                            timestamp: currentTime,
+                            status: "VERIFIED",
+                            face_distance: finalDistance,
+                            fingerprint: currentFingerprint // Báo cáo vân tay máy cho Server
+                        };
+
+                        // TẠO CHỮ KÝ SỐ HMAC-SHA256
+                        // Dùng DEVICE_TOKEN (nằm trong máy) làm chìa khóa để băm Gói dữ liệu
+                        let dataString = STUDENT_ID + currentTime + "VERIFIED" + currentFingerprint;
+                        let signature = CryptoJS.HmacSHA256(dataString, DEVICE_TOKEN).toString();
+
+                        // Dữ liệu GỬI ĐI sẽ bao gồm Gói dữ liệu thô + CHỮ KÝ
+                        let dataToSend = {
+                            ...payload,
+                            signature: signature
+                        };
+
+                        const FIREBASE_URL = "https://hanghai-6f86f-default-rtdb.asia-southeast1.firebasedatabase.app/checkins.json";
+
+                        fetch(FIREBASE_URL, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(dataToSend)
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            statusDiv.innerHTML += "<br><span style='color:blue;'>☁️ Đã đồng bộ an toàn lên hệ thống Khoa!</span>";
+                        })
+                        .catch(error => {
+                            console.error("Lỗi:", error);
+                            statusDiv.innerHTML += "<br><span style='color:red;'>⚠️ Đã điểm danh nhưng lỗi gửi lên mạng. Báo cáo giáo viên!</span>";
+                        });
                     }
                 }
             } else {
