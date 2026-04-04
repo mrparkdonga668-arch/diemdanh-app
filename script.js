@@ -1,26 +1,26 @@
 const video = document.getElementById('video');
+const qrReaderDiv = document.getElementById('reader');
 const statusDiv = document.getElementById('status');
 const btnStart = document.getElementById('btnStart');
 
-// Tọa độ giả định của trường học (Bạn thay bằng tọa độ thực tế trên Google Maps)
+// --- CẤU HÌNH ---
 const SCHOOL_LAT = 20.897007783267334;
 const SCHOOL_LON = 106.67248743684335;
+const SECRET_KEY = "Kh0aH4ngHai_DiemDanh_2026"; // Khớp với Secret của Thầy
+const TIME_WINDOW = 15;
+let html5QrcodeScanner;
 
-// 1. TẢI MÔ HÌNH AI KHI MỞ WEB
+// TẢI MÔ HÌNH AI FACE
 Promise.all([
     faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
     faceapi.nets.faceLandmark68Net.loadFromUri('./models'),
     faceapi.nets.faceRecognitionNet.loadFromUri('./models')
 ]).then(() => {
-    statusDiv.innerHTML = "Sẵn sàng! Hãy bấm nút bên dưới.";
+    statusDiv.innerHTML = "Sẵn sàng! Bấm nút để kiểm tra vị trí.";
     statusDiv.style.color = "blue";
     btnStart.style.display = "inline-block";
-}).catch((error) => {
-    // Thêm dòng catch này để nếu lỗi nó sẽ báo đỏ lên màn hình cho dễ sửa
-    statusDiv.innerHTML = "❌ Lỗi không tải được Model: " + error.message;
 });
 
-// Hàm tính khoảng cách GPS (Công thức Haversine)
 function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
     var R = 6371; // Bán kính trái đất (km)
     var dLat = (lat2-lat1) * (Math.PI/180);
@@ -31,6 +31,7 @@ function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
     return R * c; // Trả về số km
 }
+
 
 // 2. KHI SINH VIÊN BẤM NÚT "BẮT ĐẦU"
 function startProcess() {
@@ -45,8 +46,9 @@ function startProcess() {
                 if (dist > 0.2) {
                     statusDiv.innerHTML = `❌ Lỗi: Bạn đang cách trường ${Math.round(dist*1000)} mét. Vui lòng vào lớp!`;
                 } else {
-                    statusDiv.innerHTML = "✅ Vị trí hợp lệ. Đang bật Camera...";
-                    startCamera(); // Bật camera quét mặt
+                    statusDiv.innerHTML = "✅ GPS Hợp lệ. Hãy đưa camera quét mã trên bảng!";
+                    statusDiv.style.color = "#ff9800";
+                    startQRScanner(); // Chuyển sang Bước 2
                 }
             },
             (error) => {
@@ -59,86 +61,80 @@ function startProcess() {
     }
 }
 
-// 3. BẬT CAMERA VÀ XỬ LÝ NHẬN DIỆN MẶT
-async function startCamera() {
-    video.style.display = "block";
-    btnStart.style.display = "none";
+
+// Hàm kiểm tra mã QR có hợp lệ với thời gian hiện tại không
+function isValidToken(scannedToken) {
+    let currentBlock = Math.floor(Date.now() / 1000 / TIME_WINDOW);
+    // Tính token của hiện tại và 15 giây trước (đề phòng sinh viên quét đúng lúc giao thời)
+    let tokenNow = "DD_" + CryptoJS.SHA256(SECRET_KEY + currentBlock).toString().substring(0, 15);
+    let tokenPrev = "DD_" + CryptoJS.SHA256(SECRET_KEY + (currentBlock - 1)).toString().substring(0, 15);
     
-    try {
-        // Yêu cầu camera trước (facingMode: "user")
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-        video.srcObject = stream;
-    } catch (err) {
-        statusDiv.innerHTML = "❌ Lỗi: Không thể mở Camera.";
-    }
+    return scannedToken === tokenNow || scannedToken === tokenPrev;
 }
 
-// 4. CHẠY AI SO SÁNH KHI CAMERA ĐANG PHÁT
-video.addEventListener('play', async () => {
-    statusDiv.style.color = "blue";
-    statusDiv.innerHTML = "Đang tải ảnh hồ sơ để đối chiếu...";
+// BƯỚC 2: QUÉT MÃ QR ĐỘNG (Dùng camera sau)
+function startQRScanner() {
+    qrReaderDiv.style.display = "block";
     
+    html5QrcodeScanner = new Html5Qrcode("reader");
+    html5QrcodeScanner.start(
+        { facingMode: "environment" }, // Camera sau
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        (decodedText) => {
+            if (isValidToken(decodedText)) {
+                // Tắt máy quét QR
+                html5QrcodeScanner.stop().then(() => {
+                    qrReaderDiv.style.display = "none";
+                    statusDiv.innerHTML = "✅ Mã QR hợp lệ. Đang quét khuôn mặt...";
+                    startFaceCamera(); // Chuyển sang Bước 3
+                });
+            } else {
+                statusDiv.innerHTML = "❌ Mã QR đã hết hạn! Hãy quét lại mã mới trên bảng.";
+                statusDiv.style.color = "red";
+            }
+        },
+        (errorMessage) => { /* Bỏ qua lỗi khung hình trống */ }
+    ).catch((err) => { statusDiv.innerHTML = "❌ Không thể mở Camera sau."; });
+}
+
+// BƯỚC 3: QUÉT MẶT XÁC THỰC (Dùng camera trước)
+async function startFaceCamera() {
+    video.style.display = "block";
     try {
-        // Bước A: Tải ảnh gốc
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+        video.srcObject = stream;
+    } catch (err) { statusDiv.innerHTML = "❌ Lỗi: Không thể mở Camera trước."; return; }
+
+    statusDiv.innerHTML = "Đang tải ảnh hồ sơ để đối chiếu...";
+    try {
         const refImage = await faceapi.fetchImage('./anh_goc.jpg');
-        
-        // --- THÊM PHẦN NÀY: Cấu hình lại AI để bớt khắt khe với ảnh gốc ---
-        const detectorOptions = new faceapi.TinyFaceDetectorOptions({
-            inputSize: 416,       // Tối ưu hóa kích thước đọc ảnh
-            scoreThreshold: 0.2   // Hạ tiêu chuẩn nhận diện mặt xuống 0.2 (Mặc định là 0.5)
-        });
-        
-        // Đưa cấu hình mới vào hàm nhận diện
+        const detectorOptions = new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.2 });
         const refDetection = await faceapi.detectSingleFace(refImage, detectorOptions).withFaceLandmarks().withFaceDescriptor();
         
         if (!refDetection) {
-            statusDiv.style.color = "red";
-            statusDiv.innerHTML = "❌ Lỗi: Ảnh gốc không đủ tiêu chuẩn (AI không thấy mặt). Hãy thử cắt nhỏ ảnh lại chỉ lấy khuôn mặt!";
-            return;
+            statusDiv.innerHTML = "❌ Lỗi: Ảnh gốc không đủ tiêu chuẩn."; return;
         }
-        
-        // Ngưỡng 0.5 (Càng nhỏ càng khắt khe. Nếu khó nhận diện quá, bạn có thể tăng lên 0.55 hoặc 0.6)
-        const faceMatcher = new faceapi.FaceMatcher(refDetection.descriptor, 0.5); 
+        const faceMatcher = new faceapi.FaceMatcher(refDetection.descriptor, 0.5);
         
         statusDiv.innerHTML = "Đang quét khuôn mặt. Vui lòng nhìn thẳng...";
-
-        // Bước B: Vòng lặp quét Camera
+        
         const scanInterval = setInterval(async () => {
-            try {
-                // Chống lỗi video chưa kịp load kích thước trên điện thoại
-                if (video.videoWidth === 0 || video.videoHeight === 0) return;
-
-                const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
-                
-                if (detection) {
-                    const match = faceMatcher.findBestMatch(detection.descriptor);
+            const detection = await faceapi.detectSingleFace(video, detectorOptions).withFaceLandmarks().withFaceDescriptor();
+            if (detection) {
+                const match = faceMatcher.findBestMatch(detection.descriptor);
+                if (match.label !== "unknown") {
+                    clearInterval(scanInterval);
+                    video.pause();
+                    video.srcObject.getTracks().forEach(track => track.stop()); // Tắt hẳn camera
                     
-                    if (match.label !== "unknown") {
-                        clearInterval(scanInterval); // Dừng quét
-                        video.pause(); // Dừng camera
-                        
-                        statusDiv.style.color = "green";
-                        // In luôn sai số ra màn hình để bạn dễ xem (VD: Sai số: 0.42)
-                        let distanceStr = (Math.round(match.distance * 100) / 100).toString();
-                        statusDiv.innerHTML = `✅ ĐIỂM DANH THÀNH CÔNG! (Sai số: ${distanceStr})`;
-                    } else {
-                        statusDiv.style.color = "orange";
-                        statusDiv.innerHTML = "⚠️ Khuôn mặt không khớp! Đang quét lại...";
-                    }
+                    statusDiv.style.color = "green";
+                    statusDiv.innerHTML = `✅ ĐIỂM DANH THÀNH CÔNG! (Sai số: ${match.distance.toFixed(2)})`;
                 } else {
-                    // Nếu bị lóa sáng, che mặt... AI sẽ báo dòng này thay vì im lặng
-                    statusDiv.style.color = "red";
-                    statusDiv.innerHTML = "❌ Không nhìn thấy khuôn mặt. Đưa mặt vào giữa và tìm nơi sáng hơn!";
+                    statusDiv.innerHTML = "❌ Khuôn mặt không khớp với hồ sơ!";
                 }
-            } catch (err) {
-                console.error(err);
-                clearInterval(scanInterval);
-                statusDiv.innerHTML = "❌ Lỗi xử lý AI: " + err.message;
             }
-        }, 1000); // Quét 1 giây 1 lần
-
+        }, 1000);
     } catch (error) {
-        statusDiv.style.color = "red";
-        statusDiv.innerHTML = "❌ Lỗi không tải được ảnh gốc. Kiểm tra lại tên file anh_goc.jpg";
+        statusDiv.innerHTML = "❌ Lỗi: " + error.message;
     }
-});
+}
