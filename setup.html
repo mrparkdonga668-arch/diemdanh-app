@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý & Sinh Trắc Học Thiết Bị</title>
-    <!-- Thư viện mã hóa và AI -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
     <style>
@@ -12,37 +11,34 @@
         .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
         input { padding: 12px; font-size: 16px; width: 90%; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
         button { padding: 12px; font-size: 16px; width: 90%; margin-bottom: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .btn-register { background: #007bff; color: white; display: none; } /* Ẩn nút đến khi AI load xong */
+        .btn-register { background: #007bff; color: white; display: none; }
         .btn-remove { background: #dc3545; color: white; margin-top: 10px; }
         #status-box { margin-top: 15px; padding: 10px; border-radius: 5px; display: none; font-size: 14px;}
         #video { width: 100%; border-radius: 10px; border: 2px solid #007bff; margin-bottom: 15px; display: none; }
         #ai-loading { color: #ff9800; font-weight: bold; margin-bottom: 15px; }
+        #countdown { font-size: 18px; font-weight: bold; color: green; }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>🔧 ĐĂNG KÝ THIẾT BỊ</h2>
         <p style="color: #666; font-size: 13px;">(Quét khuôn mặt và Gắn ID Thiết bị)</p>
-        
         <div id="ai-loading">⏳ Đang tải AI nhận diện khuôn mặt...</div>
         <video id="video" autoplay muted playsinline></video>
-
         <input type="text" id="studentId" placeholder="Nhập Mã Sinh Viên (VD: SV001)">
-        
-        <button id="btn-reg" class="btn-register" onclick="registerDevice()">📸 Chụp khuôn mặt & Cấp quyền</button>
-        <button class="btn-remove" onclick="removeDevice()">🗑️ Hủy liên kết máy này</button>
-
+        <button id="btn-reg" class="btn-register" onclick="registerDevice()">📸 Chụp khuôn mặt</button>
+        <button class="btn-remove" onclick="removeDevice()">🗑️ Hủy liên kết</button>
         <div id="status-box"></div>
+        <div id="countdown" style="display: none;"></div>
     </div>
-
     <script>
         const statusBox = document.getElementById("status-box");
         const video = document.getElementById("video");
         const btnReg = document.getElementById("btn-reg");
         const aiLoading = document.getElementById("ai-loading");
+        const countdownElement = document.getElementById("countdown");
 
-        // --- ĐIỀN LINK FIREBASE CỦA BẠN VÀO ĐÂY ---
-        const FIREBASE_BASE_URL = "https://hanghai-6f86f-default-rtdb.asia-southeast1.firebasedatabase.app"; 
+        const FIREBASE_BASE_URL = "https://hanghai-6f86f-default-rtdb.asia-southeast1.firebasedatabase.app";
 
         function showStatus(message, isSuccess) {
             statusBox.style.display = "block";
@@ -51,7 +47,9 @@
             statusBox.innerHTML = message;
         }
 
-        // Đợi trang web load xong hoàn toàn mới chạy AI
+        // ==========================================
+        // 1. TẢI MODELS VÀ MỞ CAMERA
+        // ==========================================
         window.onload = async () => {
             try {
                 console.log("Bắt đầu tải Models...");
@@ -75,64 +73,101 @@
                 video.srcObject = stream;
                 video.style.display = "block";
                 aiLoading.style.display = "none";
-                btnReg.style.display = "inline-block"; // Hiện nút bấm
+                btnReg.style.display = "inline-block";
             } catch (err) {
                 aiLoading.innerHTML = "❌ Lỗi: Không thể mở Camera!";
                 aiLoading.style.color = "red";
             }
         }
 
-        function getDeviceFingerprint() {
-            let fp = navigator.userAgent + screen.width + screen.height + navigator.hardwareConcurrency;
-            return CryptoJS.MD5(fp).toString(); 
-        }
-
-        let registeredDescriptors = []; // Mảng chứa các góc mặt
+        // ==========================================
+        // 2. QUY TRÌNH ĐĂNG KÝ ĐA GÓC ĐỘ
+        // ==========================================
+        let registeredDescriptors = [];
         let currentStep = 0;
         const steps = [
-            { label: "Nhìn thẳng vào camera", filter: "front" },
-            { label: "Quay mặt sang TRÁI một chút", filter: "left" },
-            { label: "Quay mặt sang PHẢI một chút", filter: "right" }
+            { label: "Nhìn thẳng vào camera", filter: "front", duration: 3 }, // Thêm thời gian (giây)
+            { label: "Quay mặt sang TRÁI một chút", filter: "left", duration: 3 },
+            { label: "Quay mặt sang PHẢI một chút", filter: "right", duration: 3 }
         ];
-        // 2. HÀM ĐĂNG KÝ VÀ QUÉT KHUÔN MẶT
+
         async function registerDevice() {
             let msv = document.getElementById("studentId").value.trim().toUpperCase();
             if(!msv) { alert("Vui lòng nhập Mã sinh viên!"); return; }
-
             btnReg.disabled = true;
-            showStatus(`⏳ Bước ${currentStep + 1}/3: ${steps[currentStep].label}`, false);
 
-            // Bước A: AI Quét mặt từ khung hình Camera hiện tại
-            const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
-            
-            if (!detection) {
-                showStatus("❌ Không tìm thấy mặt. Hãy thử lại!", false);
-                btnReg.disabled = false;
-                return;
-            }
+            // Hiển thị bước hiện tại
+            showStep(currentStep);
 
-            // Lưu vector của góc này
-            registeredDescriptors.push(Array.from(detection.descriptor));
-            if (currentStep < 2) {
-                currentStep++;
-                showStatus(`✅ Đã ghi nhớ góc ${currentStep}. <br>Tiếp theo: <b>${steps[currentStep].label}</b>`, true);
-                btnReg.innerHTML = "📸 Chụp góc tiếp theo";
+            // Bắt đầu chụp ảnh và xử lý
+            await captureFaceAndSave(msv);
+        }
+
+        function showStep(stepIndex) {
+            statusBox.style.display = "block";
+            statusBox.style.backgroundColor = "#e6f7ff"; // Màu nền xanh nhạt
+            statusBox.style.color = "#1890ff"; // Màu chữ xanh
+            statusBox.innerHTML = `
+                <b>${stepIndex + 1}/${steps.length}: ${steps[stepIndex].label}</b>
+                <div id="countdown" style="font-size: 16px; margin-top: 8px;"></div>
+            `;
+            startCountdown(stepIndex);
+        }
+
+        async function captureFaceAndSave(msv) {
+            try {
+                const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+                                               .withFaceLandmarks()
+                                               .withFaceDescriptor();
+
+                if (!detection) {
+                    showStatus("❌ Không thấy mặt. Hãy nhìn thẳng và thử lại!", false);
+                    btnReg.disabled = false;
+                    return;
+                }
+
+                registeredDescriptors.push(Array.from(detection.descriptor));
+
+                if (currentStep < 2) {
+                    currentStep++;
+                    btnReg.disabled = false; // Bật lại nút
+                    if (currentStep < steps.length) {
+                        showStep(currentStep); // Chuyển sang bước tiếp theo
+                    }
+                } else {
+                    saveAllData(msv);
+                }
+            } catch (error) {
+                showStatus("❌ Lỗi khi nhận diện khuôn mặt: " + error.message, false);
                 btnReg.disabled = false;
-            } else {
-                // Đã xong cả 3 góc -> Lưu dữ liệu
-                saveAllData(msv);
             }
-            
+        }
+
+        function startCountdown(stepIndex) {
+            let timeLeft = steps[stepIndex].duration;
+            countdownElement.style.display = "block";
+            countdownElement.innerHTML = `Thời gian còn lại: ${timeLeft}s`;
+
+            const timer = setInterval(() => {
+                timeLeft--;
+                countdownElement.innerHTML = `Thời gian còn lại: ${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    countdownElement.style.display = "none";
+                    if (currentStep < 2) { // Tự động chuyển bước
+                        btnReg.disabled = false;
+                        registerDevice(); // Tự động chuyển sang bước tiếp theo
+                    }
+                }
+            }, 1000); // 1 giây
         }
 
         function saveAllData(msv) {
-            showStatus("⏳ Đang mã hóa và bảo mật dữ liệu...", true);
-            
+            showStatus("⏳ Đang mã hóa và lưu dữ liệu...", true);
             let fingerprint = getDeviceFingerprint();
             let randomStr = Math.random().toString(36).substring(2, 15);
             let deviceToken = CryptoJS.SHA256(msv + randomStr + fingerprint).toString();
 
-            // MÃ HÓA MẢNG CHỨA 3 GÓC MẶT
             let faceDataString = JSON.stringify(registeredDescriptors);
             let encryptedFaceData = CryptoJS.AES.encrypt(faceDataString, deviceToken).toString();
 
@@ -140,33 +175,41 @@
             localStorage.setItem("KHH_DEVICE_TOKEN", deviceToken);
             localStorage.setItem("KHH_FACE_DATA", encryptedFaceData);
 
-            // Gửi lên Firebase
             fetch(`${FIREBASE_BASE_URL}/devices/${msv}.json`, {
                 method: "PUT",
                 body: JSON.stringify({ token: deviceToken, registered_at: new Date().toISOString() })
             })
             .then(() => {
-                showStatus("<b>✅ THÀNH CÔNG!</b><br>Đã lưu 3 góc mặt bảo mật.", true);
+                showStatus("✅ ĐĂNG KÝ THÀNH CÔNG! Đã lưu 3 góc mặt.", true);
                 btnReg.style.display = "none";
             });
         }
 
-        // HÀM XÓA QUYỀN (Cập nhật thêm lệnh xóa Face Data)
+        // ==========================================
+        // 3. XÓA THIẾT BỊ
+        // ==========================================
         function removeDevice() {
             let savedMsv = localStorage.getItem("KHH_STUDENT_ID");
             if (!savedMsv) { showStatus("Máy chưa được liên kết.", false); return; }
 
-            if (confirm(`Bạn muốn XÓA quyền của [${savedMsv}] trên máy này?`)) {
+            if (confirm(`Bạn có chắc chắn muốn XÓA quyền của [${savedMsv}]?`)) {
                 showStatus("⏳ Đang xóa...", false);
                 localStorage.removeItem("KHH_STUDENT_ID");
                 localStorage.removeItem("KHH_DEVICE_TOKEN");
-                localStorage.removeItem("KHH_FACE_DATA"); // Xóa sạch dữ liệu mặt
-
+                localStorage.removeItem("KHH_FACE_DATA");
                 let deviceApiUrl = `${FIREBASE_BASE_URL}/devices/${savedMsv}.json`;
                 fetch(deviceApiUrl, { method: "DELETE" })
-                .then(() => { showStatus("<b>Đã thu hồi quyền!</b>", false); document.getElementById("studentId").value = ""; })
-                .catch(() => { showStatus("<b>Lỗi mạng khi xóa Server!</b>", false); });
+                .then(() => { showStatus("✅ Đã thu hồi quyền!", false); document.location.reload(); })
+                .catch(() => { showStatus("❌ Lỗi khi xóa trên máy chủ!", false); });
             }
+        }
+
+        // ==========================================
+        // 4. TẠO FINGERPRINT THIẾT BỊ
+        // ==========================================
+        function getDeviceFingerprint() {
+            let fp = navigator.userAgent + screen.width + screen.height + navigator.hardwareConcurrency;
+            return CryptoJS.MD5(fp).toString();
         }
     </script>
 </body>
