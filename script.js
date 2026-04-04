@@ -4,8 +4,8 @@ const statusDiv = document.getElementById('status');
 const btnStart = document.getElementById('btnStart');
 
 // --- CẤU HÌNH ---
-const SCHOOL_LAT = 20.98123; // Thay bằng tọa độ thật
-const SCHOOL_LON = 105.78945;
+const SCHOOL_LAT = 20.897007783267334;
+const SCHOOL_LON = 106.67248743684335;
 const SECRET_KEY = "Kh0aH4ngHai_DiemDanh_2026"; // Khớp với Secret của Thầy
 const TIME_WINDOW = 15;
 let html5QrcodeScanner;
