@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý & Sinh Trắc Học Thiết Bị</title>
-    <!-- Thư viện giữ nguyên -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
     <style>
@@ -22,19 +21,23 @@
         
         .btn-remove { background: #dc3545; color: white; margin-top: 10px; }
 
-        #status-box { margin-top: 15px; padding: 10px; border-radius: 5px; display: none; font-size: 14px; line-height: 1.5; }
+        #status-box { margin-top: 15px; padding: 15px; border-radius: 5px; display: none; font-size: 14px; line-height: 1.6; border: 1px solid transparent; }
         #ai-loading { color: #ff9800; font-weight: bold; margin-bottom: 15px; }
         
         .progress-dots { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
         .dot { width: 15px; height: 15px; border-radius: 50%; background: #ddd; }
         .dot.active { background: #007bff; transform: scale(1.2); }
         .dot.done { background: #28a745; }
+
+        .error-msg { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        .success-msg { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .info-msg { background-color: #e2f3f5; color: #0c5460; border-color: #bee5eb; }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>🔧 ĐĂNG KÝ THIẾT BỊ</h2>
-        <p style="color: #666; font-size: 13px;">Vui lòng chụp đủ 3 góc mặt để hệ thống nhận diện tốt nhất</p>
+        <p style="color: #666; font-size: 13px;">Hệ thống nhận diện 1 sinh viên - 1 thiết bị</p>
         
         <div id="ai-loading">⏳ Đang tải AI nhận diện khuôn mặt...</div>
         
@@ -48,7 +51,6 @@
 
         <input type="text" id="studentId" placeholder="Nhập Mã Sinh Viên (VD: SV001)">
         
-        <!-- Thay đổi onclick thành hàm kiểm tra trước -->
         <button id="btn-reg" onclick="handleRegistration()">📸 Bắt đầu chụp mặt</button>
         <button class="btn-remove" onclick="removeDevice()">🗑️ Hủy liên kết máy này</button>
 
@@ -98,19 +100,31 @@
 
         function showStatus(message, type) {
             statusBox.style.display = "block";
-            statusBox.style.backgroundColor = type === 'success' ? "#d4edda" : (type === 'info' ? "#e6f7ff" : "#f8d7da");
-            statusBox.style.color = type === 'success' ? "#155724" : (type === 'info' ? "#0050b3" : "#721c24");
+            statusBox.className = ""; // Reset class
+            statusBox.classList.add(type === 'success' ? "success-msg" : (type === 'info' ? "info-msg" : "error-msg"));
             statusBox.innerHTML = message;
         }
 
-        // --- HÀM MỚI: KIỂM TRA TRƯỚC KHI CHO CHỤP ---
+        // --- HÀM XỬ LÝ CHÍNH VỚI 2 LỚP BẢO VỆ ---
         async function handleRegistration() {
             let msv = document.getElementById("studentId").value.trim().toUpperCase();
             if(!msv) { alert("Vui lòng nhập Mã sinh viên!"); return; }
 
-            // Nếu đang ở giữa quá trình chụp (step > 0) thì tiếp tục luôn, không check lại Firebase
+            // Nếu đang trong quá trình chụp thì tiếp tục
             if (currentStep > 0) {
                 startCaptureProcess(msv);
+                return;
+            }
+
+            // LỚP 1: Kiểm tra xem trình duyệt này đã có ai đăng ký chưa
+            let localStoredMsv = localStorage.getItem("KHH_STUDENT_ID");
+            if (localStoredMsv) {
+                showStatus(
+                    `⚠️ <b>THIẾT BỊ ĐÃ ĐƯỢC ĐĂNG KÝ!</b><br>` +
+                    `Máy này hiện đang liên kết với sinh viên: <b>${localStoredMsv}</b>.<br>` +
+                    `Bạn phải bấm nút <b>"Hủy liên kết máy này"</b> bên dưới để xóa dữ liệu cũ trước khi đăng ký cho sinh viên mới.`, 
+                    'error'
+                );
                 return;
             }
 
@@ -118,32 +132,36 @@
             showStatus("⏳ Đang kiểm tra mã sinh viên trên hệ thống...", 'info');
 
             try {
-                // Kiểm tra xem MSV đã tồn tại trên Firebase chưa
+                // LỚP 2: Kiểm tra xem MSV này đã có thiết bị nào đăng ký trên Firebase chưa
                 const checkResponse = await fetch(`${FIREBASE_BASE_URL}/devices/${msv}.json`);
                 const existingData = await checkResponse.json();
 
                 if (existingData !== null) {
-                    showStatus(`❌ <b>Lỗi:</b> Mã số sinh viên <b>${msv}</b> đã tồn tại trong hệ thống và thiết bị đã được đăng ký rồi.`, 'error');
+                    showStatus(
+                        `❌ <b>MÃ SINH VIÊN ĐÃ TỒN TẠI!</b><br>` +
+                        `Sinh viên <b>${msv}</b> đã đăng ký thiết bị khác trên hệ thống.<br>` +
+                        `Vui lòng liên hệ quản trị viên hoặc sử dụng đúng thiết bị đã đăng ký.`, 
+                        'error'
+                    );
                     btnReg.disabled = false;
                     return;
                 }
 
-                // Nếu chưa tồn tại, tiến hành chụp mặt
+                // Nếu cả 2 điều kiện đều thỏa mãn thì bắt đầu chụp
                 startCaptureProcess(msv);
 
             } catch (error) {
                 console.error(error);
-                showStatus("❌ Lỗi kết nối khi kiểm tra dữ liệu. Vui lòng thử lại.", 'error');
+                showStatus("❌ Lỗi kết nối hệ thống. Vui lòng thử lại.", 'error');
                 btnReg.disabled = false;
             }
         }
 
-        // --- CHỈNH SỬA HÀM CHỤP: Nhận tham số MSV ---
         async function startCaptureProcess(msv) {
             btnReg.disabled = true;
             video.classList.add("video-active");
 
-            showStatus(`<b>Bước ${currentStep + 1}/3:</b> ${steps[currentStep]}<br>⏳ Đang phân tích...`, 'info');
+            showStatus(`<b>Bước ${currentStep + 1}/3:</b> ${steps[currentStep]}<br>⏳ Đang phân tích khuôn mặt...`, 'info');
             document.getElementById(`dot${currentStep}`).classList.add("active");
 
             await new Promise(resolve => setTimeout(resolve, 600));
@@ -154,9 +172,9 @@
                                                .withFaceDescriptor();
                 
                 if (!detection) {
-                    showStatus(`❌ <b>Không thấy mặt!</b><br>Hãy thử lại góc: ${steps[currentStep]}`, 'error');
+                    showStatus(`❌ <b>Không thấy mặt!</b><br>Đảm bảo đủ ánh sáng và nhìn vào camera.`, 'error');
                     btnReg.disabled = false;
-                    btnReg.innerText = "📸 Thử chụp lại góc này";
+                    btnReg.innerText = "📸 Thử lại góc này";
                     video.classList.remove("video-active");
                     return;
                 }
@@ -167,21 +185,21 @@
 
                 if (currentStep < 2) {
                     currentStep++;
-                    showStatus(`✅ Đã xong góc ${currentStep}.<br><b>Tiếp theo:</b> ${steps[currentStep]}`, 'success');
+                    showStatus(`✅ Đã ghi nhận góc ${currentStep}.<br><b>Tiếp theo:</b> ${steps[currentStep]}`, 'success');
                     btnReg.disabled = false;
-                    btnReg.innerText = "📸 Chụp góc tiếp theo";
+                    btnReg.innerText = "📸 Chụp tiếp";
                 } else {
                     saveAllData(msv);
                 }
             } catch (err) {
-                showStatus("❌ Lỗi hệ thống: " + err.message, 'error');
+                showStatus("❌ Lỗi: " + err.message, 'error');
                 btnReg.disabled = false;
             }
             video.classList.remove("video-active");
         }
 
         async function saveAllData(msv) {
-            showStatus("⏳ Đang mã hóa và gửi lên máy chủ...", 'info');
+            showStatus("⏳ Đang bảo mật dữ liệu...", 'info');
             btnReg.innerText = "Đang lưu...";
 
             try {
@@ -207,26 +225,31 @@
                 });
 
                 if(response.ok) {
-                    showStatus(`<b>✅ THÀNH CÔNG!</b><br>Đã khóa 3 góc mặt cho MSV: ${msv}.`, 'success');
+                    showStatus(`<b>✅ ĐĂNG KÝ THÀNH CÔNG!</b><br>Đã liên kết MSV <b>${msv}</b> với thiết bị này.`, 'success');
                     btnReg.style.display = "none";
                 } else {
-                    throw new Error("Lỗi kết nối Firebase");
+                    throw new Error("Lỗi Server");
                 }
             } catch (error) {
-                showStatus("⚠️ Đã lưu trên máy nhưng lỗi gửi Server.", 'error');
+                showStatus("⚠️ Lỗi khi lưu lên Server nhưng đã lưu cục bộ.", 'error');
             }
         }
 
         function removeDevice() {
             let savedMsv = localStorage.getItem("KHH_STUDENT_ID");
-            if (!savedMsv) { alert("Máy chưa liên kết."); return; }
+            if (!savedMsv) {
+                alert("Máy này hiện chưa có dữ liệu đăng ký nào.");
+                return;
+            }
 
-            if (confirm(`Xóa quyền của [${savedMsv}] trên máy này?`)) {
-                localStorage.clear();
+            if (confirm(`HÀNH ĐỘNG NÀY SẼ:\n1. Xóa dữ liệu sinh viên [${savedMsv}] trên máy này.\n2. Hủy liên kết trên hệ thống.\n\nBạn chắc chắn muốn thực hiện?`)) {
                 let deviceApiUrl = `${FIREBASE_BASE_URL}/devices/${savedMsv}.json`;
                 fetch(deviceApiUrl, { method: "DELETE" }).then(() => {
-                    alert("Đã xóa dữ liệu.");
+                    localStorage.clear();
+                    alert("Đã xóa dữ liệu thành công. Trang sẽ tải lại.");
                     location.reload();
+                }).catch(err => {
+                    alert("Lỗi khi xóa dữ liệu trên Server. Hãy thử lại.");
                 });
             }
         }
