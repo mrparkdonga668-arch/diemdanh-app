@@ -6,7 +6,7 @@
 const LINK_DIEM_DANH = "https://hanghai.dpdns.org"; 
 
 // 2. Thay đổi địa chỉ Video hướng dẫn (YouTube / Google Drive) tại đây:
-const LINK_VIDEO_HUONG_DANH = "https://www.youtube.com/watch?v=LINK_VIDEO_CUA_BAN_O_DAY"; 
+const LINK_VIDEO_HUONG_DANH = "https://hanghai.dpdns.org/QR/Maintenance.png"; 
 
 // ====================================================================
 // ====================================================================
