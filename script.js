@@ -220,3 +220,75 @@ function completeAttendance(distance) {
         statusDiv.innerHTML = "⚠️ Lỗi kết nối. Chụp màn hình này báo cáo GV!";
     });
 }
+
+// ==========================================
+// 7. TÍNH NĂNG THÊM SHORTCUT (ADD TO HOME SCREEN)
+// ==========================================
+
+// Hàm kiểm tra xem có đang mở bằng Shortcut (Standalone) hay không
+function isStandalone() {
+    return (window.matchMedia('(display-mode: standalone)').matches) || 
+           (window.navigator.standalone) || 
+           document.referrer.includes('android-app://');
+}
+
+// Hàm hiển thị hướng dẫn
+function showPwaInstructions() {
+    // 1. Nếu đang mở từ Shortcut trên màn hình -> Không hiện
+    if (isStandalone()) return;
+
+    // 2. Nếu sinh viên đã từng bấm "Đóng" popup này trước đó -> Không hiện
+    if (localStorage.getItem("KHH_PWA_CLOSED")) return;
+
+    const pwaPopup = document.getElementById('pwa-popup');
+    const pwaText = document.getElementById('pwa-text');
+    const btnInstall = document.getElementById('btnInstall');
+
+    // Nhận diện HĐH
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    const isIOS = /iphone|ipad|ipod/.test(userAgent);
+    const isAndroid = /android/.test(userAgent);
+
+    if (isIOS) {
+        // Hướng dẫn cho iPhone (Safari)
+        pwaText.innerHTML = "Chạm vào biểu tượng <b>Chia sẻ</b> (hình vuông có mũi tên lên 📤) ở thanh công cụ Safari dưới cùng, sau đó vuốt lên chọn <b>'Thêm vào MH chính' (Add to Home Screen) ➕</b> để tạo App.";
+        pwaPopup.style.display = "block";
+    } else if (isAndroid) {
+        // Hướng dẫn mặc định cho Android (Chrome)
+        pwaText.innerHTML = "Nhấn vào <b>dấu 3 chấm ⋮</b> ở góc trên bên phải trình duyệt, chọn <b>'Thêm vào Màn hình chính'</b> để tiện điểm danh lần sau.";
+        pwaPopup.style.display = "block";
+    }
+
+    // Bắt sự kiện tự động của Android Chrome (Nếu trình duyệt hỗ trợ tạo nút tự động)
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Ngăn trình duyệt tự hiện thông báo mặc định
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        // Cập nhật lại nội dung và hiện nút "Cài đặt ngay"
+        pwaText.innerHTML = "Bạn có thể cài đặt ứng dụng này ra màn hình chính để điểm danh nhanh chóng cho những lần sau!";
+        btnInstall.style.display = "inline-block";
+        pwaPopup.style.display = "block";
+
+        // Logic khi bấm nút Cài đặt
+        btnInstall.addEventListener('click', () => {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    pwaPopup.style.display = 'none';
+                }
+                deferredPrompt = null;
+            });
+        });
+    });
+}
+
+// Hàm đóng Popup và lưu vào bộ nhớ để không làm phiền lần sau
+function closePwaPopup() {
+    document.getElementById('pwa-popup').style.display = 'none';
+    localStorage.setItem("KHH_PWA_CLOSED", "true"); 
+}
+
+// Kích hoạt hàm kiểm tra khi trang web vừa tải xong
+window.addEventListener('load', showPwaInstructions);

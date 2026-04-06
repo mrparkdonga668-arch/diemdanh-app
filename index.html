@@ -19,6 +19,16 @@
     </style>
 </head>
 <body>
+
+    <div id="pwa-popup" style="display:none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); width: 90%; max-width: 400px; z-index: 1000; text-align: left; border: 2px solid #007bff;">
+        <h4 style="margin: 0 0 10px 0; color: #007bff;">📲 Cài đặt ứng dụng</h4>
+        <p id="pwa-text" style="margin: 0 0 15px 0; font-size: 14px; color: #333; line-height: 1.4;"></p>
+        <div style="text-align: right;">
+            <button id="btnInstall" style="display:none; margin: 0 5px 0 0; padding: 8px 15px; background: #28a745; color: white; font-size: 14px; border-radius: 5px; border:none; cursor: pointer;">Cài đặt ngay</button>
+            <button onclick="closePwaPopup()" style="margin: 0; padding: 8px 15px; background: #6c757d; color: white; font-size: 14px; border-radius: 5px; border:none; cursor: pointer;">Đóng</button>
+        </div>
+    </div>
+
     <h2>Hệ thống Điểm Danh 3 Lớp</h2>
     <div id="status">Đang tải hệ thống... Vui lòng đợi.</div>
     

@@ -1,0 +1,15 @@
+{
+  "name": "Điểm Danh Hàng Hải",
+  "short_name": "Điểm Danh",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007bff",
+  "icons":[
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1043/1043306.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
