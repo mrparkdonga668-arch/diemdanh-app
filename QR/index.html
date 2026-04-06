@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cổng Thông Tin Điểm Danh</title>
+    <!-- Thư viện tạo QR Code tự động -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .header-title {
+            color: #003366;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            color: #555;
+            margin-bottom: 30px;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        .qr-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-top: 5px solid;
+        }
+        .card-attendance { border-color: #28a745; }
+        .card-guide { border-color: #ffc107; }
+        
+        .qr-card h2 {
+            margin-top: 0;
+            color: #333;
+            font-size: 22px;
+        }
+        .qr-placeholder {
+            margin: 20px 0;
+            padding: 10px;
+            background: #fff;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+        }
+        .instruction {
+            color: #666;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        .btn-print {
+            margin-top: 40px;
+            padding: 12px 30px;
+            font-size: 18px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,123,255,0.3);
+        }
+        .btn-print:hover { background-color: #0056b3; }
+
+        /* CSS khi nhấn nút In (ẩn nút in, đổi nền trắng) */
+        @media print {
+            body { background-color: white; }
+            .btn-print { display: none; }
+            .qr-card { box-shadow: none; border: 1px solid #ddd; border-top: 5px solid; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="header-title">Hệ Thống Điểm Danh Sinh Viên</h1>
+    <p class="subtitle">Vui lòng sử dụng Camera trên điện thoại để quét mã QR tương ứng</p>
+
+    <div class="container">
+        <!-- Khu vực Mã QR 1: Điểm danh -->
+        <div class="qr-card card-attendance">
+            <h2>📍 1. MÃ ĐIỂM DANH</h2>
+            <p class="instruction">Quét mã này để mở trình duyệt và bắt đầu quá trình điểm danh.</p>
+            <div id="qr-attendance" class="qr-placeholder"></div>
+            <p style="color: #28a745; font-weight: bold;">(Chỉ hoạt động khi ở trường)</p>
+        </div>
+
+        <!-- Khu vực Mã QR 2: Hướng dẫn -->
+        <div class="qr-card card-guide">
+            <h2>📺 2. VIDEO HƯỚNG DẪN</h2>
+            <p class="instruction">Lần đầu sử dụng? Quét mã này để xem video cách điểm danh & tạo Shortcut.</p>
+            <div id="qr-guide" class="qr-placeholder"></div>
+            <p style="color: #ff9800; font-weight: bold;">(Xem trước khi thực hiện)</p>
+        </div>
+    </div>
+
+    <button class="btn-print" onclick="window.print()">🖨️ In Bảng QR Này Màn Hình</button>
+
+    <script defer src="script.js"></script>
+</body>
+</html>
