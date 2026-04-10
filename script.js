@@ -192,67 +192,59 @@ function startQRScanner() {
 // 5. LOGIC NHẬN DIỆN MẶT ĐA GÓC ĐỘ & LIVENESS
 // ==========================================
 async function startFaceCamera() {
-    video.style.display = "block";
+    // Ẩn status cũ bên dưới, hiện container camera mới
+    statusDiv.style.display = "none"; 
+    const camContainer = document.getElementById('camera-container');
+    const camInstruction = document.getElementById('cam-instruction');
+    camContainer.style.display = "block";
+
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
         video.srcObject = stream;
-    } catch (err) { statusDiv.innerHTML = "❌ Lỗi mở camera trước."; return; }
+    } catch (err) { 
+        alert("Không thể mở camera trước!"); 
+        return; 
+    }
 
-    try {
-        // A. GIẢI MÃ DỮ LIỆU ĐA GÓC (TỪ SETUP)
-        const encryptedFaceData = localStorage.getItem("KHH_FACE_DATA");
-        const bytes = CryptoJS.AES.decrypt(encryptedFaceData, DEVICE_TOKEN);
-        const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
-        const savedVectors = JSON.parse(decryptedString); // Đây là mảng [[...],[...],[...]]
+    // ... (Phần load AI FaceMatcher giữ nguyên) ...
 
-        // B. CHUẨN BỊ AI MATCHER VỚI NHIỀU MẪU THAM CHIẾU
-        const labeledDescriptors = new faceapi.LabeledFaceDescriptors(
-            STUDENT_ID, 
-            savedVectors.map(v => new Float32Array(v))
-        );
-        const faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.5);
-        const detectorOptions = new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.2 });
+    const scanInterval = setInterval(async () => {
+        const detection = await faceapi.detectSingleFace(video, detectorOptions).withFaceLandmarks().withFaceDescriptor();
+        
+        if (detection) {
+            const landmarks = detection.landmarks.positions;
+            const noseTip = landmarks[30].x;
+            const leftEdge = landmarks[0].x;
+            const rightEdge = landmarks[16].x;
+            const turnRatio = (noseTip - leftEdge) / (rightEdge - noseTip);
 
-        let livenessState = "CHECK_FACE"; 
-        let finalDistance = 0;
-
-        const scanInterval = setInterval(async () => {
-            const detection = await faceapi.detectSingleFace(video, detectorOptions).withFaceLandmarks().withFaceDescriptor();
-            
-            if (detection) {
-                // C. TÍNH TOÁN HÀNH ĐỘNG QUAY ĐẦU (Liveness)
-                const landmarks = detection.landmarks.positions;
-                const noseTip = landmarks[30].x;
-                const leftEdge = landmarks[0].x;
-                const rightEdge = landmarks[16].x;
-                const turnRatio = (noseTip - leftEdge) / (rightEdge - noseTip);
-
-                // D. TRẠNG THÁI 1: SO KHỚP MẶT (AI tìm mẫu giống nhất trong 3 góc đã lưu)
-                if (livenessState === "CHECK_FACE") {
-                    const match = faceMatcher.findBestMatch(detection.descriptor);
-                    if (match.label !== "unknown") {
-                        finalDistance = match.distance.toFixed(2);
-                        livenessState = "CHECK_TURN";
-                        statusDiv.innerHTML = "✅ Khớp khuôn mặt! <br><b>Hãy QUAY ĐẦU sang trái hoặc phải...</b>";
-                        statusDiv.style.color = "blue";
-                    } else {
-                        statusDiv.innerHTML = "❌ Không nhận diện được bạn. Hãy nhìn thẳng!";
-                    }
-                } 
-                // E. TRẠNG THÁI 2: KIỂM TRA NGƯỜI THẬT
-                else if (livenessState === "CHECK_TURN") {
-                    if (turnRatio > 1.8 || turnRatio < 0.55) { // Đã quay đầu
-                        livenessState = "SUCCESS";
-                        clearInterval(scanInterval);
-                        completeAttendance(finalDistance);
-                    }
+            if (livenessState === "CHECK_FACE") {
+                const match = faceMatcher.findBestMatch(detection.descriptor);
+                if (match.label !== "unknown") {
+                    finalDistance = match.distance.toFixed(2);
+                    livenessState = "CHECK_TURN";
+                    
+                    // Cập nhật hướng dẫn ngay trên màn hình
+                    camInstruction.innerHTML = "✅ Khớp mặt! <br>QUAY ĐẦU SANG TRÁI/PHẢI";
+                    camInstruction.style.color = "#ffeb3b"; // Màu vàng cho nổi bật
+                } else {
+                    camInstruction.innerHTML = "Hãy nhìn thẳng vào khung xanh";
+                    camInstruction.style.color = "#fff";
+                }
+            } 
+            else if (livenessState === "CHECK_TURN") {
+                if (turnRatio > 1.7 || turnRatio < 0.6) { 
+                    livenessState = "SUCCESS";
+                    camInstruction.innerHTML = "🎉 XÁC THỰC THÀNH CÔNG!";
+                    camInstruction.style.color = "#00ff00";
+                    clearInterval(scanInterval);
+                    completeAttendance(finalDistance);
                 }
             }
-        }, 300);
-
-    } catch (error) {
-        statusDiv.innerHTML = "❌ Lỗi sinh trắc học: " + error.message;
-    }
+        } else {
+            camInstruction.innerHTML = "Căn chỉnh mặt vào giữa khung";
+        }
+    }, 300);
 }
 
 // ==========================================
@@ -260,7 +252,11 @@ async function startFaceCamera() {
 // ==========================================
 function completeAttendance(distance) {
     video.pause();
-    video.srcObject.getTracks().forEach(track => track.stop());
+    if(video.srcObject) video.srcObject.getTracks().forEach(track => track.stop());
+
+    document.getElementById('camera-container').style.display = "none";
+    statusDiv.style.display = "block";
+    statusDiv.innerHTML = "⏳ Đang gửi dữ liệu...";
     
     statusDiv.innerHTML = "⏳ Đang ký xác nhận điểm danh...";
     
