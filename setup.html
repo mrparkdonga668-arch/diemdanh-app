@@ -136,13 +136,20 @@
                 const checkResponse = await fetch(`${FIREBASE_BASE_URL}/devices/${msv}.json`);
                 const existingData = await checkResponse.json();
 
-                if (existingData !== null) {
+                // Chỉ báo lỗi tồn tại nếu dữ liệu trả về có chứa thuộc tính 'token' thực sự
+                if (existingData && existingData.token) {
                     showStatus(
                         `❌ <b>MÃ SINH VIÊN ĐÃ TỒN TẠI!</b><br>` +
-                        `Sinh viên <b>${msv}</b> đã đăng ký thiết bị khác trên hệ thống.<br>` +
-                        `Vui lòng liên hệ quản trị viên hoặc sử dụng đúng thiết bị đã đăng ký.`, 
+                        `Sinh viên <b>${msv}</b> đã đăng ký thiết bị khác trên hệ thống.`, 
                         'error'
                     );
+                    btnReg.disabled = false;
+                    return;
+                }
+
+                // Nếu Firebase trả về lỗi Permission Denied
+                if (existingData && existingData.error) {
+                    showStatus(`❌ Lỗi hệ thống: ${existingData.error}. Hãy kiểm tra Firebase Rules!`, 'error');
                     btnReg.disabled = false;
                     return;
                 }
