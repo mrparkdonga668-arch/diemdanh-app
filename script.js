@@ -27,6 +27,82 @@ const SCHOOL_LON = 106.67248743684335;
 const SECRET_KEY = "Kh0aH4ngHai_DiemDanh_2026"; 
 const TIME_WINDOW = 15; // Giây
 const FIREBASE_URL = "https://hanghai-6f86f-default-rtdb.asia-southeast1.firebasedatabase.app/checkins.json";
+let serverTimeOffset = 0;
+
+// Đồng bộ thời gian API
+async function syncTime() {
+    const res = await fetch('https://worldtimeapi.org/api/timezone/Asia/Ho_Chi_Minh');
+    const data = await res.json();
+    serverTimeOffset = new Date(data.datetime).getTime() - Date.now();
+}
+syncTime();
+
+function getNow() { return Date.now() + serverTimeOffset; }
+
+// Kiểm tra GPS và QR
+async function validateAndCheckin(scannedToken, session) {
+    const now = getNow();
+    let timeBlock = Math.floor(now / 15000);
+    
+    // Kiểm tra token quét được có khớp với token hệ thống không
+    let validToken = CryptoJS.HmacSHA256(`${currentClass}_${timeBlock}_${session.salt}`, SECRET_KEY).toString();
+    
+    if (scannedToken === validToken) {
+        // Thực hiện FaceID...
+        // Nếu FaceID thành công -> Gọi hàm completeAttendance
+        completeAttendance(session);
+    }
+}
+
+function completeAttendance(session) {
+    const studentId = localStorage.getItem("KHH_STUDENT_ID");
+    const timestamp = getNow();
+    
+    // Tạo chữ ký bảo mật gửi lên Firebase (Rules sẽ kiểm tra cái này)
+    const signature = CryptoJS.HmacSHA256(studentId + timestamp, session.salt).toString();
+
+    const data = {
+        student_id: studentId,
+        timestamp: timestamp,
+        signature: signature
+    };
+
+    fetch(`${FB_URL}/checkins.json`, { method: 'POST', body: JSON.stringify(data) })
+    .then(() => {
+        alert("Điểm danh thành công!");
+        activateRelayMode(session);
+    });
+}
+
+// Chế độ Tiếp sức (Relay)
+function activateRelayMode(session) {
+    document.body.innerHTML = `
+        <div style="padding:20px; text-align:center;">
+            <h3>🌟 BẠN LÀ TRẠM TIẾP SỨC</h3>
+            <p>Hãy cho bạn khác quét mã này (Hiệu lực 5 phút)</p>
+            <div id="relayQr"></div>
+            <h2 id="relayTimer">300</h2>
+        </div>
+    `;
+    
+    let relayQr = new QRCode(document.getElementById("relayQr"), { width: 200, height: 200 });
+    let relayStart = getNow();
+
+    setInterval(() => {
+        const now = getNow();
+        const elapsed = now - relayStart;
+        if (elapsed > 300000 || (now - session.startTime > 600000)) {
+            document.body.innerHTML = "Hết quyền hỗ trợ.";
+            return;
+        }
+
+        document.getElementById('relayTimer').innerText = Math.floor((300000 - elapsed)/1000) + "s";
+        
+        let timeBlock = Math.floor(now / 15000);
+        let token = CryptoJS.HmacSHA256(`${currentClass}_${timeBlock}_${session.salt}`, SECRET_KEY).toString();
+        relayQr.makeCode(token);
+    }, 1000);
+}
 
 let html5QrcodeScanner;
 

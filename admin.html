@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>GV - Hệ thống Điểm Danh</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body { font-family: Arial; text-align: center; background: #eef2f7; padding: 20px; }
+        .card { background: white; max-width: 500px; margin: auto; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        input, select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
+        button { background: #007bff; color: white; font-weight: bold; cursor: pointer; border: none; }
+        #qrcode { display: flex; justify-content: center; margin-top: 20px; }
+        .timer { font-size: 30px; color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card" id="login-box">
+        <h2>GIẢNG VIÊN ĐĂNG NHẬP</h2>
+        <input type="text" id="tid" placeholder="Mã giảng viên (GV001)">
+        <input type="password" id="tpass" placeholder="Mật khẩu">
+        <button onclick="login()">Đăng Nhập</button>
+    </div>
+
+    <div class="card" id="admin-panel" style="display:none;">
+        <h3 id="welcome">Chào thầy</h3>
+        <select id="classId">
+            <option value="Lop_K62_01">Lớp K62 - Logistics</option>
+            <option value="Lop_K62_02">Lớp K62 - Máy tàu</option>
+        </select>
+        <button onclick="openClass()">🚀 MỞ LỚP & PHÁT QR</button>
+        
+        <div id="qr-area" style="display:none;">
+            <div id="clock" class="timer">10:00</div>
+            <div id="qrcode"></div>
+            <p>Mã QR Động (Xoay 15s/lần)</p>
+        </div>
+    </div>
+
+    <script>
+        const FB_URL = "https://hanghai-6f86f-default-rtdb.asia-southeast1.firebasedatabase.app";
+        const SECRET_KEY = "HàngHải2026@Secure";
+        let qrcode = new QRCode(document.getElementById("qrcode"), { width: 250, height: 250 });
+        let serverTimeOffset = 0;
+
+        // 1. Đồng bộ thời gian với API
+        async function syncTime() {
+            try {
+                const res = await fetch('https://worldtimeapi.org/api/timezone/Asia/Ho_Chi_Minh');
+                const data = await res.json();
+                serverTimeOffset = new Date(data.datetime).getTime() - Date.now();
+            } catch (e) { console.error("Time sync failed"); }
+        }
+        syncTime();
+
+        function getNow() { return Date.now() + serverTimeOffset; }
+
+        async function login() {
+            const id = document.getElementById('tid').value;
+            const pass = CryptoJS.SHA256(document.getElementById('tpass').value).toString();
+            const res = await fetch(`${FB_URL}/teachers/${id}.json`);
+            const data = await res.json();
+
+            if (data && data.password === pass) {
+                document.getElementById('login-box').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+                document.getElementById('welcome').innerText = "Thầy: " + data.name;
+            } else { alert("Sai mật khẩu!"); }
+        }
+
+        async function openClass() {
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                const cid = document.getElementById('classId').value;
+                const startTime = getNow();
+                const salt = CryptoJS.lib.WordArray.random(16).toString();
+
+                const session = {
+                    lat: pos.coords.latitude,
+                    lon: pos.coords.longitude,
+                    startTime: startTime,
+                    salt: salt
+                };
+
+                await fetch(`${FB_URL}/active_sessions/${cid}.json`, { method: 'PUT', body: JSON.stringify(session) });
+                document.getElementById('qr-area').style.display = 'block';
+                
+                // Vòng lặp cập nhật QR động
+                setInterval(() => {
+                    const now = getNow();
+                    const elapsed = now - startTime;
+                    if (elapsed > 600000) { // Hết 10 phút
+                        document.getElementById('qr-area').innerHTML = "HẾT GIỜ";
+                        return;
+                    }
+
+                    document.getElementById('clock').innerText = Math.floor((600000 - elapsed)/1000) + "s";
+                    
+                    let timeBlock = Math.floor(now / 15000);
+                    let token = CryptoJS.HmacSHA256(`${cid}_${timeBlock}_${salt}`, SECRET_KEY).toString();
+                    qrcode.makeCode(token);
+                }, 1000);
+            });
+        }
+    </script>
+</body>
+</html>
