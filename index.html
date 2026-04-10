@@ -16,6 +16,46 @@
         #reader { width: 100%; max-width: 400px; margin: 0 auto; display: none; border: 3px solid #ff9800; border-radius: 10px; }
         #status { margin-top: 15px; font-weight: bold; color: red; font-size: 18px; }
         button { padding: 12px 24px; font-size: 18px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;}
+        #cam-instruction {
+            position: absolute;
+            top: 15px;
+            left: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            z-index: 10;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        #face-mask {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 220px; /* Độ rộng khung mặt */
+            height: 280px; /* Độ cao khung mặt */
+            border: 3px solid #28a745; /* Viền xanh lá */
+            border-radius: 50% / 40%; /* Tạo hình oval */
+            box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.4); /* Làm tối vùng ngoài khung */
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* Hiệu ứng nhấp nháy nhẹ cho viền xanh để SV chú ý */
+        @keyframes pulse {
+            0% { border-color: #28a745; box-shadow: 0 0 5px #28a745, 0 0 0 1000px rgba(0, 0, 0, 0.4); }
+            50% { border-color: #5eff8b; box-shadow: 0 0 20px #5eff8b, 0 0 0 1000px rgba(0, 0, 0, 0.4); }
+            100% { border-color: #28a745; box-shadow: 0 0 5px #28a745, 0 0 0 1000px rgba(0, 0, 0, 0.4); }
+        }
+
+        #face-mask {
+            animation: pulse 2s infinite;
+        }
     </style>
 </head>
 <body>
@@ -36,7 +76,15 @@
     <div id="reader"></div>
 
     <!-- Nơi hiển thị Camera Quét Mặt -->
-    <video id="video" autoplay muted playsinline></video>
+    <div id="camera-container" style="display:none; position: relative; width: 100%; max-width: 400px; margin: 0 auto; border-radius: 15px; overflow: hidden; border: 3px solid #007bff;">
+        <video id="video" autoplay muted playsinline style="width: 100%; display: block; transform: scaleX(-1);"></video>
+        
+        <!-- Lớp phủ hướng dẫn ngay trên camera -->
+        <div id="cam-instruction">Đang khởi động...</div>
+        
+        <!-- Khung viền xanh vị trí khuôn mặt -->
+        <div id="face-mask"></div>
+    </div>
 
     <br>
     <button id="btnStart" style="display:none;" onclick="startProcess()">1. Bắt đầu Check GPS</button>
