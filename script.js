@@ -151,51 +151,99 @@ async function startFaceCamera(session) {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
         video.srcObject = stream;
-        
-        // MÔ PHỎNG QUÉT MẶT (Vì phần FaceAPI của bạn đang thiếu các biến detectorOptions)
-        // Trong thực tế, khi AI quét xong sẽ gọi: completeAttendance(distance, session);
-        setTimeout(() => {
-            completeAttendance(0.4, session); 
-        }, 3000);
+    } catch (err) { 
+        alert("Không thể mở camera trước!"); 
+        return; 
+    }
 
-    } catch (err) { alert("Lỗi camera trước!"); }
+    // Thiết lập tùy chọn cho AI
+    const detectorOptions = new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 });
+    
+    // Lấy dữ liệu khuôn mặt đã đăng ký từ localStorage để so sánh
+    const savedFaceData = JSON.parse(CryptoJS.AES.decrypt(localStorage.getItem("KHH_FACE_DATA"), DEVICE_TOKEN).toString(CryptoJS.enc.Utf8));
+    const labeledDescriptors = [new faceapi.LabeledFaceDescriptors(STUDENT_ID, savedFaceData.map(d => new Float32Array(d)))];
+    const faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.4);
+
+    let livenessState = "CHECK_FACE"; // Trạng thái: Kiểm tra mặt -> Kiểm tra quay đầu
+
+    const scanInterval = setInterval(async () => {
+        const detection = await faceapi.detectSingleFace(video, detectorOptions).withFaceLandmarks().withFaceDescriptor();
+        
+        if (detection) {
+            if (livenessState === "CHECK_FACE") {
+                const match = faceMatcher.findBestMatch(detection.descriptor);
+                if (match.label !== "unknown") {
+                    livenessState = "CHECK_TURN";
+                    camInstruction.innerHTML = "✅ Khớp mặt! <br>HÃY QUAY ĐẦU SANG TRÁI HOẶC PHẢI";
+                    camInstruction.style.color = "#ffeb3b";
+                } else {
+                    camInstruction.innerHTML = "Mặt không khớp với dữ liệu đăng ký!";
+                }
+            } 
+            else if (livenessState === "CHECK_TURN") {
+                // Kiểm tra hành động quay đầu (Liveness)
+                const landmarks = detection.landmarks.positions;
+                const noseTip = landmarks[30].x;
+                const leftEdge = landmarks[0].x;
+                const rightEdge = landmarks[16].x;
+                const turnRatio = (noseTip - leftEdge) / (rightEdge - noseTip);
+
+                if (turnRatio > 1.8 || turnRatio < 0.6) { // Đã quay đầu
+                    clearInterval(scanInterval);
+                    camInstruction.innerHTML = "🎉 XÁC THỰC THÀNH CÔNG!";
+                    // CHỈ KHI ĐẾN ĐÂY MỚI GỌI HÀM GỬI DỮ LIỆU
+                    completeAttendance(detection.descriptor, session);
+                }
+            }
+        } else {
+            camInstruction.innerHTML = "Hãy đưa mặt vào khung xanh";
+        }
+    }, 500);
 }
 
 // ==========================================
 // 6. HOÀN TẤT & GỬI DỮ LIỆU
 // ==========================================
-function completeAttendance(distance, session) {
+function completeAttendance(descriptor, session) {
+    // Tắt camera ngay lập tức
     video.pause();
     if(video.srcObject) video.srcObject.getTracks().forEach(track => track.stop());
     document.getElementById('camera-container').style.display = "none";
     
     statusDiv.style.display = "block";
-    statusDiv.innerHTML = "⏳ Đang ký xác thực và gửi dữ liệu...";
+    statusDiv.innerHTML = "⏳ Đang gửi kết quả điểm danh...";
 
     const timestamp = getNow();
-    const fingerprint = CryptoJS.MD5(screen.width + screen.height + navigator.hardwareConcurrency).toString();
     
-    // Tạo chữ ký bảo mật gửi lên checkins
+    // Tạo signature khớp với yêu cầu của Rules
     const signature = CryptoJS.HmacSHA256(STUDENT_ID + timestamp, session.salt).toString();
 
     const payload = {
         student_id: STUDENT_ID,
         timestamp: timestamp,
-        status: "VERIFIED",
-        face_match_dist: distance,
-        signature: signature
+        signature: signature,
+        device: navigator.userAgent
     };
 
+    // Gửi lên Firebase
     fetch(`${FB_URL}/checkins.json`, {
         method: "POST",
         body: JSON.stringify(payload)
     })
+    .then(response => {
+        if (!response.ok) throw new Error("Firebase từ chối ghi dữ liệu");
+        return response.json();
+    })
     .then(() => {
+        // CHỈ KHI LÊN FIREBASE THÀNH CÔNG MỚI HIỆN TRẠM TIẾP SỨC
         statusDiv.innerHTML = `<div style="color: green; font-size: 20px;">🎉 ĐIỂM DANH THÀNH CÔNG!</div>`;
         activateRelayMode(session);
     })
-    .catch(() => {
-        statusDiv.innerHTML = "⚠️ Lỗi gửi dữ liệu điểm danh!";
+    .catch((err) => {
+        console.error(err);
+        statusDiv.innerHTML = `<div style="color: red;">❌ LỖI GỬI DỮ LIỆU: ${err.message}</div>`;
+        btnStart.style.display = "inline-block";
+        btnStart.innerText = "Thử lại";
     });
 }
 
