@@ -272,23 +272,28 @@ function activateRelayMode(session) {
     });
 
     let relayStart = getNow();
+    const LIMIT_TIME = 60000; // Thay đổi thành 60.000 ms (tương đương 60 giây)
 
     // 3. Đặt vào biến để có thể Clear (dừng) vòng lặp
     const relayInterval = setInterval(() => {
         const now = getNow();
         const elapsed = now - relayStart;
 
-        // Nếu hết 5 phút (300s)
-        if (elapsed > 300000) { 
+        // Nếu hết thời gian 60 giây, dừng vòng lặp và thông báo hết thời gian
+        if (elapsed > LIMIT_TIME) { 
             clearInterval(relayInterval); // DỪNG VÒNG LẶP (QUAN TRỌNG)
-            relayDiv.innerHTML = "<div style='padding:20px; text-align:center;'><b>Hết thời gian hỗ trợ tiếp sức.</b></div>"; 
+            document.getElementById('relay-container').innerHTML = `
+                <div style="padding:20px; text-align:center;">
+                    <b style="color:gray;">⌛ Hết thời gian hỗ trợ tiếp sức (60s).</b><br>
+                    <p>Cảm ơn bạn đã tham gia điểm danh!</p>
+                </div>`;
             return; 
         }
 
         // Cập nhật đồng hồ
         const timerElement = document.getElementById('relayTimer');
         if (timerElement) {
-            timerElement.innerText = Math.floor((300000 - elapsed)/1000);
+            timerElement.innerText = Math.floor((LIMIT_TIME - elapsed)/1000);
         }
 
         // Tạo mã Token khớp với thời gian thực của hệ thống
