@@ -58,7 +58,10 @@ function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
 
 async function startProcess() {
     statusDiv.innerHTML = "🔍 Đang tìm lớp học của bạn...";
+    statusDiv.innerHTML = "🔍 Đang kết nối server thời gian...";
     btnStart.style.display = "none";
+    // 1. Luôn đồng bộ lại thời gian chuẩn quốc tế trước khi check
+    await syncTime();
 
     try {
         // 1. Lấy tất cả các phiên đang mở
@@ -92,6 +95,21 @@ async function startProcess() {
         }
 
         const session = activeSessions[myActiveClassId];
+
+        // 2. KIỂM TRA THỜI GIAN: Nếu quá 10 phút (600,000ms)
+        const now = getNow();
+        const elapsed = now - session.startTime;
+        const LIMIT = 600000; 
+
+        if (elapsed > LIMIT) {
+            statusDiv.innerHTML = `<div style="color:red; font-weight:bold;">⚠️ QUÁ HẠN ĐIỂM DANH!</div>
+                                   Lớp đã mở cách đây ${Math.floor(elapsed/60000)} phút.<br>
+                                   Quy định chỉ cho phép điểm danh trong 10 phút đầu.`;
+            btnStart.style.display = "inline-block";
+            btnStart.innerText = "Thử lại";
+            return;
+        }
+
         session.class_id = myActiveClassId; // Lưu lại để dùng khi gửi checkin
 
         // 3. Kiểm tra GPS với session tìm được
@@ -265,10 +283,18 @@ function completeAttendance(descriptor, session) {
     if(video.srcObject) video.srcObject.getTracks().forEach(track => track.stop());
     document.getElementById('camera-container').style.display = "none";
     
+    // Kiểm tra thời gian một lần nữa trước khi FETCH gửi dữ liệu
+    const now = getNow();
+    const elapsed = now - session.startTime;
+    if (elapsed > 600000 + 30000) { // Cho phép dư 30 giây độ trễ xử lý AI
+        statusDiv.innerHTML = `<div style="color:red;">❌ GỬI THẤT BẠI: Quá thời gian quy định (10 phút).</div>`;
+        return;
+    }
+
     statusDiv.style.display = "block";
     statusDiv.innerHTML = "⏳ Đang gửi kết quả điểm danh...";
 
-    const timestamp = getNow();
+    const timestamp = now;
     
     // Tạo signature khớp với yêu cầu của Rules
     const signature = CryptoJS.HmacSHA256(STUDENT_ID + timestamp, session.salt).toString();

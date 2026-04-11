@@ -124,15 +124,28 @@
                     const timerInterval = setInterval(() => {
                         const now = getNow();
                         const elapsed = now - startTime;
-                        if (elapsed > 600000) { // Hết 10 phút
-                            document.getElementById('qr-area').innerHTML = "HẾT GIỜ";
+                        const LIMIT = 600000; // 10 phút tính bằng ms
+
+                        const clock = document.getElementById('clock');
+                        
+                        if (elapsed >= LIMIT) { 
+                            // Dừng vòng lặp và thông báo hết giờ trên màn hình giảng viên
                             clearInterval(timerInterval);
+                            if(clock) clock.innerText = "HẾT GIỜ";
+                            document.getElementById('qrcode').innerHTML = "<h3 style='color:red;'>ĐÃ ĐÓNG ĐIỂM DANH</h3>";
+                            // KHÔNG gọi lệnh DELETE ở đây nữa
                             return;
                         }
 
-                        const clock = document.getElementById('clock');
-                        if(clock) clock.innerText = Math.floor((600000 - elapsed)/1000) + "s";
+                        // Cập nhật đồng hồ đếm ngược
+                        if(clock) {
+                            let remaining = Math.floor((LIMIT - elapsed) / 1000);
+                            let m = Math.floor(remaining / 60);
+                            let s = remaining % 60;
+                            clock.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+                        }
                         
+                        // Tạo mã QR động như bình thường
                         let timeBlock = Math.floor(now / 15000);
                         let token = CryptoJS.HmacSHA256(`${cid}_${timeBlock}_${salt}`, SECRET_KEY).toString();
                         qrcode.makeCode(token);
