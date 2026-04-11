@@ -188,7 +188,7 @@ async function startFaceCamera(session) {
                 const rightEdge = landmarks[16].x;
                 const turnRatio = (noseTip - leftEdge) / (rightEdge - noseTip);
 
-                if (turnRatio > 1.8 || turnRatio < 0.6) { // Đã quay đầu
+                if (turnRatio > 1.6 || turnRatio < 0.7) { // Đã quay đầu
                     clearInterval(scanInterval);
                     camInstruction.innerHTML = "🎉 XÁC THỰC THÀNH CÔNG!";
                     // CHỈ KHI ĐẾN ĐÂY MỚI GỌI HÀM GỬI DỮ LIỆU
@@ -249,27 +249,52 @@ function completeAttendance(descriptor, session) {
 
 // CHẾ ĐỘ TIẾP SỨC
 function activateRelayMode(session) {
+    // 1. Kiểm tra xem đã có relayDiv chưa để tránh hiện 2 cái nếu SV bấm lại
+    if (document.getElementById('relay-container')) return;
+
     const relayDiv = document.createElement('div');
+    relayDiv.id = "relay-container"; // Thêm ID để quản lý
     relayDiv.innerHTML = `
-        <div style="padding:20px; text-align:center; background:white; border-radius:15px; margin-top:20px; border:2px solid #28a745;">
-            <h3>🌟 TRẠM TIẾP SỨC</h3>
-            <p>Bạn đã điểm danh xong. Hãy cho bạn khác quét mã dưới đây để hỗ trợ.</p>
-            <div id="relayQr" style="display:flex; justify-content:center;"></div>
-            <p>Hết hạn sau: <span id="relayTimer">300</span>s</p>
+        <div style="padding:20px; text-align:center; background:white; border-radius:15px; margin-top:20px; border:3px solid #28a745; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            <h3 style="color:#28a745; margin-top:0;">🌟 TRẠM TIẾP SỨC</h3>
+            <p>Bạn đã điểm danh xong. Hãy cho bạn khác quét mã này để hỗ trợ.</p>
+            <div id="relayQr" style="display:flex; justify-content:center; margin: 15px 0;"></div>
+            <p style="font-size: 14px; color: #666;">Mã sẽ tự động đổi theo thời gian thực</p>
+            <p style="font-weight:bold; color:red;">Hết hạn sau: <span id="relayTimer">300</span>s</p>
         </div>`;
     document.body.appendChild(relayDiv);
     
-    let relayQr = new QRCode(document.getElementById("relayQr"), { width: 200, height: 200 });
+    // 2. Khởi tạo QRCode
+    let relayQr = new QRCode(document.getElementById("relayQr"), { 
+        width: 200, 
+        height: 200,
+        correctLevel : QRCode.CorrectLevel.M // Độ lọc mức trung bình để quét nhanh trên màn hình điện thoại
+    });
+
     let relayStart = getNow();
 
-    setInterval(() => {
+    // 3. Đặt vào biến để có thể Clear (dừng) vòng lặp
+    const relayInterval = setInterval(() => {
         const now = getNow();
         const elapsed = now - relayStart;
-        if (elapsed > 300000) { relayDiv.innerHTML = "Hết thời gian hỗ trợ."; return; }
 
-        document.getElementById('relayTimer').innerText = Math.floor((300000 - elapsed)/1000);
+        // Nếu hết 5 phút (300s)
+        if (elapsed > 300000) { 
+            clearInterval(relayInterval); // DỪNG VÒNG LẶP (QUAN TRỌNG)
+            relayDiv.innerHTML = "<div style='padding:20px; text-align:center;'><b>Hết thời gian hỗ trợ tiếp sức.</b></div>"; 
+            return; 
+        }
+
+        // Cập nhật đồng hồ
+        const timerElement = document.getElementById('relayTimer');
+        if (timerElement) {
+            timerElement.innerText = Math.floor((300000 - elapsed)/1000);
+        }
+
+        // Tạo mã Token khớp với thời gian thực của hệ thống
         let timeBlock = Math.floor(now / 15000);
         let token = CryptoJS.HmacSHA256(`${currentClass}_${timeBlock}_${session.salt}`, SECRET_KEY).toString();
+        
         relayQr.makeCode(token);
     }, 1000);
 }
