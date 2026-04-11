@@ -3,43 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý & Sinh Trắc Học Thiết Bị</title>
+    <title>Đăng Ký Sinh Trắc Học Thiết Bị</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background: #e9ecef; }
-        .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; padding: 20px; background: #f0f2f5; color: #333; }
+        .container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 450px; margin: auto; }
         
-        #video { width: 100%; border-radius: 10px; border: 3px solid #ccc; margin-bottom: 15px; display: none; transform: scaleX(-1); }
-        .video-active { border-color: #007bff !important; }
+        /* Camera Container */
+        #camera-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 20px auto;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 3px solid #ccc;
+            background: #000;
+            display: none; /* Hiện khi camera sẵn sàng */
+        }
 
-        input { padding: 12px; font-size: 16px; width: 90%; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        #video { width: 100%; display: block; transform: scaleX(-1); }
+
+        /* Lớp phủ hướng dẫn ngay trên camera */
+        #cam-instruction {
+            position: absolute;
+            top: 15px;
+            left: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            z-index: 10;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* Khung Oval xanh */
+        #face-mask {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px; 
+            height: 260px;
+            border: 3px solid #28a745;
+            border-radius: 50% / 40%;
+            box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.4);
+            pointer-events: none;
+            z-index: 5;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { border-color: #28a745; box-shadow: 0 0 5px #28a745, 0 0 0 1000px rgba(0, 0, 0, 0.4); }
+            50% { border-color: #5eff8b; box-shadow: 0 0 20px #5eff8b, 0 0 0 1000px rgba(0, 0, 0, 0.4); }
+            100% { border-color: #28a745; box-shadow: 0 0 5px #28a745, 0 0 0 1000px rgba(0, 0, 0, 0.4); }
+        }
+
+        input { padding: 12px; font-size: 16px; width: 90%; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 8px; outline: none; }
+        input:focus { border-color: #007bff; }
         
-        button { padding: 12px; font-size: 16px; width: 90%; margin-bottom: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button { padding: 14px; font-size: 16px; width: 90%; margin-bottom: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         #btn-reg { background: #007bff; color: white; display: none; }
+        #btn-reg:hover { background: #0056b3; }
         #btn-reg:disabled { background: #6c757d; cursor: not-allowed; }
         
-        .btn-remove { background: #dc3545; color: white; margin-top: 10px; }
+        .btn-remove { background: #6c757d; color: white; margin-top: 10px; opacity: 0.8; }
+        .btn-remove:hover { background: #dc3545; opacity: 1; }
 
-        #status-box { margin-top: 15px; padding: 15px; border-radius: 5px; display: none; font-size: 14px; line-height: 1.6; border: 1px solid transparent; }
+        #status-box { margin-top: 15px; padding: 15px; border-radius: 8px; display: none; font-size: 14px; line-height: 1.6; }
         #ai-loading { color: #ff9800; font-weight: bold; margin-bottom: 15px; }
         
-        .progress-dots { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
-        .dot { width: 15px; height: 15px; border-radius: 50%; background: #ddd; }
-        .dot.active { background: #007bff; transform: scale(1.2); }
+        .progress-dots { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; background: #ddd; transition: 0.3s; }
+        .dot.active { background: #007bff; transform: scale(1.3); box-shadow: 0 0 10px rgba(0,123,255,0.5); }
         .dot.done { background: #28a745; }
 
-        .error-msg { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
-        .success-msg { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
-        .info-msg { background-color: #e2f3f5; color: #0c5460; border-color: #bee5eb; }
+        .error-msg { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .success-msg { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .info-msg { background-color: #e2f3f5; color: #0c5460; border: 1px solid #bee5eb; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>🔧 ĐĂNG KÝ THIẾT BỊ</h2>
-        <p style="color: #666; font-size: 13px;">Hệ thống nhận diện 1 sinh viên - 1 thiết bị</p>
+        <h2 style="margin-top:0; color:#007bff;">🔧 ĐĂNG KÝ THIẾT BỊ</h2>
+        <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Xác thực 1 sinh viên - 1 máy duy nhất</p>
         
-        <div id="ai-loading">⏳ Đang tải AI nhận diện khuôn mặt...</div>
+        <div id="ai-loading">⏳ Đang khởi tạo hệ thống AI...</div>
         
         <div class="progress-dots">
             <div id="dot0" class="dot"></div>
@@ -47,7 +101,12 @@
             <div id="dot2" class="dot"></div>
         </div>
 
-        <video id="video" autoplay muted playsinline></video>
+        <!-- Camera UI -->
+        <div id="camera-container">
+            <video id="video" autoplay muted playsinline></video>
+            <div id="cam-instruction">Đang chờ nhập Mã SV...</div>
+            <div id="face-mask"></div>
+        </div>
 
         <input type="text" id="studentId" placeholder="Nhập Mã Sinh Viên (VD: SV001)">
         
@@ -62,15 +121,17 @@
         const video = document.getElementById("video");
         const btnReg = document.getElementById("btn-reg");
         const aiLoading = document.getElementById("ai-loading");
+        const camInstruction = document.getElementById("cam-instruction");
+        const camContainer = document.getElementById("camera-container");
 
         const FIREBASE_BASE_URL = "https://hanghai-6f86f-default-rtdb.asia-southeast1.firebasedatabase.app"; 
 
         let registeredDescriptors = [];
         let currentStep = 0;
         const steps = [
-            "Nhìn THẲNG vào camera",
-            "Quay mặt sang TRÁI một chút",
-            "Quay mặt sang PHẢI một chút"
+            "Vui lòng nhìn THẲNG vào khung xanh",
+            "Nghiêng đầu sang bên TRÁI",
+            "Nghiêng đầu sang bên PHẢI"
         ];
 
         window.onload = async () => {
@@ -82,7 +143,7 @@
                 ]);
                 startSetupCamera();
             } catch (error) {
-                aiLoading.innerHTML = "❌ Lỗi: Không thể tải AI";
+                aiLoading.innerHTML = "❌ Lỗi: Không thể tải dữ liệu AI (Kiểm tra thư mục models)";
             }
         };
 
@@ -90,75 +151,59 @@
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
                 video.srcObject = stream;
-                video.style.display = "block";
+                camContainer.style.display = "block";
                 aiLoading.style.display = "none";
                 btnReg.style.display = "inline-block";
+                camInstruction.innerText = "Sẵn sàng! Nhập Mã SV và bấm chụp";
             } catch (err) {
-                aiLoading.innerHTML = "❌ Lỗi: Không thể mở Camera!";
+                aiLoading.innerHTML = "❌ Lỗi: Vui lòng cấp quyền Camera!";
             }
         }
 
         function showStatus(message, type) {
             statusBox.style.display = "block";
-            statusBox.className = ""; // Reset class
+            statusBox.className = ""; 
             statusBox.classList.add(type === 'success' ? "success-msg" : (type === 'info' ? "info-msg" : "error-msg"));
             statusBox.innerHTML = message;
         }
 
-        // --- HÀM XỬ LÝ CHÍNH VỚI 2 LỚP BẢO VỆ ---
         async function handleRegistration() {
             let msv = document.getElementById("studentId").value.trim().toUpperCase();
             if(!msv) { alert("Vui lòng nhập Mã sinh viên!"); return; }
 
-            // Nếu đang trong quá trình chụp thì tiếp tục
             if (currentStep > 0) {
                 startCaptureProcess(msv);
                 return;
             }
 
-            // LỚP 1: Kiểm tra xem trình duyệt này đã có ai đăng ký chưa
             let localStoredMsv = localStorage.getItem("KHH_STUDENT_ID");
             if (localStoredMsv) {
                 showStatus(
                     `⚠️ <b>THIẾT BỊ ĐÃ ĐƯỢC ĐĂNG KÝ!</b><br>` +
-                    `Máy này hiện đang liên kết với sinh viên: <b>${localStoredMsv}</b>.<br>` +
-                    `Bạn phải bấm nút <b>"Hủy liên kết máy này"</b> bên dưới để xóa dữ liệu cũ trước khi đăng ký cho sinh viên mới.`, 
+                    `Máy này đang liên kết với: <b>${localStoredMsv}</b>.<br>` +
+                    `Hãy "Hủy liên kết" trước khi đăng ký cho người mới.`, 
                     'error'
                 );
                 return;
             }
 
             btnReg.disabled = true;
-            showStatus("⏳ Đang kiểm tra mã sinh viên trên hệ thống...", 'info');
+            camInstruction.innerText = "⏳ Đang kiểm tra hệ thống...";
 
             try {
-                // LỚP 2: Kiểm tra xem MSV này đã có thiết bị nào đăng ký trên Firebase chưa
                 const checkResponse = await fetch(`${FIREBASE_BASE_URL}/devices/${msv}.json`);
                 const existingData = await checkResponse.json();
 
-                // Chỉ báo lỗi tồn tại nếu dữ liệu trả về có chứa thuộc tính 'token' thực sự
                 if (existingData && existingData.token) {
-                    showStatus(
-                        `❌ <b>MÃ SINH VIÊN ĐÃ TỒN TẠI!</b><br>` +
-                        `Sinh viên <b>${msv}</b> đã đăng ký thiết bị khác trên hệ thống.`, 
-                        'error'
-                    );
+                    showStatus(`❌ <b>MÃ SINH VIÊN ĐÃ TỒN TẠI!</b><br>SV <b>${msv}</b> đã đăng ký trên máy khác.`, 'error');
+                    camInstruction.innerText = "❌ Lỗi: Mã SV đã tồn tại";
                     btnReg.disabled = false;
                     return;
                 }
 
-                // Nếu Firebase trả về lỗi Permission Denied
-                if (existingData && existingData.error) {
-                    showStatus(`❌ Lỗi hệ thống: ${existingData.error}. Hãy kiểm tra Firebase Rules!`, 'error');
-                    btnReg.disabled = false;
-                    return;
-                }
-
-                // Nếu cả 2 điều kiện đều thỏa mãn thì bắt đầu chụp
                 startCaptureProcess(msv);
 
             } catch (error) {
-                console.error(error);
                 showStatus("❌ Lỗi kết nối hệ thống. Vui lòng thử lại.", 'error');
                 btnReg.disabled = false;
             }
@@ -166,23 +211,24 @@
 
         async function startCaptureProcess(msv) {
             btnReg.disabled = true;
-            video.classList.add("video-active");
-
-            showStatus(`<b>Bước ${currentStep + 1}/3:</b> ${steps[currentStep]}<br>⏳ Đang phân tích khuôn mặt...`, 'info');
+            camInstruction.innerHTML = `Bước ${currentStep + 1}/3: <br>${steps[currentStep]}`;
+            camInstruction.style.color = "#5eff8b";
+            
             document.getElementById(`dot${currentStep}`).classList.add("active");
 
-            await new Promise(resolve => setTimeout(resolve, 600));
+            // Đợi một chút để SV ổn định tư thế
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
             try {
-                const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.1 }))
+                const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }))
                                                .withFaceLandmarks()
                                                .withFaceDescriptor();
                 
                 if (!detection) {
-                    showStatus(`❌ <b>Không thấy mặt!</b><br>Đảm bảo đủ ánh sáng và nhìn vào camera.`, 'error');
+                    camInstruction.innerHTML = "⚠️ KHÔNG THẤY MẶT!<br>Vui lòng căn chỉnh lại";
+                    camInstruction.style.color = "#ff4444";
                     btnReg.disabled = false;
                     btnReg.innerText = "📸 Thử lại góc này";
-                    video.classList.remove("video-active");
                     return;
                 }
 
@@ -192,25 +238,26 @@
 
                 if (currentStep < 2) {
                     currentStep++;
-                    showStatus(`✅ Đã ghi nhận góc ${currentStep}.<br><b>Tiếp theo:</b> ${steps[currentStep]}`, 'success');
+                    camInstruction.innerHTML = `✅ OK! <br>Tiếp theo: ${steps[currentStep]}`;
+                    camInstruction.style.color = "#fff";
                     btnReg.disabled = false;
                     btnReg.innerText = "📸 Chụp tiếp";
                 } else {
+                    camInstruction.innerHTML = "🎉 HOÀN TẤT CHỤP MẶT!";
                     saveAllData(msv);
                 }
             } catch (err) {
-                showStatus("❌ Lỗi: " + err.message, 'error');
+                showStatus("❌ Lỗi xử lý: " + err.message, 'error');
                 btnReg.disabled = false;
             }
-            video.classList.remove("video-active");
         }
 
         async function saveAllData(msv) {
-            showStatus("⏳ Đang bảo mật dữ liệu...", 'info');
-            btnReg.innerText = "Đang lưu...";
+            camInstruction.innerText = "💾 Đang lưu dữ liệu bảo mật...";
+            btnReg.innerText = "Đang xử lý...";
 
             try {
-                let fingerprint = navigator.userAgent + screen.width + screen.height + navigator.hardwareConcurrency;
+                let fingerprint = navigator.userAgent + screen.width + screen.height;
                 let deviceHash = CryptoJS.MD5(fingerprint).toString();
                 let randomStr = Math.random().toString(36).substring(2, 10);
                 let deviceToken = CryptoJS.SHA256(msv + randomStr + deviceHash).toString();
@@ -232,31 +279,29 @@
                 });
 
                 if(response.ok) {
-                    showStatus(`<b>✅ ĐĂNG KÝ THÀNH CÔNG!</b><br>Đã liên kết MSV <b>${msv}</b> với thiết bị này.`, 'success');
+                    camInstruction.innerHTML = "✅ ĐÃ ĐĂNG KÝ THÀNH CÔNG!";
+                    showStatus(`<b>✅ THÀNH CÔNG!</b><br>Đã liên kết SV <b>${msv}</b> với thiết bị này.`, 'success');
                     btnReg.style.display = "none";
                 } else {
                     throw new Error("Lỗi Server");
                 }
             } catch (error) {
-                showStatus("⚠️ Lỗi khi lưu lên Server nhưng đã lưu cục bộ.", 'error');
+                showStatus("⚠️ Lỗi Server: Dữ liệu đã lưu tạm thời trên máy.", 'error');
             }
         }
 
         function removeDevice() {
             let savedMsv = localStorage.getItem("KHH_STUDENT_ID");
             if (!savedMsv) {
-                alert("Máy này hiện chưa có dữ liệu đăng ký nào.");
+                alert("Máy này chưa có dữ liệu đăng ký.");
                 return;
             }
 
-            if (confirm(`HÀNH ĐỘNG NÀY SẼ:\n1. Xóa dữ liệu sinh viên [${savedMsv}] trên máy này.\n2. Hủy liên kết trên hệ thống.\n\nBạn chắc chắn muốn thực hiện?`)) {
-                let deviceApiUrl = `${FIREBASE_BASE_URL}/devices/${savedMsv}.json`;
-                fetch(deviceApiUrl, { method: "DELETE" }).then(() => {
+            if (confirm(`Bạn muốn hủy liên kết của sinh viên [${savedMsv}]?`)) {
+                fetch(`${FIREBASE_BASE_URL}/devices/${savedMsv}.json`, { method: "DELETE" }).then(() => {
                     localStorage.clear();
-                    alert("Đã xóa dữ liệu thành công. Trang sẽ tải lại.");
+                    alert("Đã xóa dữ liệu thành công!");
                     location.reload();
-                }).catch(err => {
-                    alert("Lỗi khi xóa dữ liệu trên Server. Hãy thử lại.");
                 });
             }
         }
