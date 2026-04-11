@@ -166,26 +166,29 @@ function isValidToken(scannedToken) {
     return scannedToken === tokenNow || scannedToken === tokenPrev;
 }
 
-function startQRScanner() {
-    qrReaderDiv.style.display = "block";
+// Sửa lại hàm trong script.js để lấy session từ Firebase về so sánh
+async function startQRScanner() {
+    // 1. Lấy session hiện tại của lớp từ Firebase trước
+    const res = await fetch(`${FB_URL}/active_sessions/Lop_K62_01.json`);
+    const session = await res.json();
+    const salt = session.salt;
+
     html5QrcodeScanner = new Html5Qrcode("reader");
     html5QrcodeScanner.start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
+        { fps: 10, qrbox: 250 },
         (decodedText) => {
-            if (isValidToken(decodedText)) {
-                html5QrcodeScanner.stop().then(() => {
-                    qrReaderDiv.style.display = "none";
-                    statusDiv.innerHTML = "✅ QR hợp lệ. Đang quét khuôn mặt...";
-                    startFaceCamera();
-                });
-            } else {
-                statusDiv.innerHTML = "❌ Mã QR không đúng hoặc đã hết hạn!";
-                statusDiv.style.color = "red";
+            let now = Date.now() + serverTimeOffset;
+            let timeBlock = Math.floor(now / 15000);
+            
+            // Công thức phải giống hệt admin.html
+            let validToken = CryptoJS.HmacSHA256(`Lop_K62_01_${timeBlock}_${salt}`, "HàngHải2026@Secure").toString();
+            
+            if (decodedText === validToken) {
+                // Thành công -> Chuyển sang quét mặt
             }
-        },
-        (err) => {}
-    ).catch(() => { statusDiv.innerHTML = "❌ Không thể mở camera sau."; });
+        }
+    );
 }
 
 // ==========================================
