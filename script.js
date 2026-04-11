@@ -57,54 +57,68 @@ function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
 }
 
 async function startProcess() {
-    statusDiv.innerHTML = "🔍 Đang kiểm tra phiên học...";
+    statusDiv.innerHTML = "🔍 Đang tìm lớp học của bạn...";
     btnStart.style.display = "none";
 
     try {
-        // BƯỚC 1: Lấy thông tin phiên học từ Firebase để biết thầy đang ở đâu
-        const response = await fetch(`${FB_URL}/active_sessions/${currentClass}.json`);
-        const session = await response.json();
-
-        if (!session) {
-            statusDiv.innerHTML = "<b style='color:red;'>⚠️ LỚP CHƯA MỞ!</b><br>Giảng viên chưa kích hoạt vị trí lớp học.";
+        // 1. Lấy tất cả các phiên đang mở
+        const sessionsRes = await fetch(`${FB_URL}/active_sessions.json`);
+        const activeSessions = await sessionsRes.json();
+        
+        if (!activeSessions) {
+            statusDiv.innerHTML = "📭 Hiện không có lớp nào đang mở điểm danh.";
             btnStart.style.display = "inline-block";
             return;
         }
 
-        // BƯỚC 2: Lấy vị trí của sinh viên
-        statusDiv.innerHTML = "📍 Đang xác định vị trí của bạn...";
+        // 2. Lấy thông tin các lớp để kiểm tra danh sách sinh viên
+        const classesRes = await fetch(`${FB_URL}/classes.json`);
+        const allClasses = await classesRes.json();
+
+        let myActiveClassId = null;
+
+        // Tìm lớp nào sinh viên có tên và lớp đó đang active
+        for (let cid in activeSessions) {
+            if (allClasses[cid] && allClasses[cid].students && allClasses[cid].students[STUDENT_ID]) {
+                myActiveClassId = cid;
+                break;
+            }
+        }
+
+        if (!myActiveClassId) {
+            statusDiv.innerHTML = "❌ Bạn không có trong danh sách hoặc lớp của bạn chưa mở.";
+            btnStart.style.display = "inline-block";
+            return;
+        }
+
+        const session = activeSessions[myActiveClassId];
+        session.class_id = myActiveClassId; // Lưu lại để dùng khi gửi checkin
+
+        // 3. Kiểm tra GPS với session tìm được
+        statusDiv.innerHTML = `📍 Đã thấy lớp: ${allClasses[myActiveClassId].class_name}. Đang check GPS...`;
         
         navigator.geolocation.getCurrentPosition(
             (position) => {
-                // So sánh với tọa độ trong session (vị trí của thầy)
-                let dist = getDistanceFromLatLonInKm(
-                    position.coords.latitude, 
-                    position.coords.longitude, 
-                    session.lat, 
-                    session.lon
-                );
-
-                if (dist > 0.3) { // Giới hạn 300m quanh Giảng viên
-                    statusDiv.innerHTML = `❌ Bạn ở quá xa Giảng viên (${Math.round(dist*1000)}m).<br>Hãy di chuyển lại gần thầy/cô.`;
+                let dist = getDistanceFromLatLonInKm(position.coords.latitude, position.coords.longitude, session.lat, session.lon);
+                if (dist > 0.3) {
+                    statusDiv.innerHTML = `❌ Bạn ở quá xa lớp học (${Math.round(dist*1000)}m).`;
                     btnStart.style.display = "inline-block";
                 } else {
-                    statusDiv.innerHTML = "✅ Vị trí hợp lệ (Khớp với Giảng viên).";
-                    // BƯỚC 3: Chuyển sang quét QR
+                    statusDiv.innerHTML = "✅ Vị trí khớp. Đang bật QR...";
                     startQRScannerAfterGPS(session); 
                 }
             },
-            (error) => {
-                statusDiv.innerHTML = "❌ Lỗi: Bạn cần bật GPS và cho phép truy cập vị trí.";
-                btnStart.style.display = "inline-block";
-            },
+            () => { alert("Vui lòng bật GPS"); btnStart.style.display = "inline-block"; },
             { enableHighAccuracy: true }
         );
 
-    } catch (error) {
-        statusDiv.innerHTML = "⚠️ Lỗi kết nối: " + error.message;
+    } catch (e) {
+        statusDiv.innerHTML = "Lỗi kết nối: " + e.message;
         btnStart.style.display = "inline-block";
     }
 }
+
+
 
 // Chỉnh sửa lại hàm quét QR để không cần fetch lại session
 function startQRScannerAfterGPS(session) {
@@ -261,6 +275,7 @@ function completeAttendance(descriptor, session) {
 
     const payload = {
         student_id: STUDENT_ID,
+        class_id: session.class_id,
         timestamp: timestamp,
         signature: signature,
         device: navigator.userAgent

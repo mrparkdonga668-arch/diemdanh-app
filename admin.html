@@ -65,7 +65,24 @@
                 document.getElementById('login-box').style.display = 'none';
                 document.getElementById('admin-panel').style.display = 'block';
                 document.getElementById('welcome').innerText = "Thầy: " + data.name;
+                loadTeacherClasses(id); // Tải lớp của thầy này
             } else { alert("Sai mật khẩu!"); }
+        }
+
+        async function loadTeacherClasses(teacherId) {
+            const res = await fetch(`${FB_URL}/classes.json`);
+            const allClasses = await res.json();
+            const select = document.getElementById('classId');
+            select.innerHTML = ""; // Xóa các option cũ
+
+            for (let id in allClasses) {
+                if (allClasses[id].teacher_id === teacherId) {
+                    let opt = document.createElement('option');
+                    opt.value = id;
+                    opt.innerText = allClasses[id].class_name;
+                    select.appendChild(opt);
+                }
+            }
         }
 
         async function openClass() {
