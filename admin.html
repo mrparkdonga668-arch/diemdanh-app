@@ -69,8 +69,13 @@
         }
 
         async function openClass() {
+            const cid = document.getElementById('classId').value;
+            statusDiv = document.getElementById('qr-area'); // Mượn tạm vùng này báo lỗi nếu cần
+
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = "📍 Đang lấy vị trí Giảng viên...";
+
             navigator.geolocation.getCurrentPosition(async (pos) => {
-                const cid = document.getElementById('classId').value;
                 const startTime = getNow();
                 const salt = CryptoJS.lib.WordArray.random(16).toString();
 
@@ -78,28 +83,50 @@
                     lat: pos.coords.latitude,
                     lon: pos.coords.longitude,
                     startTime: startTime,
-                    salt: salt
+                    salt: salt,
+                    teacher_name: document.getElementById('welcome').innerText.replace("Thầy: ", "")
                 };
 
-                await fetch(`${FB_URL}/active_sessions/${cid}.json`, { method: 'PUT', body: JSON.stringify(session) });
-                document.getElementById('qr-area').style.display = 'block';
-                
-                // Vòng lặp cập nhật QR động
-                setInterval(() => {
-                    const now = getNow();
-                    const elapsed = now - startTime;
-                    if (elapsed > 600000) { // Hết 10 phút
-                        document.getElementById('qr-area').innerHTML = "HẾT GIỜ";
-                        return;
-                    }
+                try {
+                    await fetch(`${FB_URL}/active_sessions/${cid}.json`, { 
+                        method: 'PUT', 
+                        body: JSON.stringify(session) 
+                    });
 
-                    document.getElementById('clock').innerText = Math.floor((600000 - elapsed)/1000) + "s";
+                    document.getElementById('qr-area').innerHTML = `
+                        <div id="clock" class="timer">10:00</div>
+                        <div id="qrcode"></div>
+                        <p>Mã QR Động (Xoay 15s/lần)</p>
+                        <p style="font-size:12px; color:gray;">📍 Tọa độ lớp: ${session.lat.toFixed(5)}, ${session.lon.toFixed(5)}</p>
+                    `;
                     
-                    let timeBlock = Math.floor(now / 15000);
-                    let token = CryptoJS.HmacSHA256(`${cid}_${timeBlock}_${salt}`, SECRET_KEY).toString();
-                    qrcode.makeCode(token);
-                }, 1000);
-            });
+                    // Khởi tạo lại QR Code vì innerHTML vừa bị ghi đè
+                    qrcode = new QRCode(document.getElementById("qrcode"), { width: 250, height: 250 });
+
+                    // Vòng lặp cập nhật QR động
+                    const timerInterval = setInterval(() => {
+                        const now = getNow();
+                        const elapsed = now - startTime;
+                        if (elapsed > 600000) { // Hết 10 phút
+                            document.getElementById('qr-area').innerHTML = "HẾT GIỜ";
+                            clearInterval(timerInterval);
+                            return;
+                        }
+
+                        const clock = document.getElementById('clock');
+                        if(clock) clock.innerText = Math.floor((600000 - elapsed)/1000) + "s";
+                        
+                        let timeBlock = Math.floor(now / 15000);
+                        let token = CryptoJS.HmacSHA256(`${cid}_${timeBlock}_${salt}`, SECRET_KEY).toString();
+                        qrcode.makeCode(token);
+                    }, 1000);
+
+                } catch (e) {
+                    alert("Lỗi khi mở lớp: " + e.message);
+                }
+            }, (err) => {
+                alert("Lỗi GPS: Vui lòng cho phép truy cập vị trí để mở lớp!");
+            }, { enableHighAccuracy: true });
         }
     </script>
 </body>

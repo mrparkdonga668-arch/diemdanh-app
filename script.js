@@ -22,8 +22,7 @@ const qrReaderDiv = document.getElementById('reader');
 const statusDiv = document.getElementById('status');
 const btnStart = document.getElementById('btnStart');
 
-const SCHOOL_LAT = 20.897007783267334;
-const SCHOOL_LON = 106.67248743684335;
+
 const SECRET_KEY = "HàngHải2026@Secure"; // ĐÃ THỐNG NHẤT VỚI ADMIN.HTML
 const FB_URL = "https://hanghai-6f86f-default-rtdb.asia-southeast1.firebasedatabase.app"; 
 const currentClass = "Lop_K62_01"; // ĐÃ KHAI BÁO BIẾN LỚP CỐ ĐỊNH
@@ -57,20 +56,41 @@ function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
-function startProcess() {
-    statusDiv.innerHTML = "📍 Đang xác vị trí GPS...";
+async function startProcess() {
+    statusDiv.innerHTML = "🔍 Đang kiểm tra phiên học...";
     btnStart.style.display = "none";
-    
-    if (navigator.geolocation) {
+
+    try {
+        // BƯỚC 1: Lấy thông tin phiên học từ Firebase để biết thầy đang ở đâu
+        const response = await fetch(`${FB_URL}/active_sessions/${currentClass}.json`);
+        const session = await response.json();
+
+        if (!session) {
+            statusDiv.innerHTML = "<b style='color:red;'>⚠️ LỚP CHƯA MỞ!</b><br>Giảng viên chưa kích hoạt vị trí lớp học.";
+            btnStart.style.display = "inline-block";
+            return;
+        }
+
+        // BƯỚC 2: Lấy vị trí của sinh viên
+        statusDiv.innerHTML = "📍 Đang xác định vị trí của bạn...";
+        
         navigator.geolocation.getCurrentPosition(
             (position) => {
-                let dist = getDistanceFromLatLonInKm(position.coords.latitude, position.coords.longitude, SCHOOL_LAT, SCHOOL_LON);
-                if (dist > 0.5) { // Nới lỏng lên 500m để dễ test
-                    statusDiv.innerHTML = `❌ Bạn đang ở quá xa trường (${Math.round(dist*1000)}m).`;
+                // So sánh với tọa độ trong session (vị trí của thầy)
+                let dist = getDistanceFromLatLonInKm(
+                    position.coords.latitude, 
+                    position.coords.longitude, 
+                    session.lat, 
+                    session.lon
+                );
+
+                if (dist > 0.3) { // Giới hạn 300m quanh Giảng viên
+                    statusDiv.innerHTML = `❌ Bạn ở quá xa Giảng viên (${Math.round(dist*1000)}m).<br>Hãy di chuyển lại gần thầy/cô.`;
                     btnStart.style.display = "inline-block";
                 } else {
-                    statusDiv.innerHTML = "✅ Vị trí hợp lệ. Đang kiểm tra lớp học...";
-                    startQRScanner();
+                    statusDiv.innerHTML = "✅ Vị trí hợp lệ (Khớp với Giảng viên).";
+                    // BƯỚC 3: Chuyển sang quét QR
+                    startQRScannerAfterGPS(session); 
                 }
             },
             (error) => {
@@ -79,7 +99,28 @@ function startProcess() {
             },
             { enableHighAccuracy: true }
         );
+
+    } catch (error) {
+        statusDiv.innerHTML = "⚠️ Lỗi kết nối: " + error.message;
+        btnStart.style.display = "inline-block";
     }
+}
+
+// Chỉnh sửa lại hàm quét QR để không cần fetch lại session
+function startQRScannerAfterGPS(session) {
+    statusDiv.innerHTML = "✅ Đang bật camera quét QR...";
+    qrReaderDiv.style.display = "block";
+    
+    html5QrcodeScanner = new Html5Qrcode("reader");
+    html5QrcodeScanner.start(
+        { facingMode: "environment" },
+        { fps: 15, qrbox: { width: 250, height: 250 } },
+        (decodedText) => {
+            handleQRScanned(decodedText, session);
+        }
+    ).catch(err => {
+        statusDiv.innerHTML = "❌ Không thể mở camera. Hãy kiểm tra quyền truy cập.";
+    });
 }
 
 // ==========================================
