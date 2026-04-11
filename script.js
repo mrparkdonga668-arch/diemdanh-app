@@ -167,80 +167,75 @@ function isValidToken(scannedToken) {
 }
 
 async function startQRScanner() {
-    const cid = "Lop_K62_01"; // Sau này có thể lấy từ 1 menu chọn lớp
-    
-    // 1. Hiển thị trạng thái đang tải dữ liệu
+    // 1. Xác định lớp học cần điểm danh (ví dụ lớp K62_01)
+    const cid = "Lop_K62_01"; 
+
+    // 2. Thông báo đang kiểm tra
     statusDiv.style.display = "block";
-    statusDiv.innerHTML = "⏳ Đang kết nối máy chủ lớp học...";
-    statusDiv.style.color = "orange";
-    qrReaderDiv.style.display = "none";
-
+    statusDiv.innerHTML = "⏳ Đang kiểm tra trạng thái lớp học từ máy chủ...";
+    statusDiv.style.color = "blue";
+    
     try {
-        // 2. Lấy thông tin phiên học (Session) từ Firebase
-        const res = await fetch(`${FB_URL}/active_sessions/${cid}.json`);
-        const session = await res.json();
+        // 3. Truy cập Firebase để lấy Session của lớp này
+        const response = await fetch(`${FB_URL}/active_sessions/${cid}.json`);
+        const session = await response.json();
 
-        // 3. Kiểm tra nếu giảng viên chưa mở lớp
+        // 4. KIỂM TRA: Nếu lớp chưa mở (session null)
         if (!session) {
-            statusDiv.innerHTML = "❌ Lớp học này chưa được mở!<br>Vui lòng đợi thầy/cô bấm 'Mở lớp'.";
-            statusDiv.style.color = "red";
-            btnStart.style.display = "inline-block"; // Hiện lại nút để thử lại
-            return;
+            statusDiv.innerHTML = `
+                <div style="color: red; border: 2px solid red; padding: 10px; border-radius: 10px;">
+                    ⚠️ LỚP CHƯA MỞ!<br>
+                    Giảng viên chưa kích hoạt phiên điểm danh cho lớp này. <br>
+                    Vui lòng đợi thầy cô bấm "MỞ LỚP" rồi thử lại.
+                </div>`;
+            btnStart.style.display = "inline-block"; // Hiện lại nút bắt đầu để SV bấm lại
+            btnStart.innerText = "Thử lại";
+            return; // Dừng lại ở đây, KHÔNG bật camera
         }
 
-        // 4. Kiểm tra thời gian phiên học (ví dụ quá 10 phút thì không cho quét nữa)
-        const now = getNow();
-        if (now - session.startTime > 600000) { // 600.000ms = 10 phút
-            statusDiv.innerHTML = "❌ Phiên điểm danh này đã hết hạn (quá 10 phút).";
-            statusDiv.style.color = "red";
-            return;
-        }
-
-        // 5. Nếu mọi thứ ổn, bắt đầu bật Camera
-        statusDiv.innerHTML = "✅ Đã kết nối! Đang khởi động camera quét QR...";
+        // 5. Nếu lớp đã mở, mới tiến hành bật Camera
+        statusDiv.innerHTML = "✅ Lớp đã mở. Đang chuẩn bị camera...";
         statusDiv.style.color = "green";
-        
+
         qrReaderDiv.style.display = "block";
         html5QrcodeScanner = new Html5Qrcode("reader");
 
-        await html5QrcodeScanner.start(
+        html5QrcodeScanner.start(
             { facingMode: "environment" },
             { fps: 15, qrbox: { width: 250, height: 250 } },
             (decodedText) => {
-                // Xử lý khi quét được mã
+                // Khi quét được mã, gọi hàm xử lý và truyền session vào
                 handleQRScanned(decodedText, session, cid);
             },
-            (err) => { /* Không log lỗi quét liên tục để tránh lag */ }
-        );
+            (err) => { /* Không báo lỗi trong lúc chờ quét */ }
+        ).catch(e => {
+            statusDiv.innerHTML = "❌ Lỗi camera: " + e;
+        });
 
     } catch (error) {
+        statusDiv.innerHTML = "⚠️ Lỗi kết nối mạng. Không thể kiểm tra trạng thái lớp.";
         console.error(error);
-        statusDiv.innerHTML = "⚠️ Lỗi kết nối mạng. Hãy kiểm tra 4G/Wifi của bạn.";
-        statusDiv.style.color = "red";
-        btnStart.style.display = "inline-block";
     }
 }
 
-// Hàm tách riêng để xử lý logic so khớp mã QR
+// Hàm xử lý mã QR sau khi quét được
 function handleQRScanned(scannedToken, session, cid) {
     const now = getNow();
-    const timeBlock = Math.floor(now / 15000); // Khớp với 15s của Admin
-    
-    // Tạo token đối chứng dựa trên salt của session vừa lấy về
-    // Lưu ý: SECRET_KEY phải khớp hoàn toàn với file admin.html
-    const secret = "HàngHải2026@Secure"; 
+    const timeBlock = Math.floor(now / 15000);
+    const secret = "HàngHải2026@Secure"; // Phải khớp với admin.html
+
+    // Tính toán token dựa trên SALT mà thầy vừa tạo
     const validToken = CryptoJS.HmacSHA256(`${cid}_${timeBlock}_${session.salt}`, secret).toString();
     const prevToken = CryptoJS.HmacSHA256(`${cid}_${timeBlock - 1}_${session.salt}`, secret).toString();
 
-    // Cho phép sai số 1 block (để bù độ trễ mạng)
     if (scannedToken === validToken || scannedToken === prevToken) {
         html5QrcodeScanner.stop().then(() => {
             qrReaderDiv.style.display = "none";
-            statusDiv.innerHTML = "✅ Mã QR hợp lệ! Đang chuẩn bị quét mặt...";
-            startFaceCamera(); // Chuyển sang bước tiếp theo
+            statusDiv.innerHTML = "✅ QR hợp lệ! Chuyển sang quét khuôn mặt...";
+            startFaceCamera(); // Hàm bật camera trước để quét mặt
         });
     } else {
-        statusDiv.innerHTML = "❌ Mã QR không khớp hoặc đã hết hạn!";
+        statusDiv.innerHTML = "❌ Mã QR đã hết hạn hoặc không đúng cho lớp này!";
         statusDiv.style.color = "red";
     }
 }
