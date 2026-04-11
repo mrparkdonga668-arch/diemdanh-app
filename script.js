@@ -166,29 +166,83 @@ function isValidToken(scannedToken) {
     return scannedToken === tokenNow || scannedToken === tokenPrev;
 }
 
-// Sửa lại hàm trong script.js để lấy session từ Firebase về so sánh
 async function startQRScanner() {
-    // 1. Lấy session hiện tại của lớp từ Firebase trước
-    const res = await fetch(`${FB_URL}/active_sessions/Lop_K62_01.json`);
-    const session = await res.json();
-    const salt = session.salt;
+    const cid = "Lop_K62_01"; // Sau này có thể lấy từ 1 menu chọn lớp
+    
+    // 1. Hiển thị trạng thái đang tải dữ liệu
+    statusDiv.style.display = "block";
+    statusDiv.innerHTML = "⏳ Đang kết nối máy chủ lớp học...";
+    statusDiv.style.color = "orange";
+    qrReaderDiv.style.display = "none";
 
-    html5QrcodeScanner = new Html5Qrcode("reader");
-    html5QrcodeScanner.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
-        (decodedText) => {
-            let now = Date.now() + serverTimeOffset;
-            let timeBlock = Math.floor(now / 15000);
-            
-            // Công thức phải giống hệt admin.html
-            let validToken = CryptoJS.HmacSHA256(`Lop_K62_01_${timeBlock}_${salt}`, "HàngHải2026@Secure").toString();
-            
-            if (decodedText === validToken) {
-                // Thành công -> Chuyển sang quét mặt
-            }
+    try {
+        // 2. Lấy thông tin phiên học (Session) từ Firebase
+        const res = await fetch(`${FB_URL}/active_sessions/${cid}.json`);
+        const session = await res.json();
+
+        // 3. Kiểm tra nếu giảng viên chưa mở lớp
+        if (!session) {
+            statusDiv.innerHTML = "❌ Lớp học này chưa được mở!<br>Vui lòng đợi thầy/cô bấm 'Mở lớp'.";
+            statusDiv.style.color = "red";
+            btnStart.style.display = "inline-block"; // Hiện lại nút để thử lại
+            return;
         }
-    );
+
+        // 4. Kiểm tra thời gian phiên học (ví dụ quá 10 phút thì không cho quét nữa)
+        const now = getNow();
+        if (now - session.startTime > 600000) { // 600.000ms = 10 phút
+            statusDiv.innerHTML = "❌ Phiên điểm danh này đã hết hạn (quá 10 phút).";
+            statusDiv.style.color = "red";
+            return;
+        }
+
+        // 5. Nếu mọi thứ ổn, bắt đầu bật Camera
+        statusDiv.innerHTML = "✅ Đã kết nối! Đang khởi động camera quét QR...";
+        statusDiv.style.color = "green";
+        
+        qrReaderDiv.style.display = "block";
+        html5QrcodeScanner = new Html5Qrcode("reader");
+
+        await html5QrcodeScanner.start(
+            { facingMode: "environment" },
+            { fps: 15, qrbox: { width: 250, height: 250 } },
+            (decodedText) => {
+                // Xử lý khi quét được mã
+                handleQRScanned(decodedText, session, cid);
+            },
+            (err) => { /* Không log lỗi quét liên tục để tránh lag */ }
+        );
+
+    } catch (error) {
+        console.error(error);
+        statusDiv.innerHTML = "⚠️ Lỗi kết nối mạng. Hãy kiểm tra 4G/Wifi của bạn.";
+        statusDiv.style.color = "red";
+        btnStart.style.display = "inline-block";
+    }
+}
+
+// Hàm tách riêng để xử lý logic so khớp mã QR
+function handleQRScanned(scannedToken, session, cid) {
+    const now = getNow();
+    const timeBlock = Math.floor(now / 15000); // Khớp với 15s của Admin
+    
+    // Tạo token đối chứng dựa trên salt của session vừa lấy về
+    // Lưu ý: SECRET_KEY phải khớp hoàn toàn với file admin.html
+    const secret = "HàngHải2026@Secure"; 
+    const validToken = CryptoJS.HmacSHA256(`${cid}_${timeBlock}_${session.salt}`, secret).toString();
+    const prevToken = CryptoJS.HmacSHA256(`${cid}_${timeBlock - 1}_${session.salt}`, secret).toString();
+
+    // Cho phép sai số 1 block (để bù độ trễ mạng)
+    if (scannedToken === validToken || scannedToken === prevToken) {
+        html5QrcodeScanner.stop().then(() => {
+            qrReaderDiv.style.display = "none";
+            statusDiv.innerHTML = "✅ Mã QR hợp lệ! Đang chuẩn bị quét mặt...";
+            startFaceCamera(); // Chuyển sang bước tiếp theo
+        });
+    } else {
+        statusDiv.innerHTML = "❌ Mã QR không khớp hoặc đã hết hạn!";
+        statusDiv.style.color = "red";
+    }
 }
 
 // ==========================================
