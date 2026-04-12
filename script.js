@@ -6,12 +6,32 @@ const DEVICE_TOKEN = localStorage.getItem("KHH_DEVICE_TOKEN");
 
 if (!STUDENT_ID || !DEVICE_TOKEN) {
     document.body.innerHTML = `
-        <div style="padding: 50px; text-align: center; font-family: Arial;">
-            <h2 style="color:red;">⛔ THIẾT BỊ CHƯA ĐĂNG KÝ</h2>
-            <p>Vui lòng đăng ký thông tin sinh trắc học trước khi điểm danh.</p>
-            <a href="setup.html" style="color: blue; text-decoration: underline;">Đi tới trang đăng ký thiết bị</a>
+        <div style="padding: 40px 20px; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; background-color: #f8f9fa; min-height: 100vh;">
+            <div style="max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 5px solid #dc3545;">
+                <div style="font-size: 50px; color: #dc3545; margin-bottom: 15px;">🚫</div>
+                <h2 style="color: #333; margin-bottom: 20px; font-size: 22px;">THIẾT BỊ CHƯA ĐƯỢC XÁC THỰC</h2>
+                
+                <div style="text-align: left; background: #fff5f5; border-left: 4px solid #dc3545; padding: 15px; margin-bottom: 20px;">
+                    <p style="margin: 0; color: #555; font-size: 16px;">
+                        Hệ thống ghi nhận thiết bị này <b>chưa được đăng ký</b> trong cơ sở dữ liệu điểm danh sinh trắc học.
+                    </p>
+                </div>
+
+                <div style="text-align: left; color: #333;">
+                    <p style="font-weight: bold; margin-bottom: 10px;">Để đảm bảo tính bảo mật và công bằng:</p>
+                    <ul style="padding-left: 20px; color: #e63946; font-weight: 600;">
+                        <li style="margin-bottom: 10px;">Vui lòng mang theo <b>Thẻ Sinh viên</b> hoặc <b>CCCD</b>.</li>
+                        <li style="margin-bottom: 10px;">Trực tiếp đến <b>Văn phòng Giáo vụ Khoa</b> để được cán bộ hỗ trợ đăng ký thiết bị chính chủ.</li>
+                    </ul>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                <p style="font-size: 13px; color: #888; font-style: italic;">
+                    Lưu ý: Mỗi sinh viên chỉ được phép sử dụng một thiết bị duy nhất để thực hiện điểm danh.
+                </p>
+            </div>
         </div>`;
-    throw new Error("Thiết bị chưa được xác thực");
+    throw new Error("Thiết bị chưa được xác thực. Yêu cầu lên phòng giáo vụ.");
 }
 
 // ==========================================
@@ -56,81 +76,110 @@ function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
+const LIMIT_TIME = 600000; // 10 phút
+
+// Hàm lấy ngày hiện tại (YYYY-MM-DD) theo giờ chuẩn
+function getTodayString() {
+    const d = new Date(getNow());
+    return d.toISOString().split('T')[0];
+}
+
 async function startProcess() {
-    statusDiv.innerHTML = "🔍 Đang tìm lớp học của bạn...";
-    statusDiv.innerHTML = "🔍 Đang kết nối server thời gian...";
+    statusDiv.innerHTML = "🔍 Đang kiểm tra dữ liệu điểm danh...";
     btnStart.style.display = "none";
-    // 1. Luôn đồng bộ lại thời gian chuẩn quốc tế trước khi check
-    await syncTime();
 
     try {
-        // 1. Lấy tất cả các phiên đang mở
-        const sessionsRes = await fetch(`${FB_URL}/active_sessions.json`);
-        const activeSessions = await sessionsRes.json();
-        
-        if (!activeSessions) {
+        // 1. Đồng bộ thời gian chuẩn
+        await syncTime();
+        const today = getTodayString();
+
+        // 2. Lấy dữ liệu từ Firebase song song để tối ưu tốc độ
+        const [sessionsRes, checkinsRes, classesRes] = await Promise.all([
+            fetch(`${FB_URL}/active_sessions.json`).then(r => r.json()),
+            fetch(`${FB_URL}/checkins.json?orderBy="student_id"&equalTo="${STUDENT_ID}"`).then(r => r.json()),
+            fetch(`${FB_URL}/classes.json`).then(r => r.json())
+        ]);
+
+        if (!sessionsRes) {
             statusDiv.innerHTML = "📭 Hiện không có lớp nào đang mở điểm danh.";
             btnStart.style.display = "inline-block";
             return;
         }
 
-        // 2. Lấy thông tin các lớp để kiểm tra danh sách sinh viên
-        const classesRes = await fetch(`${FB_URL}/classes.json`);
-        const allClasses = await classesRes.json();
+        // 3. Xác định các lớp sinh viên đã điểm danh thành công trong hôm nay
+        const attendedClassIds = [];
+        if (checkinsRes) {
+            Object.values(checkinsRes).forEach(record => {
+                const recordDate = new Date(record.timestamp).toISOString().split('T')[0];
+                if (recordDate === today) {
+                    attendedClassIds.push(record.class_id);
+                }
+            });
+        }
 
-        let myActiveClassId = null;
+        // 4. Tìm lớp học phù hợp (Đang mở + Có tên SV + Chưa điểm danh hôm nay)
+        let targetSession = null;
+        let myClassId = null;
 
-        // Tìm lớp nào sinh viên có tên và lớp đó đang active
-        for (let cid in activeSessions) {
-            if (allClasses[cid] && allClasses[cid].students && allClasses[cid].students[STUDENT_ID]) {
-                myActiveClassId = cid;
-                break;
+        for (let cid in sessionsRes) {
+            // Kiểm tra xem sinh viên có trong danh sách lớp này không
+            const isStudentInClass = classesRes[cid] && classesRes[cid].students && classesRes[cid].students[STUDENT_ID];
+            
+            // Kiểm tra xem lớp này hôm nay SV đã điểm danh chưa
+            const alreadyAttended = attendedClassIds.includes(cid);
+
+            if (isStudentInClass && !alreadyAttended) {
+                targetSession = sessionsRes[cid];
+                myClassId = cid;
+                break; // Tìm thấy lớp cần điểm danh ca này, dừng vòng lặp
             }
         }
 
-        if (!myActiveClassId) {
-            statusDiv.innerHTML = "❌ Bạn không có trong danh sách hoặc lớp của bạn chưa mở.";
+        // 5. Kiểm tra kết quả tìm kiếm
+        if (!targetSession) {
+            if (attendedClassIds.length > 0) {
+                statusDiv.innerHTML = `✅ Bạn đã hoàn thành điểm danh cho các lớp ca trước.<br>Hiện không có ca học mới nào dành cho bạn.`;
+            } else {
+                statusDiv.innerHTML = "❌ Bạn không có tên trong các lớp đang mở điểm danh.";
+            }
             btnStart.style.display = "inline-block";
             return;
         }
 
-        const session = activeSessions[myActiveClassId];
-
-        // 2. KIỂM TRA THỜI GIAN: Nếu quá 10 phút (600,000ms)
+        // 6. Kiểm tra thời gian 10 phút của lớp tìm được
         const now = getNow();
-        const elapsed = now - session.startTime;
-        const LIMIT = 600000; 
-
-        if (elapsed > LIMIT) {
+        const elapsed = now - targetSession.startTime;
+        if (elapsed > LIMIT_TIME) {
             statusDiv.innerHTML = `<div style="color:red; font-weight:bold;">⚠️ QUÁ HẠN ĐIỂM DANH!</div>
-                                   Lớp đã mở cách đây ${Math.floor(elapsed/60000)} phút.<br>
-                                   Quy định chỉ cho phép điểm danh trong 10 phút đầu.`;
+                                   Lớp <b>${classesRes[myClassId].class_name}</b> đã mở quá 10 phút.`;
             btnStart.style.display = "inline-block";
-            btnStart.innerText = "Thử lại";
             return;
         }
 
-        session.class_id = myActiveClassId; // Lưu lại để dùng khi gửi checkin
-
-        // 3. Kiểm tra GPS với session tìm được
-        statusDiv.innerHTML = `📍 Đã thấy lớp: ${allClasses[myActiveClassId].class_name}. Đang check GPS...`;
+        // 7. Hợp lệ -> Tiến hành check GPS
+        targetSession.class_id = myClassId;
+        statusDiv.innerHTML = `📍 Lớp hiện tại: <b>${classesRes[myClassId].class_name}</b>.<br>Đang xác vị trí...`;
         
         navigator.geolocation.getCurrentPosition(
             (position) => {
-                let dist = getDistanceFromLatLonInKm(position.coords.latitude, position.coords.longitude, session.lat, session.lon);
+                let dist = getDistanceFromLatLonInKm(position.coords.latitude, position.coords.longitude, targetSession.lat, targetSession.lon);
                 if (dist > 0.3) {
                     statusDiv.innerHTML = `❌ Bạn ở quá xa lớp học (${Math.round(dist*1000)}m).`;
                     btnStart.style.display = "inline-block";
                 } else {
-                    statusDiv.innerHTML = "✅ Vị trí khớp. Đang bật QR...";
-                    startQRScannerAfterGPS(session); 
+                    statusDiv.innerHTML = "✅ Vị trí khớp. Đang bật camera quét QR...";
+                    startQRScannerAfterGPS(targetSession); 
                 }
             },
-            () => { alert("Vui lòng bật GPS"); btnStart.style.display = "inline-block"; },
+            () => { 
+                alert("Vui lòng bật GPS và cho phép truy cập vị trí!"); 
+                btnStart.style.display = "inline-block"; 
+            },
             { enableHighAccuracy: true }
         );
 
     } catch (e) {
+        console.error(e);
         statusDiv.innerHTML = "Lỗi kết nối: " + e.message;
         btnStart.style.display = "inline-block";
     }
@@ -277,55 +326,42 @@ async function startFaceCamera(session) {
 // ==========================================
 // 6. HOÀN TẤT & GỬI DỮ LIỆU
 // ==========================================
+// Cập nhật lại hàm hoàn tất để ngăn chặn bấm gửi 2 lần (Double-click)
+let isSubmitting = false;
 function completeAttendance(descriptor, session) {
-    // Tắt camera ngay lập tức
+    if (isSubmitting) return;
+    isSubmitting = true;
+
     video.pause();
     if(video.srcObject) video.srcObject.getTracks().forEach(track => track.stop());
     document.getElementById('camera-container').style.display = "none";
     
-    // Kiểm tra thời gian một lần nữa trước khi FETCH gửi dữ liệu
-    const now = getNow();
-    const elapsed = now - session.startTime;
-    if (elapsed > 600000 + 30000) { // Cho phép dư 30 giây độ trễ xử lý AI
-        statusDiv.innerHTML = `<div style="color:red;">❌ GỬI THẤT BẠI: Quá thời gian quy định (10 phút).</div>`;
-        return;
-    }
-
     statusDiv.style.display = "block";
-    statusDiv.innerHTML = "⏳ Đang gửi kết quả điểm danh...";
+    statusDiv.innerHTML = "⏳ Đang gửi kết quả lên hệ thống...";
 
-    const timestamp = now;
-    
-    // Tạo signature khớp với yêu cầu của Rules
-    const signature = CryptoJS.HmacSHA256(STUDENT_ID + timestamp, session.salt).toString();
-
+    const now = getNow();
     const payload = {
         student_id: STUDENT_ID,
         class_id: session.class_id,
-        timestamp: timestamp,
-        signature: signature,
+        timestamp: now,
+        signature: CryptoJS.HmacSHA256(STUDENT_ID + now, session.salt).toString(),
         device: navigator.userAgent
     };
 
-    // Gửi lên Firebase
     fetch(`${FB_URL}/checkins.json`, {
         method: "POST",
         body: JSON.stringify(payload)
     })
-    .then(response => {
-        if (!response.ok) throw new Error("Firebase từ chối ghi dữ liệu");
-        return response.json();
-    })
-    .then(() => {
-        // CHỈ KHI LÊN FIREBASE THÀNH CÔNG MỚI HIỆN TRẠM TIẾP SỨC
-        statusDiv.innerHTML = `<div style="color: green; font-size: 20px;">🎉 ĐIỂM DANH THÀNH CÔNG!</div>`;
+    .then(res => {
+        if (!res.ok) throw new Error("Firebase Reject");
+        statusDiv.innerHTML = `<div style="color: green; font-size: 20px; font-weight:bold;">🎉 ĐIỂM DANH THÀNH CÔNG!</div>
+                               <p>Bạn đã hoàn thành lớp: ${session.class_id}</p>`;
         activateRelayMode(session);
     })
-    .catch((err) => {
-        console.error(err);
-        statusDiv.innerHTML = `<div style="color: red;">❌ LỖI GỬI DỮ LIỆU: ${err.message}</div>`;
+    .catch(err => {
+        statusDiv.innerHTML = `<div style="color: red;">❌ LỖI GỬI DỮ LIỆU. Hãy thử lại.</div>`;
         btnStart.style.display = "inline-block";
-        btnStart.innerText = "Thử lại";
+        isSubmitting = false;
     });
 }
 
