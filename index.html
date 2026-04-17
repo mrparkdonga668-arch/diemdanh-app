@@ -3,101 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Điểm Danh Sinh Viên</title>
-    <!-- AI Face -->
+    <title>Hệ thống Điểm Danh Hàng Hải</title>
+    <!-- Thư viện hỗ trợ -->
     <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
-    <!-- Quét QR -->
     <script src="https://unpkg.com/html5-qrcode"></script>
-    <!-- Thư viện Tạo mã QR (Dùng cho trạm tiếp sức) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- Mã hóa -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    
     <style>
-        body { font-family: Arial; text-align: center; background-color: #f4f4f9; padding: 20px; }
-        video { width: 100%; max-width: 400px; border-radius: 10px; border: 3px solid #007bff; display: none; margin: 0 auto; }
-        #reader { width: 100%; max-width: 400px; margin: 0 auto; display: none; border: 3px solid #ff9800; border-radius: 10px; }
-        #status { margin-top: 15px; font-weight: bold; color: red; font-size: 18px; }
-        button { padding: 12px 24px; font-size: 18px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;}
-        #cam-instruction {
-            position: absolute;
-            top: 15px;
-            left: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.6);
-            color: #fff;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            z-index: 10;
-            border: 1px solid rgba(255,255,255,0.3);
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background-color: #f4f4f9; padding: 15px; margin: 0; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #007bff; margin-bottom: 10px; }
+        
+        #status { padding: 15px; border-radius: 8px; background: #fff; border: 1px solid #ddd; font-weight: bold; color: #d9534f; min-height: 40px; margin-bottom: 15px; }
+        
+        #reader { width: 100%; border-radius: 10px; overflow: hidden; display: none; border: 3px solid #ff9800; margin-bottom: 15px; }
+        
+        #camera-container { position: relative; width: 100%; border-radius: 15px; overflow: hidden; border: 3px solid #007bff; display: none; background: #000; }
+        #video { width: 100%; display: block; transform: scaleX(-1); }
+        
+        #cam-instruction { position: absolute; top: 10px; left: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 10px; border-radius: 8px; font-weight: bold; z-index: 10; }
+        #face-mask { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 260px; border: 3px solid #28a745; border-radius: 50% / 40%; box-shadow: 0 0 0 1000px rgba(0,0,0,0.4); pointer-events: none; z-index: 5; animation: pulse 2s infinite; }
+        
+        @keyframes pulse { 0% { border-color: #28a745; } 50% { border-color: #5eff8b; } 100% { border-color: #28a745; } }
+        
+        button { width: 100%; padding: 14px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        #btnStart { background-color: #28a745; color: white; display: none; }
+        .btn-sensor { background-color: #6c757d; color: white; font-size: 14px; }
 
-        #face-mask {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 220px; /* Độ rộng khung mặt */
-            height: 280px; /* Độ cao khung mặt */
-            border: 3px solid #28a745; /* Viền xanh lá */
-            border-radius: 50% / 40%; /* Tạo hình oval */
-            box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.4); /* Làm tối vùng ngoài khung */
-            pointer-events: none;
-            z-index: 5;
-        }
-
-        /* Hiệu ứng nhấp nháy nhẹ cho viền xanh để SV chú ý */
-        @keyframes pulse {
-            0% { border-color: #28a745; box-shadow: 0 0 5px #28a745, 0 0 0 1000px rgba(0, 0, 0, 0.4); }
-            50% { border-color: #5eff8b; box-shadow: 0 0 20px #5eff8b, 0 0 0 1000px rgba(0, 0, 0, 0.4); }
-            100% { border-color: #28a745; box-shadow: 0 0 5px #28a745, 0 0 0 1000px rgba(0, 0, 0, 0.4); }
-        }
-
-        #face-mask {
-            animation: pulse 2s infinite;
-        }
-        #status {
-            padding: 15px;
-            border-radius: 8px;
-            background: #fff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            min-height: 24px;
-            transition: all 0.3s ease;
-        }
+        /* PWA Popup */
+        #pwa-popup { display:none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); width: 90%; max-width: 400px; z-index: 1000; text-align: left; border-left: 5px solid #007bff; }
     </style>
 </head>
 <body>
 
-    <div id="pwa-popup" style="display:none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); width: 90%; max-width: 400px; z-index: 1000; text-align: left; border: 2px solid #007bff;">
-        <h4 style="margin: 0 0 10px 0; color: #007bff;">📲 Cài đặt ứng dụng</h4>
-        <p id="pwa-text" style="margin: 0 0 15px 0; font-size: 14px; color: #333; line-height: 1.4;"></p>
-        <div style="text-align: right;">
-            <button id="btnInstall" style="display:none; margin: 0 5px 0 0; padding: 8px 15px; background: #28a745; color: white; font-size: 14px; border-radius: 5px; border:none; cursor: pointer;">Cài đặt ngay</button>
-            <button onclick="closePwaPopup()" style="margin: 0; padding: 8px 15px; background: #6c757d; color: white; font-size: 14px; border-radius: 5px; border:none; cursor: pointer;">Đóng</button>
+    <div class="container">
+        <h2>Hệ thống Điểm Danh</h2>
+        
+        <div id="status">⏳ Đang khởi tạo hệ thống...</div>
+
+        <!-- Yêu cầu cảm biến cho iPhone (Bắt buộc phải bấm) -->
+        <button class="btn-sensor" onclick="requestSensorPermission()">📏 Bước 1: Cấp quyền La bàn (Cho iPhone)</button>
+        
+        <!-- Nút bắt đầu -->
+        <button id="btnStart" onclick="startProcess()">🚀 Bước 2: Bắt đầu Điểm Danh</button>
+
+        <!-- Quét QR -->
+        <div id="reader"></div>
+
+        <!-- Quét Mặt -->
+        <div id="camera-container">
+            <div id="cam-instruction">Đang khởi động camera...</div>
+            <video id="video" autoplay muted playsinline></video>
+            <div id="face-mask"></div>
         </div>
     </div>
 
-    <h2>Hệ thống Điểm Danh 3 Lớp</h2>
-    <div id="status">Đang tải hệ thống... Vui lòng đợi.</div>
-    
-    <!-- Nơi hiển thị Camera Quét QR -->
-    <div id="reader"></div>
-
-    <!-- Nơi hiển thị Camera Quét Mặt -->
-    <div id="camera-container" style="display:none; position: relative; width: 100%; max-width: 400px; margin: 0 auto; border-radius: 15px; overflow: hidden; border: 3px solid #007bff;">
-        <video id="video" autoplay muted playsinline style="width: 100%; display: block; transform: scaleX(-1);"></video>
-        
-        <!-- Lớp phủ hướng dẫn ngay trên camera -->
-        <div id="cam-instruction">Đang khởi động...</div>
-        
-        <!-- Khung viền xanh vị trí khuôn mặt -->
-        <div id="face-mask"></div>
+    <!-- PWA Installation -->
+    <div id="pwa-popup">
+        <h4 style="margin:0; color:#007bff;">📲 Cài đặt ứng dụng</h4>
+        <p id="pwa-text" style="font-size:13px; margin:10px 0;"></p>
+        <div style="text-align: right;">
+            <button id="btnInstall" style="display:none; width:auto; padding:5px 15px; background:#28a745;">Cài đặt</button>
+            <button onclick="closePwaPopup()" style="width:auto; padding:5px 15px; background:#6c757d;">Đóng</button>
+        </div>
     </div>
-
-    <br>
-    <button id="btnStart" style="display:none;" onclick="startProcess()">1. Bắt đầu Check GPS</button>
 
     <script defer src="script.js"></script>
 </body>
