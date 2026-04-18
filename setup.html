@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng Ký Sinh Trắc Học Thiết Bị</title>
+    <title>Đăng Ký Sinh Trắc Học Thiết Bị (Bảo Mật Cao)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; padding: 20px; background: #f0f2f5; color: #333; }
+        /* CSS giữ nguyên, chỉ vô hiệu hóa bôi đen text */
+        body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; padding: 20px; background: #f0f2f5; color: #333; user-select: none; -webkit-user-select: none; }
         .container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 450px; margin: auto; min-height: 300px; display: none; flex-direction: column; justify-content: center; }
-        
         #camera-container { position: relative; width: 100%; max-width: 400px; margin: 0 auto 20px auto; border-radius: 15px; overflow: hidden; border: 3px solid #ccc; background: #000; display: none; }
         #video { width: 100%; display: block; transform: scaleX(-1); }
         #cam-instruction { position: absolute; top: 15px; left: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); color: #fff; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; z-index: 10; }
@@ -26,19 +26,26 @@
         .dot { width: 12px; height: 12px; border-radius: 50%; background: #ddd; }
         .dot.active { background: #007bff; transform: scale(1.3); }
         .dot.done { background: #28a745; }
+        #lock-screen-fatal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 99999; flex-direction: column; justify-content: center; align-items: center; color: red; font-weight: bold; padding: 20px; }
     </style>
 </head>
 <body>
 
-    <!-- MÀN HÌNH KHÓA -->
+    <!-- MÀN HÌNH KHÓA VI PHẠM -->
+    <div id="lock-screen-fatal">
+        <h1>⛔ HỆ THỐNG ĐÃ BỊ KHÓA</h1>
+        <p>Phát hiện vi phạm hoặc nhập sai quá 5 lần. Vui lòng liên hệ Giáo vụ.</p>
+    </div>
+
+    <!-- MÀN HÌNH KHÓA QUÉT QR -->
     <div id="faculty-lock-screen" style="position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
         <h2 style="color: #007bff;">🔐 XÁC THỰC GIÁO VỤ</h2>
-        <p style="text-align: center;">Vui lòng quét mã QR tại máy tính Văn phòng Khoa để mở khóa tính năng đăng ký.</p>
+        <p style="text-align: center;">Vui lòng quét mã QR tại máy tính Văn phòng Khoa.</p>
         <div id="setup-reader" style="width: 100%; max-width: 350px; border: 5px solid #333; border-radius: 15px; overflow: hidden;"></div>
         <div id="lock-status" style="margin-top: 20px; color: red; font-weight: bold;"></div>
     </div>
 
-    <!-- UI ĐĂNG KÝ (ẨN LÚC ĐẦU) -->
+    <!-- UI ĐĂNG KÝ -->
     <div class="container" id="main-container">
         <div id="setup-ui">
             <h2 style="margin-top:0; color:#007bff;">🔧 ĐĂNG KÝ THIẾT BỊ</h2>
@@ -56,138 +63,236 @@
                 <div id="face-mask"></div>
             </div>
 
-            <input type="text" id="studentId" placeholder="Nhập Mã Sinh Viên (VD: SV001)">
-            <button id="btn-reg" onclick="handleRegistration()">📸 Bắt đầu chụp mặt</button>
-            <button class="btn-remove" onclick="removeDevice()">🗑️ Hủy liên kết máy này</button>
+            <input type="text" id="studentId" placeholder="Nhập Mã Sinh Viên (VD: SV001)" autocomplete="off">
+            <button id="btn-reg">📸 Bắt đầu chụp mặt</button>
+            <button class="btn-remove" id="btn-remove">🗑️ Hủy liên kết máy này</button>
         </div>
         <div id="status-box"></div>
     </div>
 
     <script>
-        const SECRET_KEY = "HàngHải2026@Secure"; 
-        const FB_URL = "https://hanghai-6f86f-default-rtdb.asia-southeast1.firebasedatabase.app"; 
-        let html5QrcodeScanner;
-        let registeredDescriptors = [];
-        let currentStep = 0;
-        const steps = ["Nhìn THẲNG", "Nghiêng đầu sang TRÁI", "Nghiêng đầu sang PHẢI"];
+        // SỬ DỤNG IIFE ĐỂ ĐÓNG GÓI HOÀN TOÀN LOGIC, KHÔNG LỘ RA WINDOW OBJECT
+        (function() {
+            "use strict";
 
-        // 1. KHỞI TẠO QUÉT MÃ KHOA
-        window.addEventListener('load', () => {
-            html5QrcodeScanner = new Html5Qrcode("setup-reader");
-            html5QrcodeScanner.start(
-                { facingMode: "environment" },
-                { fps: 15, qrbox: 250 },
-                (text) => verifyFacultyToken(text)
-            ).catch(e => document.getElementById("lock-status").innerText = "Lỗi Camera sau!");
-        });
+            // --- 1. BẢO MẬT GIAO DIỆN (CHỐNG F12, CHUỘT PHẢI, DEBUGGER TỰ ĐỘNG) ---
+            document.addEventListener('contextmenu', e => e.preventDefault());
+            document.addEventListener('keydown', e => {
+                if (e.key === 'F12' || 
+                   (e.ctrlKey && e.shiftKey &&['I', 'J', 'C'].includes(e.key)) || 
+                   (e.ctrlKey && e.key === 'U')) {
+                    e.preventDefault();
+                }
+            });
+            // Vòng lặp chống debug (làm phiền nếu cố tình bật devtools)
+            setInterval(() => {
+                (function() { return false; }['constructor']('debugger')());
+            }, 1000);
 
-        // 2. XÁC THỰC MÃ KHOA
-        function verifyFacultyToken(scannedToken) {
-            const timeBlock = Math.floor(Date.now() / 15000);
-            const check = (b) => CryptoJS.HmacSHA256(`FACULTY_ACCESS_${b}`, SECRET_KEY).toString();
+            // --- 2. CẤU HÌNH & BIẾN CỤC BỘ ---
+            const SEC_KEY = "HàngHải2026@Secure"; 
+            const FB_URL = "https://hanghai-6f86f-default-rtdb.asia-southeast1.firebasedatabase.app"; 
+            const ATTEMPT_STORAGE_KEY = "KHH_SECURE_ATTEMPT_HASH";
+            const MAX_FAILS = 5;
 
-            if (scannedToken === check(timeBlock) || scannedToken === check(timeBlock - 1)) {
-                html5QrcodeScanner.stop().then(() => {
-                    document.getElementById("faculty-lock-screen").style.display = "none";
-                    document.getElementById("main-container").style.display = "flex";
-                    initFaceRegistration(); // Chạy bước tiếp theo
-                });
-            } else {
-                document.getElementById("lock-status").innerText = "❌ Mã không hợp lệ!";
-            }
-        }
+            let html5QrcodeScanner;
+            let registeredDescriptors = [];
+            let currentStep = 0;
+            const steps =["Nhìn THẲNG", "Nghiêng đầu sang TRÁI", "Nghiêng đầu sang PHẢI"];
 
-        // 3. TẢI AI VÀ MỞ CAMERA TRƯỚC
-        async function initFaceRegistration() {
-            try {
-                await Promise.all([
-                    faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
-                    faceapi.nets.faceLandmark68Net.loadFromUri('./models'),
-                    faceapi.nets.faceRecognitionNet.loadFromUri('./models')
-                ]);
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-                document.getElementById("video").srcObject = stream;
-                document.getElementById("camera-container").style.display = "block";
-                document.getElementById("ai-loading").style.display = "none";
-                document.getElementById("btn-reg").style.display = "inline-block";
-            } catch (e) {
-                alert("Lỗi tải AI hoặc Camera trước!");
-            }
-        }
-
-        // 4. LOGIC ĐĂNG KÝ MẶT (Giữ nguyên của bạn)
-        async function handleRegistration() {
-            let msv = document.getElementById("studentId").value.trim().toUpperCase();
-            if(!msv) { alert("Nhập Mã SV!"); return; }
-
-            if (currentStep === 0) {
-                document.getElementById("btn-reg").disabled = true;
-                const check = await fetch(`${FB_URL}/devices/${msv}.json`).then(r => r.json());
-                if (check && check.token) {
-                    alert("Mã SV này đã đăng ký trên máy khác!");
-                    document.getElementById("btn-reg").disabled = false;
-                    return;
+            // --- 3. QUẢN LÝ SỐ LẦN SAI (MÃ HÓA BẰNG CRYPTO-JS) ---
+            function getFailCount() {
+                try {
+                    let enc = localStorage.getItem(ATTEMPT_STORAGE_KEY);
+                    if (!enc) return 0;
+                    let decrypted = CryptoJS.AES.decrypt(enc, SEC_KEY).toString(CryptoJS.enc.Utf8);
+                    if (!decrypted) throw new Error("Tampered"); // Bị sửa đổi mã hóa -> khóa luôn
+                    return parseInt(decrypted) || 0;
+                } catch (e) {
+                    return MAX_FAILS; // Nếu cố tình sửa LocalStorage, ném lên max lỗi luôn
                 }
             }
-            startCapture(msv);
-        }
 
-        async function startCapture(msv) {
-            document.getElementById("btn-reg").disabled = true;
-            document.getElementById("cam-instruction").innerHTML = `Bước ${currentStep + 1}/3: <br>${steps[currentStep]}`;
-            document.getElementById(`dot${currentStep}`).classList.add("active");
-
-            await new Promise(r => setTimeout(r, 1000));
-            const detection = await faceapi.detectSingleFace(document.getElementById("video"), new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 })).withFaceLandmarks().withFaceDescriptor();
-            
-            if (!detection) {
-                document.getElementById("cam-instruction").innerText = "⚠️ Thử lại!";
-                document.getElementById("btn-reg").disabled = false;
-                return;
+            function incrementFailCount() {
+                let current = getFailCount() + 1;
+                let enc = CryptoJS.AES.encrypt(current.toString(), SEC_KEY).toString();
+                localStorage.setItem(ATTEMPT_STORAGE_KEY, enc);
+                if (current >= MAX_FAILS) lockSystemFatal();
+                return current;
             }
 
-            registeredDescriptors.push(Array.from(detection.descriptor));
-            document.getElementById(`dot${currentStep}`).className = "dot done";
-
-            if (currentStep < 2) {
-                currentStep++;
-                document.getElementById("btn-reg").disabled = false;
-                document.getElementById("btn-reg").innerText = "📸 Góc tiếp theo";
-            } else {
-                saveData(msv);
+            function resetFailCount() {
+                let enc = CryptoJS.AES.encrypt("0", SEC_KEY).toString();
+                localStorage.setItem(ATTEMPT_STORAGE_KEY, enc);
             }
-        }
 
-        async function saveData(msv) {
-            document.getElementById("cam-instruction").innerText = "💾 Lưu dữ liệu...";
-            const token = CryptoJS.SHA256(msv + Math.random()).toString();
-            const encrypted = CryptoJS.AES.encrypt(JSON.stringify(registeredDescriptors), token).toString();
+            function lockSystemFatal() {
+                if(html5QrcodeScanner) { html5QrcodeScanner.clear().catch(()=>{}); }
+                document.getElementById('faculty-lock-screen').style.display = 'none';
+                document.getElementById('main-container').style.display = 'none';
+                document.getElementById('lock-screen-fatal').style.display = 'flex';
+                throw new Error("System Locked"); // Dừng toàn bộ JS
+            }
 
-            localStorage.setItem("KHH_STUDENT_ID", msv);
-            localStorage.setItem("KHH_DEVICE_TOKEN", token);
-            localStorage.setItem("KHH_FACE_DATA", encrypted);
+            // Kiểm tra ngay khi tải trang
+            if (getFailCount() >= MAX_FAILS) {
+                window.onload = lockSystemFatal;
+                return; // Ngắt luồng
+            }
 
-            await fetch(`${FB_URL}/devices/${msv}.json`, {
-                method: "PUT",
-                body: JSON.stringify({ token: token, registered_at: new Date().toLocaleString() })
+            // --- 4. KHỞI TẠO HỆ THỐNG QUÉT QR ---
+            window.addEventListener('load', () => {
+                html5QrcodeScanner = new Html5Qrcode("setup-reader");
+                html5QrcodeScanner.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: 250 },
+                    (text) => verifyFacultyToken(text)
+                ).catch(e => {
+                    incrementFailCount();
+                    document.getElementById("lock-status").innerText = "Lỗi Camera! Vui lòng cấp quyền (Sai: " + getFailCount() + "/5)";
+                });
             });
 
-            document.getElementById("setup-ui").style.display = "none";
-            const box = document.getElementById("status-box");
-            box.style.display = "block";
-            box.className = "success-msg";
-            box.innerHTML = `<h2>🎉 THÀNH CÔNG!</h2><p>Đã liên kết thiết bị cho SV: ${msv}</p><button onclick="location.href='index.html'">ĐIỂM DANH NGAY</button>`;
-        }
+            function verifyFacultyToken(scannedToken) {
+                const timeBlock = Math.floor(Date.now() / 15000);
+                const check = (b) => CryptoJS.HmacSHA256(`FACULTY_ACCESS_${b}`, SEC_KEY).toString();
 
-        function removeDevice() {
-            let msv = localStorage.getItem("KHH_STUDENT_ID");
-            if (msv && confirm("Xóa liên kết máy này?")) {
-                fetch(`${FB_URL}/devices/${msv}.json`, { method: "DELETE" }).then(() => {
-                    localStorage.clear();
-                    location.reload();
-                });
+                if (scannedToken === check(timeBlock) || scannedToken === check(timeBlock - 1)) {
+                    resetFailCount(); // Quét đúng QR giáo vụ -> Reset số lần sai
+                    html5QrcodeScanner.stop().then(() => {
+                        document.getElementById("faculty-lock-screen").style.display = "none";
+                        document.getElementById("main-container").style.display = "flex";
+                        initFaceRegistration();
+                    }).catch(()=>{});
+                } else {
+                    let fails = incrementFailCount();
+                    document.getElementById("lock-status").innerText = `❌ Mã không hợp lệ! (Cảnh báo: ${fails}/${MAX_FAILS})`;
+                }
             }
-        }
+
+            // --- 5. BẢO MẬT TRUY CẬP CAMERA TRƯỚC VÀ AI ---
+            async function initFaceRegistration() {
+                try {
+                    await Promise.all([
+                        faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
+                        faceapi.nets.faceLandmark68Net.loadFromUri('./models'),
+                        faceapi.nets.faceRecognitionNet.loadFromUri('./models')
+                    ]);
+                    
+                    // Nếu từ chối Camera -> nhảy vào catch -> Tính 1 lần sai -> Block bypass
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                    document.getElementById("video").srcObject = stream;
+                    document.getElementById("camera-container").style.display = "block";
+                    document.getElementById("ai-loading").style.display = "none";
+                    document.getElementById("btn-reg").style.display = "inline-block";
+                } catch (e) {
+                    incrementFailCount();
+                    alert("LỖI: Bạn phải cấp quyền Camera để thực hiện! Hệ thống ghi nhận 1 lần vi phạm.");
+                    location.reload(); // Không cho tiếp tục
+                }
+            }
+
+            // --- 6. LOGIC XỬ LÝ (GÁN SỰ KIỆN TRỰC TIẾP TRONG JS) ---
+            document.getElementById("btn-reg").addEventListener("click", async function() {
+                let msvInput = document.getElementById("studentId");
+                let msv = msvInput.value.trim().toUpperCase();
+                
+                if(!msv) { 
+                    alert("Yêu cầu nhập Mã SV!"); 
+                    return; 
+                }
+
+                if (currentStep === 0) {
+                    this.disabled = true;
+                    try {
+                        const check = await fetch(`${FB_URL}/devices/${msv}.json`).then(r => r.json());
+                        if (check && check.token) {
+                            alert("Mã SV này đã đăng ký trên máy khác!");
+                            this.disabled = false;
+                            msvInput.value = "";
+                            return;
+                        }
+                    } catch(e) {
+                        // Bỏ qua lỗi mạng
+                    }
+                }
+                startCapture(msv);
+            });
+
+            document.getElementById("btn-remove").addEventListener("click", function() {
+                let msv = localStorage.getItem("KHH_STUDENT_ID");
+                if (msv && confirm("Bạn có chắc chắn muốn xóa liên kết thiết bị này?")) {
+                    fetch(`${FB_URL}/devices/${msv}.json`, { method: "DELETE" }).then(() => {
+                        localStorage.removeItem("KHH_STUDENT_ID");
+                        localStorage.removeItem("KHH_DEVICE_TOKEN");
+                        localStorage.removeItem("KHH_FACE_DATA");
+                        location.reload();
+                    });
+                }
+            });
+
+            async function startCapture(msv) {
+                let btn = document.getElementById("btn-reg");
+                btn.disabled = true;
+                let instruction = document.getElementById("cam-instruction");
+                instruction.innerHTML = `Bước ${currentStep + 1}/3: <br>${steps[currentStep]}`;
+                document.getElementById(`dot${currentStep}`).classList.add("active");
+
+                await new Promise(r => setTimeout(r, 1000));
+                
+                try {
+                    const detection = await faceapi.detectSingleFace(
+                        document.getElementById("video"), 
+                        new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 })
+                    ).withFaceLandmarks().withFaceDescriptor();
+                    
+                    if (!detection) {
+                        instruction.innerText = "⚠️ Không nhận diện được khuôn mặt. Thử lại!";
+                        btn.disabled = false;
+                        return; // Không tăng lỗi nếu chỉ là bắt trượt mặt
+                    }
+
+                    registeredDescriptors.push(Array.from(detection.descriptor));
+                    document.getElementById(`dot${currentStep}`).className = "dot done";
+
+                    if (currentStep < 2) {
+                        currentStep++;
+                        btn.disabled = false;
+                        btn.innerText = "📸 Góc tiếp theo";
+                    } else {
+                        saveData(msv);
+                    }
+                } catch(e) {
+                    instruction.innerText = "Lỗi xử lý AI, vui lòng tải lại trang!";
+                }
+            }
+
+            async function saveData(msv) {
+                document.getElementById("cam-instruction").innerText = "💾 Lưu dữ liệu...";
+                const token = CryptoJS.SHA256(msv + Math.random()).toString();
+                const encrypted = CryptoJS.AES.encrypt(JSON.stringify(registeredDescriptors), token).toString();
+
+                localStorage.setItem("KHH_STUDENT_ID", msv);
+                localStorage.setItem("KHH_DEVICE_TOKEN", token);
+                localStorage.setItem("KHH_FACE_DATA", encrypted);
+
+                try {
+                    await fetch(`${FB_URL}/devices/${msv}.json`, {
+                        method: "PUT",
+                        body: JSON.stringify({ token: token, registered_at: new Date().toLocaleString() })
+                    });
+
+                    document.getElementById("setup-ui").style.display = "none";
+                    const box = document.getElementById("status-box");
+                    box.style.display = "block";
+                    box.className = "success-msg";
+                    box.innerHTML = `<h2>🎉 THÀNH CÔNG!</h2><p>Đã liên kết thiết bị cho SV: <b>${msv}</b></p><button style="background:#28a745; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;" onclick="location.href='index.html'">VỀ TRANG ĐIỂM DANH</button>`;
+                } catch(e) {
+                    alert("Lỗi kết nối mạng, không thể lưu lên máy chủ!");
+                }
+            }
+
+        })();
     </script>
 </body>
 </html>
