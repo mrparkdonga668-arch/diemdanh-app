@@ -178,6 +178,7 @@
                             <th>MSSV</th>
                             <th>Họ Tên</th>
                             <th>Trạng thái</th>
+                            <th>Xác thực</th>
                             <th>Thời gian</th>
                         </tr>
                     </thead>
@@ -342,51 +343,91 @@
             });
 
             async function refreshAttendanceUI(cid) {
-                const btn = document.getElementById("btnRefreshAttendance");
-                btn.innerText = "⏳ Đang tải...";
-                btn.disabled = true;
+                        const btn = document.getElementById("btnRefreshAttendance");
+                        const tbody = document.getElementById('attendance-body');
+                        const statText = document.getElementById('stat-count');
+                        
+                        btn.innerText = "⏳ Đang kiểm tra chữ ký...";
+                        btn.disabled = true;
 
-                try {
-                    // 1. Lấy danh sách SV gốc của lớp
-                    const classRes = await fetch(`${FB_URL}/classes/${cid}.json`);
-                    const classData = await classRes.json();
-                    const studentMap = classData.students || {};
+                        try {
+                            // 1. Lấy danh sách SV của lớp
+                            const classRes = await fetch(`${FB_URL}/classes/${cid}.json`);
+                            const classData = await classRes.json();
+                            const studentMap = classData.students || {};
 
-                    // 2. Lấy danh sách đã điểm danh từ node checkins (hoặc active_sessions/attendance)
-                    const checkinRes = await fetch(`${FB_URL}/checkins.json?orderBy="class_id"&equalTo="${cid}"`);
-                    const checkinData = await checkinRes.json() || {};
-                    
-                    const checkedInSids = Object.values(checkinData).map(c => c.student_id);
-                    
-                    const tbody = document.getElementById('attendance-body');
-                    tbody.innerHTML = "";
-                    let presentCount = 0;
+                            // 2. Lấy dữ liệu điểm danh thực tế từ Firebase
+                            const checkinRes = await fetch(`${FB_URL}/checkins.json?orderBy="class_id"&equalTo=${JSON.stringify(cid)}`);
+                            const checkinData = await checkinRes.json();
+                            const checkedInList = checkinData ? Object.values(checkinData) : [];
 
-                    for (let sid in studentMap) {
-                        const isPresent = checkedInSids.includes(sid);
-                        if(isPresent) presentCount++;
+                            tbody.innerHTML = "";
+                            let presentCount = 0;
+                            let fraudCount = 0; // Đếm số ca gian lận
 
-                        const timeVal = Object.values(checkinData).find(c => c.student_id === sid)?.timestamp;
-                        const timeStr = timeVal ? new Date(timeVal).toLocaleTimeString() : "--:--";
+                            for (let sid in studentMap) {
+                                const cleanSid = String(sid).trim().toUpperCase();
+                                // Tìm bản ghi điểm danh của sinh viên này
+                                const record = checkedInList.find(c => String(c.student_id).trim().toUpperCase() === cleanSid);
+                                
+                                let statusHTML = "";
+                                let timeStr = "--:--";
+                                let authHTML = "---";
 
-                        tbody.innerHTML += `
-                            <tr>
-                                <td>${sid}</td>
-                                <td>Sinh viên ${sid}</td>
-                                <td><span class="status-badge ${isPresent ? 'status-present' : 'status-absent'}">${isPresent ? 'HIỆN DIỆN' : 'VẮNG'}</span></td>
-                                <td>${timeStr}</td>
-                            </tr>
-                        `;
+                                if (record) {
+                                    // --- LOGIC XÁC MINH CHỮ KÝ (IMPORTANT) ---
+                                    // Cấu trúc message: student_id + "_" + class_id + "_" + timestamp
+                                    const msg = `${record.student_id}_${record.class_id}_${record.timestamp}`;
+                                    
+                                    // Tính toán chữ ký mong đợi dựa trên SECRET_KEY của hệ thống
+                                    const expectedSig = CryptoJS.HmacSHA256(msg, SECRET_KEY).toString();
+                                    
+                                    // So sánh chữ ký từ Firebase và chữ ký tự tính toán
+                                    const isSigValid = (record.signature === expectedSig);
+
+                                    if (isSigValid) {
+                                        presentCount++;
+                                        statusHTML = `<span class="status-badge status-present">✅ HIỆN DIỆN</span>`;
+                                        authHTML = `<b style="color:green;">✓ Hợp lệ</b>`;
+                                    } else {
+                                        fraudCount++;
+                                        statusHTML = `<span class="status-badge" style="background:#ffc107; color:#000;">⚠️ NGHI VẤN</span>`;
+                                        authHTML = `<b style="color:red;">❌ GIAN LẬN!</b>`;
+                                    }
+                                    
+                                    timeStr = new Date(record.timestamp).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+                                } else {
+                                    statusHTML = `<span class="status-badge status-absent">❌ VẮNG</span>`;
+                                }
+
+                                tbody.innerHTML += `
+                                    <tr>
+                                        <td>${cleanSid}</td>
+                                        <td>Sinh viên ${cleanSid}</td>
+                                        <td>${statusHTML}</td>
+                                        <td>${authHTML}</td>
+                                        <td>${timeStr}</td>
+                                    </tr>
+                                `;
+                            }
+
+                            // Hiển thị thống kê bao gồm cả cảnh báo gian lận
+                            let statMsg = `Sĩ số: ${presentCount} / ${Object.keys(studentMap).length}`;
+                            if (fraudCount > 0) {
+                                statMsg += ` | <span style="color:red;">Phát hiện: ${fraudCount} ca sai chữ ký!</span>`;
+                            }
+                            statText.innerHTML = statMsg;
+
+                        } catch(e) {
+                            console.error(e);
+                            tbody.innerHTML = `<tr><td colspan="5" style="color:red">Lỗi xác thực dữ liệu.</td></tr>`;
+                        } finally {
+                            setTimeout(() => {
+                                btn.innerText = "🔄 Cập nhật (Refresh)";
+                                btn.disabled = false;
+                            }, 1000);
+                        }
                     }
-                    document.getElementById('stat-count').innerText = `${presentCount} / ${Object.keys(studentMap).length}`;
-
-                } catch(e) { console.error(e); }
-                
-                setTimeout(() => {
-                    btn.innerText = "🔄 Cập nhật (Refresh)";
-                    btn.disabled = false;
-                }, 2000); // Debounce 2 giây để tránh spam nút
-            }
 
             // --- 8. Menu Đổi mật khẩu ---
             document.getElementById("btnToggleSettings").addEventListener("click", () => {
