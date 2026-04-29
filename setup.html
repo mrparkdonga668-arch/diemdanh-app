@@ -305,7 +305,7 @@
                         body: JSON.stringify({ token: token, registered_at: new Date().toLocaleString() })
                     });
 
-                    document.getElementById("setup-ui").style.display = "none";
+                    document.getElementById("capture-step").style.display = "none";
                     const box = document.getElementById("status-box");
                     box.style.display = "block";
                     box.className = "success-msg";
