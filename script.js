@@ -91,7 +91,7 @@
     function handleQRScanned(decodedText, session) {
         if (isLocked()) return;
         const now = getNow();
-        const timeBlock = Math.floor(now / 5000);
+        const timeBlock = Math.floor(now / 15000);
         const validToken = CryptoJS.HmacSHA256(`${activeClassId}_${timeBlock}_${session.salt}`, SECRET_KEY).toString();
         const prevToken = CryptoJS.HmacSHA256(`${activeClassId}_${timeBlock - 1}_${session.salt}`, SECRET_KEY).toString();
 
@@ -180,7 +180,7 @@
         relayDiv.innerHTML = `<div style="padding:15px; text-align:center; background:white; border-radius:15px; margin-top:20px; border:3px solid #28a745;">
             <h3 style="color:#28a745;">🌟 TIẾP SỨC</h3>
             <div id="relayQr" style="display:flex; justify-content:center; margin:10px 0;"></div>
-            <p>Mã QR tự động cập nhật mỗi 5 giây</p>
+            <p>Mã QR tự động cập nhật mỗi 15 giây</p>
             <p>Hết hạn: <span id="relayTimer">60</span>s</p>
         </div>`;
         document.body.appendChild(relayDiv);
@@ -191,7 +191,7 @@
             const elapsed = getNow() - relayStart;
             if (elapsed > 60000) { clearInterval(relayInterval); relayDiv.remove(); return; }
             document.getElementById('relayTimer').innerText = Math.floor((60000 - elapsed) / 1000);
-            let token = CryptoJS.HmacSHA256(`${activeClassId}_${Math.floor(getNow() / 5000)}_${session.salt}`, SECRET_KEY).toString();
+            let token = CryptoJS.HmacSHA256(`${activeClassId}_${Math.floor(getNow() / 15000)}_${session.salt}`, SECRET_KEY).toString();
             // Phát mã chỉ chứa token, không kèm hướng
             relayQr.makeCode(token);
         }, 1000);
