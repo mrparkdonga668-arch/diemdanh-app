@@ -19,8 +19,6 @@
     let serverTimeOffset = 0;
     let html5QrcodeScanner;
     let isSubmitting = false;
-    let isSensorActive = false;
-    let myHeading = 0;
     let activeClassId = null;
 
     // Quản lý lỗi bảo mật
@@ -97,23 +95,18 @@
         const validToken = CryptoJS.HmacSHA256(`${activeClassId}_${timeBlock}_${session.salt}`, SECRET_KEY).toString();
         const prevToken = CryptoJS.HmacSHA256(`${activeClassId}_${timeBlock - 1}_${session.salt}`, SECRET_KEY).toString();
 
-        let scannedToken = "", senderHeading = null;
+        let scannedToken = "";
+        // Hỗ trợ cả định dạng cũ (có R:) và định dạng mới (chỉ token) để tránh lỗi
         if (decodedText.startsWith("R:")) {
             const parts = decodedText.replace("R:", "").split("|");
-            scannedToken = parts[0]; senderHeading = parseFloat(parts[1]);
+            scannedToken = parts[0]; 
         } else { scannedToken = decodedText; }
 
         if (scannedToken !== validToken && scannedToken !== prevToken) {
             handleFailure("Mã QR không khớp hoặc hết hạn."); return;
         }
 
-        if (senderHeading !== null) {
-            if (!isSensorActive) { statusDiv.innerHTML = "⚠️ Cần bật/cấp quyền."; return; }
-            let diff = Math.abs(myHeading - ((senderHeading + 180) % 360));
-            if (diff > 180) diff = 360 - diff;
-            if (diff > 60) { handleFailure("Hãy đứng đối diện người hỗ trợ."); return; }
-        }
-
+        
         failCount = 0; setSecureFailCount(0);
         html5QrcodeScanner.stop().then(() => {
             document.getElementById('reader').style.display = "none";
@@ -187,7 +180,8 @@
         relayDiv.innerHTML = `<div style="padding:15px; text-align:center; background:white; border-radius:15px; margin-top:20px; border:3px solid #28a745;">
             <h3 style="color:#28a745;">🌟 TIẾP SỨC</h3>
             <div id="relayQr" style="display:flex; justify-content:center; margin:10px 0;"></div>
-            <p>Hướng: <b id="relayCompassDisplay">0°</b> | Hết hạn: <span id="relayTimer">60</span>s</p>
+            <p>Mã QR tự động cập nhật mỗi 15 giây</p>
+            <p>Hết hạn: <span id="relayTimer">60</span>s</p>
         </div>`;
         document.body.appendChild(relayDiv);
 
@@ -197,27 +191,13 @@
             const elapsed = getNow() - relayStart;
             if (elapsed > 60000) { clearInterval(relayInterval); relayDiv.remove(); return; }
             document.getElementById('relayTimer').innerText = Math.floor((60000 - elapsed) / 1000);
-            document.getElementById('relayCompassDisplay').innerText = Math.round(myHeading) + "°";
             let token = CryptoJS.HmacSHA256(`${activeClassId}_${Math.floor(getNow() / 15000)}_${session.salt}`, SECRET_KEY).toString();
-            relayQr.makeCode(`R:${token}|${Math.round(myHeading)}`);
+            // Phát mã chỉ chứa token, không kèm hướng
+            relayQr.makeCode(token);
         }, 1000);
     }
 
     // --- 6. XUẤT HÀM RA WINDOW ---
-    window.requestSensorPermission = async function() {
-        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-            try {
-                const permission = await DeviceOrientationEvent.requestPermission();
-                if (permission === 'granted') {
-                    isSensorActive = true;
-                    alert("✅ Đã cấp quyền 1.");
-                }
-            } catch (e) { alert("Cần cấp quyền để dùng tính năng Tiếp sức."); }
-        } else {
-            isSensorActive = true; // Android thường tự có
-            alert("Đã sẵn sàng.");
-        }
-    };
 
     window.closePwaPopup = function() {
         document.getElementById('pwa-popup').style.display = 'none';
@@ -265,10 +245,6 @@
             }, { enableHighAccuracy: true });
         } catch (e) { statusDiv.innerHTML = "Lỗi kết nối!"; btnStart.style.display = "inline-block"; }
     };
-
-    window.addEventListener('deviceorientationabsolute', (e) => {
-        if (e.alpha !== null) { isSensorActive = true; myHeading = e.alpha; }
-    }, true);
 
     // Khởi chạy
     syncTime();
