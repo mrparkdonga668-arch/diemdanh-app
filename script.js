@@ -68,7 +68,7 @@
 
     function isLocked() {
         const now = Date.now();
-        if (failCount >= 8 || now < lockUntil) {
+        if (failCount >5 || now < lockUntil) {
             const min = Math.ceil((lockUntil - now) / 60000);
             statusDiv.innerHTML = `<b style="color:red;">🚫 HỆ THỐNG ĐANG KHÓA</b><br>Thử lại sau ${min > 0 ? min : 0} phút.`;
             return true;
@@ -78,7 +78,7 @@
 
     function handleFailure(msg) {
         failCount++; setSecureFailCount(failCount);
-        if (failCount >= 8) {
+        if (failCount >= 5) {
             lockUntil = Date.now() + (3 * 60 * 1000);
             localStorage.setItem("KHH_LOCK_UNTIL", lockUntil);
             statusDiv.innerHTML = `<b style="color:red;">🚫 KHÓA 3 PHÚT!</b>`;
@@ -94,7 +94,7 @@
         const timeBlock = Math.floor(now / 5000);
         const validToken = CryptoJS.HmacSHA256(`${activeClassId}_${timeBlock}_${session.salt}`, SECRET_KEY).toString();
         const prevToken = CryptoJS.HmacSHA256(`${activeClassId}_${timeBlock - 1}_${session.salt}`, SECRET_KEY).toString();
-        const t2 = CryptoJS.HmacSHA256(`${activeClassId}_${timeBlock - 2}_${session.salt}`, SECRET_KEY).toString();
+        
 
         let scannedToken = "";
         // Hỗ trợ cả định dạng cũ (có R:) và định dạng mới (chỉ token) để tránh lỗi
@@ -103,7 +103,7 @@
             scannedToken = parts[0]; 
         } else { scannedToken = decodedText; }
 
-        if (scannedToken !== validToken && scannedToken !== prevToken && scannedToken !== t2) {
+        if (scannedToken !== validToken && scannedToken !== prevToken ) {
             handleFailure("Mã QR không khớp hoặc hết hạn."); return;
         }
 
