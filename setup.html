@@ -1,12 +1,522 @@
 <!DOCTYPE html>
 <html lang="vi">
-<script>document.write(decodeURIComponent(escape(atob("PGhlYWQ+CiAgICA8bWV0YSBjaGFyc2V0PSJVVEYtOCI+CiAgICA8bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLCBpbml0aWFsLXNjYWxlPTEuMCI+CiAgICA8dGl0bGU+xJDEg25nIEvDvSBTaW5oIFRy4bqvYyBI4buNYyBUaGnhur90IELhu4sgKELhuqNvIE3huq10IENhbyk8L3RpdGxlPgogICAgPHNjcmlwdCBzcmM9Imh0dHBzOi8vY2RuanMuY2xvdWRmbGFyZS5jb20vYWpheC9saWJzL2NyeXB0by1qcy80LjEuMS9jcnlwdG8tanMubWluLmpzIj48L3NjcmlwdD4KICAgIDxzY3JpcHQgZGVmZXIgc3JjPSJodHRwczovL2Nkbi5qc2RlbGl2ci5uZXQvbnBtL0B2bGFkbWFuZGljL2ZhY2UtYXBpL2Rpc3QvZmFjZS1hcGkubWluLmpzIj48L3NjcmlwdD4KICAgIDxzY3JpcHQgc3JjPSJodHRwczovL3VucGtnLmNvbS9odG1sNS1xcmNvZGUiPjwvc2NyaXB0PgogICAgPHN0eWxlPgogICAgICAgIC8qIENTUyBnaeG7ryBuZ3V5w6puLCBjaOG7iSB2w7QgaGnhu4d1IGjDs2EgYsO0aSDEkWVuIHRleHQgKi8KICAgICAgICBib2R5IHsgZm9udC1mYW1pbHk6ICdTZWdvZSBVSScsIEFyaWFsLCBzYW5zLXNlcmlmOyB0ZXh0LWFsaWduOiBjZW50ZXI7IHBhZGRpbmc6IDIwcHg7IGJhY2tncm91bmQ6ICNmMGYyZjU7IGNvbG9yOiAjMzMzOyB1c2VyLXNlbGVjdDogbm9uZTsgLXdlYmtpdC11c2VyLXNlbGVjdDogbm9uZTsgfQogICAgICAgIC5jb250YWluZXIgeyBiYWNrZ3JvdW5kOiB3aGl0ZTsgcGFkZGluZzogMjVweDsgYm9yZGVyLXJhZGl1czogMTVweDsgYm94LXNoYWRvdzogMCAxMHB4IDI1cHggcmdiYSgwLDAsMCwwLjEpOyBtYXgtd2lkdGg6IDQ1MHB4OyBtYXJnaW46IGF1dG87IG1pbi1oZWlnaHQ6IDMwMHB4OyBkaXNwbGF5OiBub25lOyBmbGV4LWRpcmVjdGlvbjogY29sdW1uOyBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjsgfQogICAgICAgICNjYW1lcmEtY29udGFpbmVyIHsgcG9zaXRpb246IHJlbGF0aXZlOyB3aWR0aDogMTAwJTsgbWF4LXdpZHRoOiA0MDBweDsgbWFyZ2luOiAwIGF1dG8gMjBweCBhdXRvOyBib3JkZXItcmFkaXVzOiAxNXB4OyBvdmVyZmxvdzogaGlkZGVuOyBib3JkZXI6IDNweCBzb2xpZCAjY2NjOyBiYWNrZ3JvdW5kOiAjMDAwOyBkaXNwbGF5OiBub25lOyB9CiAgICAgICAgI3ZpZGVvIHsgd2lkdGg6IDEwMCU7IGRpc3BsYXk6IGJsb2NrOyB0cmFuc2Zvcm06IHNjYWxlWCgtMSk7IH0KICAgICAgICAjY2FtLWluc3RydWN0aW9uIHsgcG9zaXRpb246IGFic29sdXRlOyB0b3A6IDE1cHg7IGxlZnQ6IDEwcHg7IHJpZ2h0OiAxMHB4OyBiYWNrZ3JvdW5kOiByZ2JhKDAsIDAsIDAsIDAuNyk7IGNvbG9yOiAjZmZmOyBwYWRkaW5nOiAxMnB4OyBib3JkZXItcmFkaXVzOiA4cHg7IGZvbnQtc2l6ZTogMTZweDsgZm9udC13ZWlnaHQ6IGJvbGQ7IHotaW5kZXg6IDEwOyB9CiAgICAgICAgI2ZhY2UtbWFzayB7IHBvc2l0aW9uOiBhYnNvbHV0ZTsgdG9wOiA1MCU7IGxlZnQ6IDUwJTsgdHJhbnNmb3JtOiB0cmFuc2xhdGUoLTUwJSwgLTUwJSk7IHdpZHRoOiAyMDBweDsgaGVpZ2h0OiAyNjBweDsgYm9yZGVyOiAzcHggc29saWQgIzI4YTc0NTsgYm9yZGVyLXJhZGl1czogNTAlIC8gNDAlOyBib3gtc2hhZG93OiAwIDAgMCAxMDAwcHggcmdiYSgwLCAwLCAwLCAwLjQpOyBwb2ludGVyLWV2ZW50czogbm9uZTsgei1pbmRleDogNTsgYW5pbWF0aW9uOiBwdWxzZSAycyBpbmZpbml0ZTsgfQogICAgICAgIEBrZXlmcmFtZXMgcHVsc2UgeyAwJSB7IGJvcmRlci1jb2xvcjogIzI4YTc0NTsgfSA1MCUgeyBib3JkZXItY29sb3I6ICM1ZWZmOGI7IH0gMTAwJSB7IGJvcmRlci1jb2xvcjogIzI4YTc0NTsgfSB9CiAgICAgICAgaW5wdXQgeyBwYWRkaW5nOiAxMnB4OyBmb250LXNpemU6IDE2cHg7IHdpZHRoOiA5MCU7IG1hcmdpbi1ib3R0b206IDE1cHg7IGJvcmRlcjogMnB4IHNvbGlkICNkZGQ7IGJvcmRlci1yYWRpdXM6IDhweDsgYm94LXNpemluZzogYm9yZGVyLWJveDsgfQogICAgICAgIGJ1dHRvbiB7IHBhZGRpbmc6IDE0cHg7IGZvbnQtc2l6ZTogMTZweDsgd2lkdGg6IDkwJTsgbWFyZ2luLWJvdHRvbTogMTBweDsgYm9yZGVyOiBub25lOyBib3JkZXItcmFkaXVzOiA4cHg7IGN1cnNvcjogcG9pbnRlcjsgZm9udC13ZWlnaHQ6IGJvbGQ7IH0KICAgICAgICAjYnRuLXJlZyB7IGJhY2tncm91bmQ6ICMwMDdiZmY7IGNvbG9yOiB3aGl0ZTsgZGlzcGxheTogbm9uZTsgfQogICAgICAgIC5idG4tcmVtb3ZlIHsgYmFja2dyb3VuZDogIzZjNzU3ZDsgY29sb3I6IHdoaXRlOyBvcGFjaXR5OiAwLjc7IH0KICAgICAgICAjc3RhdHVzLWJveCB7IG1hcmdpbi10b3A6IDE1cHg7IHBhZGRpbmc6IDIwcHg7IGJvcmRlci1yYWRpdXM6IDEwcHg7IGRpc3BsYXk6IG5vbmU7IGxpbmUtaGVpZ2h0OiAxLjY7IH0KICAgICAgICAuc3VjY2Vzcy1tc2cgeyBiYWNrZ3JvdW5kLWNvbG9yOiAjZDRlZGRhOyBjb2xvcjogIzE1NTcyNDsgYm9yZGVyOiAycHggc29saWQgI2MzZTZjYjsgfQogICAgICAgIC5wcm9ncmVzcy1kb3RzIHsgZGlzcGxheTogZmxleDsganVzdGlmeS1jb250ZW50OiBjZW50ZXI7IGdhcDogMTVweDsgbWFyZ2luLWJvdHRvbTogMjBweDsgfQogICAgICAgIC5kb3QgeyB3aWR0aDogMTJweDsgaGVpZ2h0OiAxMnB4OyBib3JkZXItcmFkaXVzOiA1MCU7IGJhY2tncm91bmQ6ICNkZGQ7IH0KICAgICAgICAuZG90LmFjdGl2ZSB7IGJhY2tncm91bmQ6ICMwMDdiZmY7IHRyYW5zZm9ybTogc2NhbGUoMS4zKTsgfQogICAgICAgIC5kb3QuZG9uZSB7IGJhY2tncm91bmQ6ICMyOGE3NDU7IH0KICAgICAgICAjbG9jay1zY3JlZW4tZmF0YWwgeyBkaXNwbGF5OiBub25lOyBwb3NpdGlvbjogZml4ZWQ7IHRvcDogMDsgbGVmdDogMDsgd2lkdGg6IDEwMCU7IGhlaWdodDogMTAwJTsgYmFja2dyb3VuZDogI2ZmZjsgei1pbmRleDogOTk5OTk7IGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47IGp1c3RpZnktY29udGVudDogY2VudGVyOyBhbGlnbi1pdGVtczogY2VudGVyOyBjb2xvcjogcmVkOyBmb250LXdlaWdodDogYm9sZDsgcGFkZGluZzogMjBweDsgfQogICAgPC9zdHlsZT4KPC9oZWFkPg=="))));</script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký Sinh Trắc Học Thiết Bị (Bảo Mật Cao)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        .tos-container {
+            height: 250px;
+            overflow-y: scroll;
+            border: 1px solid #d1d9e0;
+            border-radius: 8px;
+            background: #ffffff;
+            margin-bottom: 20px;
+            text-align: left;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .tos-header {
+            background: #1a237e; /* Màu xanh Navy của app */
+            color: white;
+            padding: 12px;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            letter-spacing: 1px;
+        }
+
+        .tos-body {
+            padding: 15px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+
+        .tos-body section {
+            margin-bottom: 15px;
+        }
+
+        .tos-body h4 {
+            color: #1a237e;
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-number {
+            background: #1a237e;
+            color: white;
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 10px;
+            margin-right: 8px;
+        }
+
+        .tos-body ul {
+            padding-left: 18px;
+            margin: 0;
+        }
+
+        .tos-body li {
+            margin-bottom: 5px;
+            list-style-type: square;
+        }
+
+        /* Tùy chỉnh thanh cuộn cho đẹp */
+        .tos-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .tos-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .tos-container::-webkit-scrollbar-thumb {
+            background: #1a237e;
+            border-radius: 10px;
+        }
+        /* CSS giữ nguyên, chỉ vô hiệu hóa bôi đen text */
+        body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; padding: 20px; background: #f0f2f5; color: #333; user-select: none; -webkit-user-select: none; }
+        .container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 450px; margin: auto; min-height: 300px; display: none; flex-direction: column; justify-content: center; }
+        #camera-container { position: relative; width: 100%; max-width: 400px; margin: 0 auto 20px auto; border-radius: 15px; overflow: hidden; border: 3px solid #ccc; background: #000; display: none; }
+        #video { width: 100%; display: block; transform: scaleX(-1); }
+        #cam-instruction { position: absolute; top: 15px; left: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); color: #fff; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; z-index: 10; }
+        #face-mask { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 260px; border: 3px solid #28a745; border-radius: 50% / 40%; box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.4); pointer-events: none; z-index: 5; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { border-color: #28a745; } 50% { border-color: #5eff8b; } 100% { border-color: #28a745; } }
+        input { padding: 12px; font-size: 16px; width: 90%; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { padding: 14px; font-size: 16px; width: 90%; margin-bottom: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        #btn-reg { background: #007bff; color: white; display: none; }
+        .btn-remove { background: #6c757d; color: white; opacity: 0.7; }
+        #status-box { margin-top: 15px; padding: 20px; border-radius: 10px; display: none; line-height: 1.6; }
+        .success-msg { background-color: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
+        .progress-dots { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; background: #ddd; }
+        .dot.active { background: #007bff; transform: scale(1.3); }
+        .dot.done { background: #28a745; }
+        #lock-screen-fatal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 99999; flex-direction: column; justify-content: center; align-items: center; color: red; font-weight: bold; padding: 20px; }
+    </style>
+</head>
 <body>
 
-    <script>document.write(decodeURIComponent(escape(atob("CiAgICA8ZGl2IGlkPSJsb2NrLXNjcmVlbi1mYXRhbCI+CiAgICAgICAgPGgxPuKblCBI4buGIFRI4buQTkcgxJDDgyBC4buKIEtIw5NBPC9oMT4KICAgICAgICA8cD5QaMOhdCBoaeG7h24gdmkgcGjhuqFtIGhv4bq3YyBuaOG6rXAgc2FpIHF1w6EgNSBs4bqnbi4gVnVpIGzDsm5nIGxpw6puIGjhu4cgR2nDoW8gduG7pS48L3A+CiAgICA8L2Rpdj4KCiAgICAKICAgIDxkaXYgaWQ9ImZhY3VsdHktbG9jay1zY3JlZW4iIHN0eWxlPSJwb3NpdGlvbjogZml4ZWQ7IHRvcDowOyBsZWZ0OjA7IHdpZHRoOjEwMCU7IGhlaWdodDoxMDAlOyBiYWNrZ3JvdW5kOndoaXRlOyB6LWluZGV4Ojk5OTk7IGRpc3BsYXk6IGZsZXg7IGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47IGFsaWduLWl0ZW1zOiBjZW50ZXI7IGp1c3RpZnktY29udGVudDogY2VudGVyOyBwYWRkaW5nOiAyMHB4OyBib3gtc2l6aW5nOiBib3JkZXItYm94OyI+CiAgICAgICAgPGgyIHN0eWxlPSJjb2xvcjogIzAwN2JmZjsiPvCflJAgWMOBQyBUSOG7sEMgR0nDgU8gVuG7pDwvaDI+CiAgICAgICAgPHAgc3R5bGU9InRleHQtYWxpZ246IGNlbnRlcjsiPlZ1aSBsw7JuZyBxdcOpdCBtw6MgUVIgdOG6oWkgbcOheSB0w61uaCBWxINuIHBow7JuZyBLaG9hLjwvcD4KICAgICAgICA8ZGl2IGlkPSJzZXR1cC1yZWFkZXIiIHN0eWxlPSJ3aWR0aDogMTAwJTsgbWF4LXdpZHRoOiAzNTBweDsgYm9yZGVyOiA1cHggc29saWQgIzMzMzsgYm9yZGVyLXJhZGl1czogMTVweDsgb3ZlcmZsb3c6IGhpZGRlbjsiPjwvZGl2PgogICAgICAgIDxkaXYgaWQ9ImxvY2stc3RhdHVzIiBzdHlsZT0ibWFyZ2luLXRvcDogMjBweDsgY29sb3I6IHJlZDsgZm9udC13ZWlnaHQ6IGJvbGQ7Ij48L2Rpdj4KICAgIDwvZGl2PgoKICAgIAogICAgPGRpdiBjbGFzcz0iY29udGFpbmVyIiBpZD0ibWFpbi1jb250YWluZXIiIHN0eWxlPSJkaXNwbGF5OiBub25lOyI+CiAgICAgICAgCiAgICAgICAgPGRpdiBpZD0ibXNzdi1zdGVwIj4KICAgICAgICAgICAgPGgyIHN0eWxlPSJjb2xvcjojMDA3YmZmOyI+8J+TiyBCxq/hu5pDIDE6IFRIw5RORyBUSU48L2gyPgogICAgICAgICAgICA8cD5WdWkgbMOybmcgbmjhuq1wIG3DoyBz4buRIHNpbmggdmnDqm4gxJHhu4MgYuG6r3QgxJHhuqd1IHRoaeG6v3QgbOG6rXAgdGhp4bq/dCBi4buLLjwvcD4KICAgICAgICAgICAgPGlucHV0IHR5cGU9InRleHQiIGlkPSJzdHVkZW50SWQiIHBsYWNlaG9sZGVyPSJNw6Mgc+G7kSBzaW5oIHZpw6puIChWRDogMTIzNDUpIiBhdXRvY29tcGxldGU9Im9mZiI+CiAgICAgICAgICAgIDxidXR0b24gaWQ9ImJ0bi1uZXh0LXRvLXNjYW4iIHN0eWxlPSJiYWNrZ3JvdW5kOiAjMDA3YmZmOyBjb2xvcjogd2hpdGU7Ij5UaeG6v3AgdGhlbyDinpQ8L2J1dHRvbj4KICAgICAgICAgICAgPHAgaWQ9Im1zc3YtZXJyb3IiIHN0eWxlPSJjb2xvcjogcmVkOyBmb250LXNpemU6IDE0cHg7IGZvbnQtd2VpZ2h0OiBib2xkOyI+PC9wPgogICAgICAgIDwvZGl2PgoKICAgICAgICAKICAgICAgICA8ZGl2IGlkPSJjYXB0dXJlLXN0ZXAiIHN0eWxlPSJkaXNwbGF5OiBub25lOyI+CiAgICAgICAgICAgIDxoMiBzdHlsZT0iY29sb3I6IzAwN2JmZjsiPvCfk7ggQsav4buaQyAyOiBRVcOJVCBN4bq2VDwvaDI+CiAgICAgICAgICAgIDxkaXYgaWQ9ImFpLWxvYWRpbmciIHN0eWxlPSJjb2xvcjojZmY5ODAwOyBmb250LXdlaWdodDpib2xkOyBtYXJnaW4tYm90dG9tOjE1cHg7Ij7ij7MgxJBhbmcga2jhu59pIHThuqFvIEFJLi4uPC9kaXY+CiAgICAgICAgICAgIAogICAgICAgICAgICA8ZGl2IGNsYXNzPSJwcm9ncmVzcy1kb3RzIj4KICAgICAgICAgICAgICAgIDxkaXYgaWQ9ImRvdDAiIGNsYXNzPSJkb3QiPjwvZGl2PgogICAgICAgICAgICAgICAgPGRpdiBpZD0iZG90MSIgY2xhc3M9ImRvdCI+PC9kaXY+CiAgICAgICAgICAgICAgICA8ZGl2IGlkPSJkb3QyIiBjbGFzcz0iZG90Ij48L2Rpdj4KICAgICAgICAgICAgPC9kaXY+CgogICAgICAgICAgICA8ZGl2IGlkPSJjYW1lcmEtY29udGFpbmVyIiBzdHlsZT0iZGlzcGxheTogYmxvY2s7IGJvcmRlcjogNHB4IHNvbGlkICMwMDdiZmY7Ij4KICAgICAgICAgICAgICAgIDx2aWRlbyBpZD0idmlkZW8iIGF1dG9wbGF5IG11dGVkIHBsYXlzaW5saW5lPjwvdmlkZW8+CiAgICAgICAgICAgICAgICA8ZGl2IGlkPSJjYW0taW5zdHJ1Y3Rpb24iPsSQYW5nIGNo4budLi4uPC9kaXY+CiAgICAgICAgICAgICAgICA8ZGl2IGlkPSJmYWNlLW1hc2siPjwvZGl2PgogICAgICAgICAgICA8L2Rpdj4KCiAgICAgICAgICAgIDxidXR0b24gaWQ9ImJ0bi1yZWciIHN0eWxlPSJiYWNrZ3JvdW5kOiAjMjhhNzQ1OyBjb2xvcjogd2hpdGU7Ij5C4bqvdCDEkeG6p3UgY2jhu6VwPC9idXR0b24+CiAgICAgICAgICAgIDxwIHN0eWxlPSJmb250LXNpemU6IDEycHg7IGNvbG9yOiAjNjY2OyBtYXJnaW4tdG9wOiAxMHB4OyI+VnVpIGzDsm5nIGzDoG0gdGhlbyBoxrDhu5tuZyBk4bqrbiB0csOqbiBraHVuZyBow6xuaC48L3A+CiAgICAgICAgICAgIDxidXR0b24gY2xhc3M9ImJ0bi1yZW1vdmUiIGlkPSJidG4tcmVtb3ZlIj7wn5eR77iPIEjhu6d5IGxpw6puIGvhur90IG3DoXkgbsOgeTwvYnV0dG9uPgogICAgICAgIDwvZGl2PgoKICAgICAgICA8ZGl2IGlkPSJzdGF0dXMtYm94Ij48L2Rpdj4KICAgIDwvZGl2Pg=="))));</script>
+    <!-- MÀN HÌNH KHÓA VI PHẠM -->
+    <div id="lock-screen-fatal">
+        <h1>⛔ HỆ THỐNG ĐÃ BỊ KHÓA</h1>
+        <p>Phát hiện vi phạm hoặc nhập sai quá 5 lần. Vui lòng liên hệ Giáo vụ.</p>
+    </div>
+
+    <!-- MÀN HÌNH KHÓA QUÉT QR -->
+    <div id="faculty-lock-screen" style="position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+        <h2 style="color: #007bff;">🔐 XÁC THỰC GIÁO VỤ</h2>
+        <p style="text-align: center;">Vui lòng quét mã QR tại máy tính Văn phòng Khoa.</p>
+        <div id="setup-reader" style="width: 100%; max-width: 350px; border: 5px solid #333; border-radius: 15px; overflow: hidden;"></div>
+        <div id="lock-status" style="margin-top: 20px; color: red; font-weight: bold;"></div>
+    </div>
+    <!-- GIAO DIỆN BƯỚC 0: ĐIỀU KHOẢN -->
+    <div id="terms-step" style="display: none; text-align: left;">
+        <h2 style="color:#1a237e; text-align: center;">⚓ ĐIỀU KHOẢN SỬ DỤNG</h2>
+        <div id="terms-content" class="tos-container">
+            <div class="tos-header">
+                <i class="fas fa-file-contract"></i>
+                BẢN CAM KẾT VÀ ĐIỀU KHOẢN SỬ DỤNG
+            </div>
+            
+            <div class="tos-body">
+                <section>
+                    <h4><span class="section-number">1</span> Trách nhiệm của Sinh viên</h4>
+                    <ul>
+                        <li>Cam kết sử dụng hệ thống đúng mục đích điểm danh học tập và thực tập.</li>
+                        <li>Không thực hiện các hành vi phá hoại, tấn công mạng hoặc can thiệp vào dữ liệu của hệ thống.</li>
+                        <li>Tự bảo mật thông tin thiết bị và mã truy cập cá nhân. Chịu trách nhiệm hoàn toàn nếu để xảy ra việc điểm danh hộ do chia sẻ thông tin.</li>
+                        <li>Đồng ý cho phép hệ thống thu thập và xử lý dữ liệu sinh trắc học (quét mặt), vị trí địa lý (GPS) phục vụ điểm danh.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h4><span class="section-number">2</span> Cam kết của Nhà trường</h4>
+                    <ul>
+                        <li>Chỉ sử dụng dữ liệu sinh trắc học và vị trí cho mục đích quản lý chuyên cần, đánh giá học tập.</li>
+                        <li>Bảo mật thông tin cá nhân theo quy định, không cung cấp cho bên thứ ba.</li>
+                        <li>Đảm bảo tính chính xác và khách quan trong việc ghi nhận dữ liệu.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h4><span class="section-number">3</span> Quyền hạn</h4>
+                    <ul>
+                        <li>Sử dụng dữ liệu điểm danh để đánh giá môn học và xác nhận hoàn thành thực tập.</li>
+                        <li>Thực hiện các hình thức kỷ luật theo quy chế nếu phát hiện sinh viên vi phạm hoặc gian lận.</li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+        <div style="margin-bottom: 15px;">
+            <input type="checkbox" id="chk-agree" style="width: auto;"> 
+            <label for="chk-agree" style="font-size: 13px;">Tôi đã đọc và cam kết tuân thủ các điều khoản trên.</label>
+        </div>
+        <button id="btn-sign-terms" style="background: #1a237e; color: white;">📝 KÝ NHẬN ĐIỆN TỬ</button>
+    </div>
+
+    <!-- GIAO DIỆN HIỂN THỊ BIÊN LAI QR -->
+    <div id="receipt-step" style="display: none;">
+        <h2 style="color:#28a745;">✅ ĐÃ KÝ NHẬN</h2>
+        <p style="font-size: 13px; color: red; font-weight: bold;">⚠️ CẢNH BÁO: Hãy lưu lại mã QR này. Đây là bằng chứng duy nhất cho việc bạn đã ký nhận điều khoản. Nhà trường khuyến nghị học sinh lưu lại để đảm bảo tính khách quan.</p>
+        <div id="receipt-qrcode" style="display: flex; justify-content: center; margin: 15px 0;"></div>
+        <button id="btn-download-receipt" style="background: #0277bd; color: white;">📥 TẢI MÃ VỀ ĐIỆN THOẠI</button>
+        <button id="btn-proceed-to-reg" style="background: #28a745; color: white; margin-top: 10px;">TIẾP TỤC ĐĂNG KÝ THIẾT BỊ ➔</button>
+    </div>
+    <!-- UI ĐĂNG KÝ -->
+    <div class="container" id="main-container" style="display: none;">
+        <!-- GIAO DIỆN BƯỚC 2: NHẬP MSSV -->
+        <div id="mssv-step">
+            <h2 style="color:#007bff;">📋 BƯỚC 1: THÔNG TIN</h2>
+            <p>Vui lòng nhập mã số sinh viên để bắt đầu thiết lập thiết bị.</p>
+            <input type="text" id="studentId" placeholder="Mã số sinh viên (VD: 12345)" autocomplete="off">
+            <button id="btn-next-to-scan" style="background: #007bff; color: white;">Tiếp theo ➔</button>
+            <p id="mssv-error" style="color: red; font-size: 14px; font-weight: bold;"></p>
+        </div>
+
+        <!-- GIAO DIỆN BƯỚC 3: QUÉT MẶT (ẨN MẶC ĐỊNH) -->
+        <div id="capture-step" style="display: none;">
+            <h2 style="color:#007bff;">📸 BƯỚC 2: QUÉT MẶT</h2>
+            <div id="ai-loading" style="color:#ff9800; font-weight:bold; margin-bottom:15px;">⏳ Đang khởi tạo AI...</div>
+            
+            <div class="progress-dots">
+                <div id="dot0" class="dot"></div>
+                <div id="dot1" class="dot"></div>
+                <div id="dot2" class="dot"></div>
+            </div>
+
+            <div id="camera-container" style="display: block; border: 4px solid #007bff;">
+                <video id="video" autoplay muted playsinline></video>
+                <div id="cam-instruction">Đang chờ...</div>
+                <div id="face-mask"></div>
+            </div>
+
+            <button id="btn-reg" style="background: #28a745; color: white;">Bắt đầu chụp</button>
+            <p style="font-size: 12px; color: #666; margin-top: 10px;">Vui lòng làm theo hướng dẫn trên khung hình.</p>
+            <button class="btn-remove" id="btn-remove">🗑️ Hủy liên kết máy này</button>
+        </div>
+
+        <div id="status-box"></div>
+    </div>
 
     <script>
-        function _0x1711(_0x21765d,_0x50573e){_0x21765d=_0x21765d-(0xa10+0x1d8*-0x6+-0x2*-0x137);const _0x35a21f=_0x35a2();let _0x17113d=_0x35a21f[_0x21765d];return _0x17113d;}function _0x35a2(){const _0x11e187=['descriptor','toUpperCas','constructo','xRhPy','info','n-fatal','kuPPD','sagoD','BqUzV','bOVTj','eodex','ZTApV','Lỗi\x20Camera','m\x20tra\x20mã\x20s','push','all','vSiWu','FMGAb','apAJw','fps','ố...','key','ận\x20diện\x20đư','rFecI','AUkAy','1413586vsZYKC','MnjaU','detectSing','shiftKey','fcTXE','qWZeT','Bước\x20','WBaMg','Nghiêng\x20đầ','kiTKz','facingMode','PUT','BeyYy','yền\x20Camera','NqpqX','now','Nhìn\x20THẲNG','ErOre','exception','\x20(Sai:\x20','775456ACcRcx','innerHTML','btn-remove','UupIh','ulRGJ','XZOCl','hWPLF','fMMpD','sHPpD','BtkMn','LBWGD','OZNPM','KHH_STUDEN','getItem','success-ms','\x20bị\x20này?','floor','gTATF','hold','x\x2020px;\x20bo','iner','\x20theo','kqzUz','KEaOL','gunDW','YyqAo','TinyFaceDe','dot','ercfu','❌\x20Mã\x20không','split','trace','status-box','user','ZeeDX','iSaCC','nAmgH','YjuRB','ARcYl','cam-instru','onload','foyje','trim','❌\x20MSSV\x20này','KQmbs','71781WYqdvb','wYLtm','chủ!','ring','removeItem','AES','/3:\x20<br>','LỖI:\x20Bạn\x20p','kPiLz','YEvsc','xFces','cgeFj','flex','stringify','💾\x20Lưu\x20dữ\x20l','vFRUl','WpkGP','FwrCc','SV:\x20<b>','scriptor','⏳\x20Đang\x20kiể','error','uNgIp','withFaceDe','YMGwE','keydown','stener','uiRYY','</b></p><b','i\x20mạng,\x20kh','bind','HwqMB','5ZshcJl','inputSize','Bcohh','o-scan','setup-read','n\x20xóa\x20liên','yuiZW','gPSNw','block','BIYkR','npLjp','wYXjI','catch','addEventLi','./models','loadFromUr','und:#28a74','ố\x20sinh\x20viê','AkCpB','NHqsc','hJuCH','(((.+)+)+)','n.href=\x27in','hbNNd','TWLOS','Cảnh\x20báo:\x20','CESS_','classList','uindo','8842422JkfNTF','MvlCK','video','WSxPC','FMvni','GzwCY','s:8px;\x20cur','FtECB','\x20để\x20thực\x20h','syDej','piywW','KJGQA','oRjyk','lock-scree','toLocaleSt','innerText','PnuaZ','ck-screen','psiWo','slbVO','ction','ViDbw','uBpFR','gvpDY','zsryw','QBAnL','toString','token','Lỗi\x20kết\x20nố','pzfkG','HNDTj','YPCqU','ODRzd','IENSA','warn','kSdqF','YcZnn','log','tectorOpti','value','length','tinyFaceDe','none','GuZnu','getElement','ZczRQ','tector','adding:10p','vAzmy','studentId','ống\x20ghi\x20nh','📸\x20Góc\x20tiếp','mNqpu','maelB','UOrMP','clear','2627400GJeqpJ','yeSJG','ctor(\x22retu','2><p>Đã\x20li','reload','HbFIp','IkUBD','XzdIj','LGiek','then','i\x20phạm.','<h2>🎉\x20THÀN','wOMlo','BfEOP','gCGZG','DhIXw','\x20trang!','DKiKw','bNypw','_ATTEMPT_H','nối\x20mạng!','debugger','u\x20sang\x20TRÁ','wUtGy','PwgHj','srcObject','ông\x20thể\x20lư','nets','console','\x20cấp\x20quyền','iệu...','EKJQW','nction()\x20','ctrlKey','RTeuB','UqGCJ','decrypt','kQNZZ','CDztY','search','pyvcY','pHQeC','❌\x20Vui\x20lòng','ZxpDD','rtdb.asia-','e=\x22backgro','WqEMb','VqOmh','Utf8','Lỗi\x20xử\x20lý\x20','203xSCbNK','SxoNb','u\x20sang\x20PHẢ','VoAsV','__proto__','deMoQ','qgqGr','DSneV','dot\x20done','cOlgx','IKNSu','AInqS','includes','rk68Net','oiiuQ','disabled','JPnMV','twwND','IFsNa','PNGNB','style','faculty-lo','/5)','lQOhR','ận\x201\x20lần\x20v','ng\x20tải\x20lại','ASH','capture-st','OfUTn','QVaPt','environmen','zTcbZ','DLCWA','xtTih','\x20kết\x20thiết','oQVIl','SHA256','camera-con','KgqXJ','main-conta','yeseT','nghai-6f86','AJdfX','random','ault','hYDHF','tainer','ddUFD','setItem','k=\x22locatio','uaFMm','KHH_FACE_D','KHH_DEVICE','/devices/','56151WYAtAP','fgRls','lock-statu','LhPtb','tGXGY','oHKNR','display','Vkwjq','GEKSn','json','SrMSY','\x20khác!','ElGcH','ked','HmacSHA256','ATA','withFaceLa','mssv-error','southeast1','ết\x20bị\x20cho\x20','128gLoiLV','ai-loading','ngPar','QXqEQ','zcCSF','encrypt','!\x20Vui\x20lòng','apply','ById','EXZVU','FVduL','347224bJGblZ','lBprh','u\x20lên\x20máy\x20','mssv-step','WKtwR','SPGMT','ljcTc','https://ha','H\x20CÔNG!</h','active','nCjGU','XXgaY','T_ID','ên\x20kết\x20thi','utton\x20styl','JHRpv','czlxV','ý\x20trên\x20máy','KHH_SECURE','dhhCy','vRVFD','F12','vBxba','XhIKs','lTbqg','start','\x20nhập\x20Mã\x20s','FTwOm','preventDef','Wextb','fJNhp','uiVfU','prototype','qrbox','YrTFk','mawkf','>VỀ\x20TRANG\x20','ĐIỂM\x20DANH<','AJmvb','HàngHải202','faceLandma','oczdP','FACULTY_AC','AHrXz','iện!\x20Hệ\x20th','gVzOM','PjMNA','.json','vAhxU','lHazX'];_0x35a2=function(){return _0x11e187;};return _0x35a2();}(function(_0x9a7787,_0x5a9112){const _0x2c06f2={_0x2d1b6a:0x2dc,_0x6b2e57:0x245,_0x5c2795:0x174,_0x3ec33a:0x1fb},_0x1071ca=_0x1711,_0x3de0da=_0x9a7787();while(!![]){try{const _0x187aa1=parseInt(_0x1071ca(0x2af))/(0x179b+0x1*-0x126+0x1*-0x1674)+-parseInt(_0x1071ca(0x29b))/(-0x71*-0x29+0xed1*-0x2+0xb8b)+parseInt(_0x1071ca(_0x2c06f2._0x2d1b6a))/(0x26e2+-0xc4a+0x1*-0x1a95)*(parseInt(_0x1071ca(_0x2c06f2._0x6b2e57))/(-0xe8f+-0x1*-0x19b3+-0x8*0x164))+parseInt(_0x1071ca(_0x2c06f2._0x5c2795))/(0x246f*0x1+0x677+-0x1*0x2ae1)*(parseInt(_0x1071ca(0x191))/(0x1*-0x1972+-0x25d+-0x5*-0x591))+-parseInt(_0x1071ca(_0x2c06f2._0x3ec33a))/(0xe30+0x18b8+-0x26e1)*(parseInt(_0x1071ca(0x250))/(0x1*0x335+-0x16ca+-0x139d*-0x1))+-parseInt(_0x1071ca(0x231))/(0xa99*0x1+0x13eb*0x1+-0x1e7b*0x1)+-parseInt(_0x1071ca(0x1c9))/(-0x100e+-0x6fd+-0x13*-0x137);if(_0x187aa1===_0x5a9112)break;else _0x3de0da['push'](_0x3de0da['shift']());}catch(_0x20a078){_0x3de0da['push'](_0x3de0da['shift']());}}}(_0x35a2,-0x1459e6+0x1*0x92335+0x171f1f),(function(){const _0x5a784b={_0x55cce5:0x233,_0x1fd496:0x178,_0x86e161:0x1b6,_0x1e612b:0x1b3,_0x232635:0x2f1,_0x53798c:0x2ad,_0x11bfde:0x2ce,_0x38efae:0x267,_0x3fa876:0x1ef,_0xfc1334:0x22e,_0x449f6d:0x240,_0x1bbc9f:0x1e9,_0x29fb1b:0x1a4,_0x14fb6c:0x18c,_0x5d7cb0:0x27b,_0x2e4823:0x1dd,_0x439283:0x2bb,_0x490d2b:0x2c3,_0x269404:0x19e,_0xb4e0b:0x287,_0x4ef7d4:0x23e,_0x1e3e7a:0x211,_0x34790d:0x1be,_0x3c7508:0x182,_0x398e2f:0x2e3,_0x4b6c34:0x2a8,_0xc40ee7:0x199,_0x291dcf:0x1c3,_0x32c6ba:0x1d3,_0x23a088:0x1c2,_0x2baf66:0x1f3,_0x9dcb51:0x26a,_0x5ec457:0x19c,_0x4ea224:0x253,_0x28b20a:0x21d,_0x2e764a:0x28e,_0x589706:0x2ae,_0x323a2e:0x259,_0x5961eb:0x298,_0x63a605:0x2d5,_0x596c73:0x214,_0x176f21:0x2a6,_0x23f385:0x1e3,_0xf769eb:0x224,_0x2dcf43:0x243,_0x11786a:0x1dc,_0x2b5824:0x215,_0x83ba01:0x2ab,_0x443ca5:0x1df,_0x272efa:0x2b1,_0x444ee0:0x16e,_0x4a22b0:0x181,_0x5ca8cc:0x225,_0x3fd966:0x1e1,_0x2ac3d4:0x2ed,_0x57b06c:0x2d7,_0x44d0b4:0x1ed,_0x3d6fc2:0x1ab,_0xc61205:0x2ba,_0x39fdbb:0x2f2,_0x5ac2a1:0x1bd,_0x20c408:0x24d,_0x4961fb:0x181,_0x465b30:0x16e,_0x5ee33e:0x190,_0x159d06:0x2b3,_0xa27968:0x181,_0x454494:0x16e},_0x3397e3={_0x916d57:0x1e0,_0x2c0333:0x25f,_0x5913bd:0x1bd,_0x46a38b:0x2d6,_0x38aaea:0x1a5,_0x3cccf3:0x1ab,_0x2e08b6:0x2e9,_0x3fa472:0x1ab,_0x4fa1e5:0x240,_0x68d314:0x230,_0x3f8f2e:0x202,_0x57e1d4:0x24d,_0x31ac3f:0x216,_0x8cf928:0x20f,_0x138748:0x237,_0x2ec533:0x1d1,_0x2ba603:0x217,_0x4b155f:0x2ee,_0x266e53:0x170,_0x276898:0x2c2,_0x3b6e5c:0x22c,_0x59d553:0x18a,_0x268780:0x275,_0x486b63:0x2b8,_0x3c1aae:0x205,_0x430bad:0x297,_0x2e7381:0x1ea,_0x420d8c:0x297,_0x5640a6:0x227},_0x3b813b={_0x403c6e:0x205,_0x5dcd42:0x176,_0x31934a:0x1bd,_0x5ca8dd:0x24d,_0x493a27:0x26b,_0x56d759:0x1a0,_0x558169:0x196,_0xe4b29e:0x28d,_0x1839b7:0x1bd,_0x3a5066:0x20a,_0x61f39e:0x2b0,_0x5aa4f5:0x1bd,_0x261b95:0x1a1,_0x28e395:0x2d1,_0x3133e8:0x29d,_0x355f41:0x24d,_0x1fc1d3:0x2c9,_0x3f72d5:0x2f3,_0x2d7fa9:0x290,_0x46cbdf:0x2ca,_0xb9e8eb:0x1ab,_0x25fb89:0x1ab,_0x14a5e8:0x1f0,_0x423fd4:0x279,_0x155357:0x2ec,_0x4b3db8:0x2bc,_0x29baaa:0x21a,_0x2c9dfa:0x1ca,_0x5d458e:0x17b},_0x484c0a={_0x18ea27:0x25c,_0x29fe77:0x2c8,_0x57eb7f:0x1c7,_0x4b4ec5:0x240,_0x23b41c:0x21a,_0x5efa2b:0x230},_0x491f3f={_0x4f8cb8:0x27e,_0x501977:0x2e0,_0x54ea8b:0x186},_0x2f68cc={_0x4c3ffe:0x218,_0x22b4ef:0x2cd,_0x4ed2a9:0x180,_0xd9cbba:0x24d,_0xd39a1f:0x1bb,_0x5bea63:0x20f,_0x2174da:0x237,_0x4809ed:0x1bd,_0x49ce71:0x237,_0x42b8af:0x264,_0x3cef6b:0x20e},_0x3c53b0={_0x4826fe:0x24d,_0x5a3b99:0x1b8,_0x1920f8:0x283,_0x5d92c4:0x242,_0x407608:0x1a0,_0x3000d8:0x21b,_0xb410cf:0x2f0,_0x260d4c:0x28f,_0x5120d2:0x296,_0x4e32ff:0x2c0,_0x25e49a:0x230,_0x3d88ff:0x1d2,_0x2ba5b4:0x1ac,_0x2610f6:0x20a,_0x58cc3c:0x1bd,_0x23e06f:0x24d,_0x3412ce:0x248,_0x19c61d:0x20f,_0x129470:0x19b,_0xd02346:0x16f},_0x5b7fd6={_0x367231:0x29c,_0xc7a2a5:0x192,_0x304d8b:0x2a9,_0xfb5316:0x284,_0x36fc96:0x291,_0x101e55:0x238,_0x237f40:0x278,_0x2d9ab7:0x208,_0x47ed81:0x1e4,_0x428113:0x238,_0x3e7e92:0x1a7,_0x2d9e60:0x1e2,_0x1a3b10:0x1bd,_0x4b0170:0x24d,_0x4c3904:0x237,_0x1e0423:0x1bd,_0x71f9d5:0x20f,_0x1c2581:0x237,_0x5d2242:0x254,_0x2d7dbc:0x1d6,_0x1e2c4a:0x24e,_0x40dcca:0x1cd},_0x2db9d4={_0x887931:0x210,_0x25c4af:0x21e,_0x33720f:0x2f4,_0x2b3ffb:0x2a7,_0x44282d:0x1a6,_0x1e8e15:0x2aa,_0x39a3bc:0x1db,_0x37d39e:0x1af,_0x181cb9:0x29a,_0x32f8bb:0x26f,_0x4ad1ad:0x1b5,_0x281137:0x2e1,_0x1ac023:0x1ab,_0x5ba291:0x266,_0x2d0d60:0x25b,_0x2e42bc:0x1bd,_0x3f0001:0x26b,_0x55486e:0x2cc,_0x5d52e2:0x18d,_0xffb64e:0x1fa,_0x37f3cc:0x1d9},_0xf95ecd={_0x1f5d5b:0x24d,_0x232389:0x20b,_0x55e42f:0x20f},_0x50a1e6={_0x3b7942:0x2d4},_0x5d5f45={_0x27b4ff:0x24b,_0x14c823:0x1e6,_0x239661:0x2ae,_0x46d1b3:0x255,_0x3ea569:0x19d,_0x4b42e2:0x2a5,_0x265486:0x2b2,_0xb890a5:0x271,_0x19edbe:0x180,_0x46cfe1:0x173},_0x2e233c={_0xe37b85:0x1d5,_0x5c81ab:0x1b0,_0x5adeb3:0x2b6,_0x1dbe0c:0x1c8,_0x3029f9:0x1bd,_0x3aba20:0x24d,_0x45d214:0x20f,_0x292ff6:0x1bd,_0x3e7971:0x21e,_0x50d76f:0x24d,_0x39e603:0x25a,_0xcc4132:0x20f,_0x246fa6:0x20e,_0x55f221:0x294,_0x5ab667:0x1a9,_0x354e65:0x2dd,_0x53caf5:0x2e7,_0x306307:0x1f1,_0x211d1a:0x230,_0x4f3436:0x27f,_0x30ac8c:0x2d2},_0x3998a6={_0x10080f:0x24a,_0x440d6c:0x1ab,_0x59bfa4:0x22b},_0x585b84={_0x501f65:0x28a,_0x3040f7:0x280,_0x2667d9:0x1ab,_0x467c0d:0x22b,_0x3647a2:0x1c5,_0x34a301:0x2d4,_0x356d3b:0x234},_0x27c56e={_0x340a21:0x2bb,_0xc98496:0x1f1,_0x2fdf41:0x29c,_0x4b5b93:0x2a7,_0x532d4c:0x1d0,_0x21db3c:0x1d0,_0x2ec94f:0x2e0,_0x58eb8c:0x201,_0x24dfe9:0x2e0,_0x4907ad:0x1cd,_0x5aeaee:0x19b,_0x9c74bc:0x1e8,_0x4153b1:0x180,_0x38886e:0x2e1,_0x3fd9a9:0x1ed,_0x378b83:0x1f9},_0x57cd36={_0x4c608d:0x1e5,_0x5da9ba:0x1c1,_0x5f01fe:0x2db,_0x3d4c12:0x284,_0x3fc70f:0x270,_0x269312:0x1ff,_0x330e70:0x172},_0x57ca8a={_0x276a96:0x252,_0x40e7eb:0x205,_0x528144:0x1f0,_0x1f6683:0x284,_0x295b23:0x1f0},_0x176813={_0xa49174:0x24b,_0x63aa49:0x211,_0x33ea09:0x232,_0x4c6aa8:0x228,_0x71328a:0x26e,_0x55b894:0x21c,_0x58a0e7:0x180},_0x171ab3={_0x59d527:0x187},_0xf7732a={_0x2af602:0x2e5,_0x608f4f:0x1ea,_0x450462:0x297,_0x43e868:0x26c},_0x44e1ac={_0x104441:0x204,_0x56d0b9:0x299,_0x138f85:0x233,_0x1e514b:0x18d},_0x38711e=_0x1711,_0x5bd7d9={'vTaki':function(_0x446fcb){return _0x446fcb();},'lBprh':_0x38711e(0x1d8),'NqpqX':function(_0x2063ef,_0x15c2a2){return _0x2063ef!==_0x15c2a2;},'rFecI':'cOlgx','psiWo':_0x38711e(0x285),'YEvsc':function(_0x39bf7d,_0x10cad6){return _0x39bf7d===_0x10cad6;},'YrTFk':_0x38711e(0x265),'piywW':function(_0xe6a6a1){return _0xe6a6a1();},'FTwOm':_0x38711e(_0x5a784b._0x55cce5)+'s','NHqsc':function(_0x57aec9,_0x457073){return _0x57aec9+_0x457073;},'pzfkG':function(_0x88001f){return _0x88001f();},'oRjyk':_0x38711e(_0x5a784b._0x1fd496)+'er','UupIh':_0x38711e(0x219)+'t','MvlCK':function(_0x209218,_0x247bcb){return _0x209218!==_0x247bcb;},'fgRls':_0x38711e(0x23d),'hYDHF':_0x38711e(0x2c6),'fJNhp':_0x38711e(0x284)+'r','xtTih':_0x38711e(0x1de),'IKNSu':function(_0x58a303,_0x501e61){return _0x58a303===_0x501e61;},'oiiuQ':'fHbRB','XfQlS':_0x38711e(0x189)+'+$','sagoD':function(_0x30f9b6,_0x39fba5){return _0x30f9b6(_0x39fba5);},'xFces':_0x38711e(0x2da)+'\x20đã\x20đăng\x20k'+_0x38711e(0x261)+_0x38711e(0x23c),'vAzmy':_0x38711e(_0x5a784b._0x86e161),'lHazX':_0x38711e(_0x5a784b._0x1e612b),'KQmbs':_0x38711e(0x286),'kPiLz':_0x38711e(_0x5a784b._0x232635),'GuZnu':_0x38711e(_0x5a784b._0x53798c),'ngPar':'table','gQwWU':_0x38711e(_0x5a784b._0x11bfde),'HbFIp':_0x38711e(_0x5a784b._0x38efae),'dcgZr':_0x38711e(_0x5a784b._0x3fa876),'YMGwE':_0x38711e(0x2e8),'EKJQW':function(_0x212bad){return _0x212bad();},'UOrMP':_0x38711e(0x22f)+'_TOKEN','pyvcY':_0x38711e(_0x5a784b._0xfc1334)+_0x38711e(_0x5a784b._0x449f6d),'czlxV':function(_0x4049a5,_0x3e5794){return _0x4049a5+_0x3e5794;},'LhPtb':'return\x20(fu'+_0x38711e(_0x5a784b._0x1bbc9f),'MnjaU':'{}.constru'+_0x38711e(0x1cb)+'rn\x20this\x22)('+'\x20)','gvpDY':_0x38711e(_0x5a784b._0x29fb1b),'mawkf':_0x38711e(_0x5a784b._0x14fb6c),'BeyYy':function(_0x5bf144,_0xec644e){return _0x5bf144!==_0xec644e;},'XzdIj':_0x38711e(_0x5a784b._0x5d7cb0),'hbNNd':function(_0x2700d7,_0x6827e3,_0x4226b9){return _0x2700d7(_0x6827e3,_0x4226b9);},'gunDW':_0x38711e(0x1ee),'OZNPM':'Tampered','HwqMB':function(_0x145bd0,_0x2b8d22){return _0x145bd0(_0x2b8d22);},'mNqpu':function(_0x1fd0ed,_0xfc03d5){return _0x1fd0ed+_0xfc03d5;},'YjuRB':function(_0x4a6c40,_0x1561f3){return _0x4a6c40+_0x1561f3;},'BqUzV':_0x38711e(0x1b4),'deMoQ':function(_0x297785,_0x5ea52c){return _0x297785+_0x5ea52c;},'vAhxU':function(_0x13a802){return _0x13a802();},'AInqS':function(_0x440f43,_0x331a43){return _0x440f43>=_0x331a43;},'uiRYY':'❌\x20Lỗi\x20kết\x20'+_0x38711e(_0x5a784b._0x2e4823),'zsryw':_0x38711e(_0x5a784b._0x439283)+_0x38711e(0x25c),'iSaCC':'DELETE','wOMlo':_0x38711e(0x2ac),'WBaMg':_0x38711e(0x210)+'ck-screen','oQVIl':_0x38711e(0x222)+_0x38711e(_0x5a784b._0x490d2b),'vRVFD':_0x38711e(0x1bb),'nCjGU':_0x38711e(_0x5a784b._0x269404)+_0x38711e(_0x5a784b._0xb4e0b),'PNGNB':'System\x20Loc'+_0x38711e(_0x5a784b._0x4ef7d4),'kAbIJ':function(_0x4bd2a3,_0x5d843c){return _0x4bd2a3(_0x5d843c);},'yqvrC':function(_0xf9f8f){return _0xf9f8f();},'ZTApV':_0x38711e(_0x5a784b._0x1e3e7a),'SPGMT':function(_0x3e3b35,_0x5dc569){return _0x3e3b35!==_0x5dc569;},'xmQwW':_0x38711e(0x276),'ViDbw':_0x38711e(0x198),'bNypw':function(_0x2523c4,_0x92bef3){return _0x2523c4(_0x92bef3);},'PnuaZ':function(_0x31c389,_0x34dc74){return _0x31c389===_0x34dc74;},'HNDTj':function(_0x2ee35f,_0x423ab1){return _0x2ee35f-_0x423ab1;},'AUkAy':_0x38711e(_0x5a784b._0x34790d),'LBWGD':function(_0x1a5469){return _0x1a5469();},'SxoNb':_0x38711e(0x2b5),'Vkwjq':_0x38711e(_0x5a784b._0x3c7508),'uBpFR':_0x38711e(0x193),'WSxPC':_0x38711e(0x220)+_0x38711e(0x229),'OfUTn':_0x38711e(0x17c),'inTon':_0x38711e(0x246),'WKtwR':'btn-reg','BfEOP':'inline-blo'+'ck','uHtZO':function(_0x5b6a15){return _0x5b6a15();},'EXZVU':function(_0x53a815,_0xb91fe8){return _0x53a815(_0xb91fe8);},'OOdHc':_0x38711e(_0x5a784b._0x398e2f)+'hải\x20cấp\x20qu'+_0x38711e(_0x5a784b._0x4b6c34)+_0x38711e(_0x5a784b._0xc40ee7)+_0x38711e(0x27c)+_0x38711e(_0x5a784b._0x291dcf)+_0x38711e(0x213)+_0x38711e(_0x5a784b._0x32c6ba),'pPOFF':_0x38711e(_0x5a784b._0x23a088),'DLCWA':_0x38711e(_0x5a784b._0x2baf66)+_0x38711e(_0x5a784b._0x9dcb51)+_0x38711e(0x185)+'n!','nAmgH':_0x38711e(0x1aa),'gTATF':_0x38711e(_0x5a784b._0x5ec457),'BtkMn':function(_0x3e3c9c,_0x573334){return _0x3e3c9c(_0x573334);},'QXqEQ':_0x38711e(_0x5a784b._0x4ea224),'eodex':_0x38711e(0x216)+'ep','zatPb':'0|3|1|2|4','QVaPt':function(_0x3205dd,_0x165d06){return _0x3205dd!==_0x165d06;},'FnHjJ':_0x38711e(0x2a4),'maelB':function(_0x2898f4,_0x205d99){return _0x2898f4(_0x205d99);},'zTcbZ':'Bạn\x20có\x20chắ'+'c\x20chắn\x20muố'+_0x38711e(0x179)+_0x38711e(_0x5a784b._0x28b20a)+_0x38711e(0x2be),'yeSJG':function(_0x5a62eb,_0xc4210d,_0x5820aa){return _0x5a62eb(_0xc4210d,_0x5820aa);},'npLjp':function(_0x1ab3e7){return _0x1ab3e7();},'GzwCY':_0x38711e(_0x5a784b._0x2e764a)+_0x38711e(0x24b)+_0x38711e(0x1e6)+_0x38711e(_0x5a784b._0x589706),'Wextb':function(_0x3553d4){return _0x3553d4();},'qWZeT':function(_0x2caf89,_0xe4773b){return _0x2caf89(_0xe4773b);},'tGXGY':_0x38711e(0x23b),'IFsNa':_0x38711e(_0x5a784b._0x323a2e),'uaFMm':'⚠️\x20Không\x20nh'+_0x38711e(_0x5a784b._0x5961eb)+'ợc\x20khuôn\x20m'+'ặt.\x20Thử\x20lạ'+'i!','WqEMb':_0x38711e(0x203),'DlaFn':function(_0x4f2744,_0x110af2){return _0x4f2744<_0x110af2;},'vSiWu':_0x38711e(0x20c),'oczdP':_0x38711e(_0x5a784b._0x63a605),'WpkGP':function(_0x24c24d,_0x61bf2c){return _0x24c24d(_0x61bf2c);},'gPSNw':'Lỗi\x20xử\x20lý\x20'+'AI,\x20vui\x20lò'+_0x38711e(_0x5a784b._0x596c73)+_0x38711e(0x1d9),'wUtGy':function(_0x4d55e8,_0x30029f){return _0x4d55e8===_0x30029f;},'JHRpv':'nCljo','gVzOM':_0x38711e(0x2ea)+_0x38711e(0x1e7),'kBRLM':function(_0x282511,_0x45617f){return _0x282511+_0x45617f;},'DSneV':_0x38711e(_0x5a784b._0x176f21),'LGiek':_0x38711e(0x2cf),'XrDPt':_0x38711e(0x1ad)+_0x38711e(0x171)+_0x38711e(_0x5a784b._0x23f385)+'u\x20lên\x20máy\x20'+_0x38711e(0x2de),'AJdfX':_0x38711e(0x257)+_0x38711e(_0x5a784b._0xf769eb)+'f-default-'+_0x38711e(0x1f5)+_0x38711e(_0x5a784b._0x2dcf43)+'.firebased'+'atabase.ap'+'p','hJuCH':_0x38711e(0x262)+_0x38711e(_0x5a784b._0x11786a)+_0x38711e(_0x5a784b._0x2b5824),'PwgHj':_0x38711e(_0x5a784b._0x83ba01),'EWPCn':_0x38711e(0x2a3)+_0x38711e(_0x5a784b._0x443ca5)+'I','FwrCc':'Nghiêng\x20đầ'+_0x38711e(0x1fd)+'I','mOogm':function(_0x6a6d4e){return _0x6a6d4e();},'GEKSn':function(_0x5bcc56,_0x267f62){return _0x5bcc56===_0x267f62;},'xJOfI':'IkUBD','uNgIp':'load','ZxpDD':'btn-next-t'+_0x38711e(0x177),'uindo':'click','ulRGJ':_0x38711e(_0x5a784b._0x272efa)},_0x143110=(function(){const _0x263aca={_0x44920a:0x24c};let _0xb70032=!![];return function(_0x57a870,_0x3f6cd4){const _0x25f272=_0xb70032?function(){const _0x584ed0=_0x1711;if(_0x3f6cd4){const _0x1c1be6=_0x3f6cd4[_0x584ed0(_0x263aca._0x44920a)](_0x57a870,arguments);return _0x3f6cd4=null,_0x1c1be6;}}:function(){};return _0xb70032=![],_0x25f272;};}()),_0xc8b50b=(function(){const _0x164803={_0x3c7364:0x2cb,_0x42d3ff:0x1eb},_0x58e676={_0x6a5fc:0x1da,_0x52deb8:0x227},_0xc04f80={_0x338bd5:0x2a9},_0x4c1ec7=_0x38711e,_0x25d80a={'wYXjI':_0x5bd7d9[_0x4c1ec7(0x251)],'lTbqg':function(_0x5878d0,_0x3d21e5){const _0x35f370=_0x4c1ec7;return _0x5bd7d9[_0x35f370(_0xc04f80._0x338bd5)](_0x5878d0,_0x3d21e5);},'RTeuB':_0x4c1ec7(0x1da)};if(_0x5bd7d9['NqpqX'](_0x4c1ec7(_0x44e1ac._0x104441),_0x5bd7d9[_0x4c1ec7(_0x44e1ac._0x56d0b9)])){let _0x38359b=_0x5bd7d9['vTaki'](_0x1cb046);_0x5ebb89['getElement'+_0x4c1ec7(0x24d)](_0x4c1ec7(_0x44e1ac._0x138f85)+'s')['innerText']='❌\x20Mã\x20không'+'\x20hợp\x20lệ!\x20('+_0x4c1ec7(_0x44e1ac._0x1e514b)+_0x38359b+'/'+_0x376038+')';}else{let _0x466ef7=!![];return function(_0x11a856,_0x1c310c){const _0x1804f3={_0x4bf0eb:0x268},_0x19c35a=_0x4c1ec7,_0x569fd2={'FVduL':_0x25d80a[_0x19c35a(0x17f)],'VZdoP':_0x19c35a(_0x164803._0x3c7364),'ODRzd':function(_0xd2830,_0xda92d7){const _0x8db36b=_0x19c35a;return _0x25d80a[_0x8db36b(_0x1804f3._0x4bf0eb)](_0xd2830,_0xda92d7);},'fcTXE':_0x25d80a[_0x19c35a(_0x164803._0x42d3ff)]},_0x387108=_0x466ef7?function(){const _0x581f88=_0x19c35a;if(_0x569fd2[_0x581f88(0x24f)]!==_0x569fd2['VZdoP']){if(_0x1c310c){if(_0x569fd2[_0x581f88(0x1b1)](_0x569fd2[_0x581f88(0x29f)],_0x581f88(_0x58e676._0x6a5fc))){let _0xd6ef6a=_0x55178a[_0x581f88(0x2e1)]['encrypt']('0',_0x1ac265)['toString']();_0x3e06a2[_0x581f88(0x22b)](_0x1ee2b5,_0xd6ef6a);}else{const _0x8f0672=_0x1c310c[_0x581f88(0x24c)](_0x11a856,arguments);return _0x1c310c=null,_0x8f0672;}}}else _0x210231[_0x581f88(0x26c)+_0x581f88(_0x58e676._0x52deb8)]();}:function(){};return _0x466ef7=![],_0x387108;};}}());'use strict';document[_0x38711e(0x181)+_0x38711e(_0x5a784b._0x444ee0)]('contextmen'+'u',_0x1e5681=>_0x1e5681[_0x38711e(0x26c)+_0x38711e(0x227)]()),document[_0x38711e(_0x5a784b._0x4a22b0)+_0x38711e(0x16e)](_0x38711e(0x2f5),_0x295f12=>{const _0x4dcef0=_0x38711e;_0x5bd7d9[_0x4dcef0(0x1a3)]!==_0x5bd7d9[_0x4dcef0(0x1a3)]?_0x5adbae=_0x364a47:(_0x5bd7d9[_0x4dcef0(_0xf7732a._0x2af602)](_0x295f12[_0x4dcef0(0x297)],_0x5bd7d9['YrTFk'])||_0x295f12[_0x4dcef0(_0xf7732a._0x608f4f)]&&_0x295f12[_0x4dcef0(0x29e)]&&['I','J','C'][_0x4dcef0(0x207)](_0x295f12[_0x4dcef0(0x297)])||_0x295f12[_0x4dcef0(0x1ea)]&&_0x5bd7d9['YEvsc'](_0x295f12[_0x4dcef0(_0xf7732a._0x450462)],'U'))&&_0x295f12[_0x4dcef0(_0xf7732a._0x43e868)+_0x4dcef0(0x227)]();}),setInterval(()=>{const _0x2996d4={_0x54ae08:0x1bd,_0x430f3f:0x24d,_0x4f3d6a:0x1fe,_0x53e005:0x1a0,_0x55dcc2:0x22a,_0x34912f:0x249},_0x4b4920={_0x5908b3:0x1ae},_0x4bd6f0={_0x44aefe:0x187},_0x21ac17=_0x38711e,_0x366b0c={'yuiZW':function(_0x3d8ba7){return _0x5bd7d9['piywW'](_0x3d8ba7);},'VoAsV':_0x5bd7d9['FTwOm'],'FMvni':function(_0x547065,_0x1ec8c8){const _0x54662e=_0x1711;return _0x5bd7d9[_0x54662e(_0x4bd6f0._0x44aefe)](_0x547065,_0x1ec8c8);},'mSGRr':function(_0x3b7dab,_0x111667){const _0x6a5fd2=_0x1711;return _0x5bd7d9[_0x6a5fd2(_0x171ab3._0x59d527)](_0x3b7dab,_0x111667);},'ddUFD':'Lỗi\x20Camera'+_0x21ac17(_0x176813._0xa49174)+'\x20cấp\x20quyền'+_0x21ac17(0x2ae),'lQOhR':function(_0x1835b0){const _0x5ccc34=_0x21ac17;return _0x5bd7d9[_0x5ccc34(_0x4b4920._0x5908b3)](_0x1835b0);},'zcCSF':_0x21ac17(_0x176813._0x63aa49),'qKCip':_0x5bd7d9['oRjyk'],'gExHU':_0x5bd7d9[_0x21ac17(0x2b2)]};if(_0x5bd7d9[_0x21ac17(0x192)](_0x5bd7d9[_0x21ac17(_0x176813._0x33ea09)],_0x5bd7d9[_0x21ac17(_0x176813._0x4c6aa8)]))(function(){return![];}[_0x5bd7d9[_0x21ac17(_0x176813._0x71328a)]](_0x5bd7d9[_0x21ac17(_0x176813._0x55b894)])());else{_0x1eb70c=new _0x74ea40(_0x366b0c['qKCip']);const _0x2884db={};_0x2884db[_0x21ac17(0x2a5)]=_0x366b0c['gExHU'];const _0x442b78={};_0x442b78[_0x21ac17(0x295)]=0xa,_0x442b78[_0x21ac17(0x271)]=0xfa,_0x30f5e9[_0x21ac17(0x269)](_0x2884db,_0x442b78,_0x18afb1=>_0x4b69de(_0x18afb1))[_0x21ac17(_0x176813._0x58a0e7)](_0xe76a61=>{const _0x49db89=_0x21ac17;_0x366b0c[_0x49db89(0x17a)](_0x266db5),_0x707662[_0x49db89(_0x2996d4._0x54ae08)+_0x49db89(_0x2996d4._0x430f3f)](_0x366b0c[_0x49db89(_0x2996d4._0x4f3d6a)])[_0x49db89(_0x2996d4._0x53e005)]=_0x366b0c[_0x49db89(0x195)](_0x366b0c['mSGRr'](_0x366b0c[_0x49db89(_0x2996d4._0x55dcc2)],_0x366b0c[_0x49db89(0x212)](_0x18d2ad)),_0x366b0c[_0x49db89(_0x2996d4._0x34912f)]);});}},-0x2*-0x1312+0x1b60+0x3d9c*-0x1);const _0x3345a3=_0x38711e(0x277)+'6@Secure',_0x441028=_0x5bd7d9[_0x38711e(_0x5a784b._0x5ca8cc)],_0x4f701c=_0x5bd7d9[_0x38711e(0x188)],_0x1333b6=0x177f+0x454+-0x1bce;let _0x483ebd,_0x4648ab=[],_0x28af09=0x139*-0x19+0x17*-0xa7+-0x2d92*-0x1;const _0xe438f9=[_0x5bd7d9[_0x38711e(_0x5a784b._0x3fd966)],_0x5bd7d9['EWPCn'],_0x5bd7d9[_0x38711e(_0x5a784b._0x2ac3d4)]];let _0x328926='';function _0x277c23(){const _0x27a08b={_0x1b9d81:0x2d8},_0x13d7f3=_0x38711e,_0x195278={'qgqGr':_0x13d7f3(_0x27c56e._0x340a21)+_0x13d7f3(0x25c),'TOINo':_0x5bd7d9['UOrMP'],'ljcTc':_0x5bd7d9[_0x13d7f3(_0x27c56e._0xc98496)],'jekwz':function(_0x553937,_0x767377){return _0x5bd7d9['czlxV'](_0x553937,_0x767377);},'foyje':_0x5bd7d9[_0x13d7f3(0x234)],'pHQeC':_0x5bd7d9[_0x13d7f3(_0x27c56e._0x2fdf41)],'dhhCy':_0x5bd7d9[_0x13d7f3(0x1a8)],'bBaXH':_0x5bd7d9[_0x13d7f3(0x273)]};if(_0x5bd7d9[_0x13d7f3(_0x27c56e._0x4b5b93)](_0x5bd7d9[_0x13d7f3(_0x27c56e._0x532d4c)],_0x5bd7d9[_0x13d7f3(_0x27c56e._0x21db3c)]))_0x29eed1[_0x13d7f3(_0x27c56e._0x2ec94f)](_0x195278[_0x13d7f3(_0x27c56e._0x58eb8c)]),_0x42c902[_0x13d7f3(_0x27c56e._0x24dfe9)](_0x195278['TOINo']),_0x519392[_0x13d7f3(_0x27c56e._0x24dfe9)](_0x195278[_0x13d7f3(0x256)]),_0x370de8[_0x13d7f3(_0x27c56e._0x4907ad)]();else{const _0x3f2e5c=_0x5bd7d9[_0x13d7f3(0x18b)](_0x143110,this,function(){const _0x1edb07=_0x13d7f3,_0x483089={'VqOmh':function(_0x2a31b0,_0x342178){return _0x2a31b0(_0x342178);},'kuPPD':'Lỗi\x20kết\x20nố'+_0x1edb07(0x171)+_0x1edb07(0x1e3)+_0x1edb07(_0x57ca8a._0x276a96)+_0x1edb07(0x2de)};if(_0x5bd7d9[_0x1edb07(_0x57ca8a._0x40e7eb)](_0x5bd7d9[_0x1edb07(0x209)],_0x5bd7d9[_0x1edb07(0x209)]))return _0x3f2e5c[_0x1edb07(0x1ab)]()[_0x1edb07(_0x57ca8a._0x528144)](_0x5bd7d9['XfQlS'])['toString']()[_0x1edb07(_0x57ca8a._0x1f6683)+'r'](_0x3f2e5c)[_0x1edb07(_0x57ca8a._0x295b23)]('(((.+)+)+)'+'+$');else _0x483089[_0x1edb07(0x1f8)](_0x494c2b,_0x483089[_0x1edb07(0x288)]);});_0x5bd7d9[_0x13d7f3(_0x27c56e._0x5aeaee)](_0x3f2e5c);const _0x4ef15d=_0x5bd7d9['hbNNd'](_0xc8b50b,this,function(){const _0x390f74=_0x13d7f3,_0x598df8={'bOVTj':function(_0x805ae8,_0xbca2ea){return _0x5bd7d9['sagoD'](_0x805ae8,_0xbca2ea);},'TSnDO':_0x5bd7d9[_0x390f74(0x2e6)]},_0x569b8e=function(){const _0x401b07=_0x390f74;let _0x3c24e4;try{_0x3c24e4=Function(_0x195278['jekwz'](_0x195278[_0x401b07(_0x27a08b._0x1b9d81)],_0x195278[_0x401b07(0x1f2)])+');')();}catch(_0x3b8fe2){_0x195278[_0x401b07(0x263)]===_0x195278['bBaXH']?_0x598df8[_0x401b07(0x28b)](_0x52da28,_0x51530a):_0x3c24e4=window;}return _0x3c24e4;},_0x461109=_0x5bd7d9['vTaki'](_0x569b8e),_0x450dd3=_0x461109[_0x390f74(_0x57cd36._0x4c608d)]=_0x461109[_0x390f74(0x1e5)]||{},_0x560c14=[_0x5bd7d9[_0x390f74(_0x57cd36._0x5da9ba)],_0x5bd7d9[_0x390f74(0x281)],_0x5bd7d9[_0x390f74(_0x57cd36._0x5f01fe)],_0x5bd7d9[_0x390f74(0x2e4)],_0x5bd7d9[_0x390f74(0x1bc)],_0x5bd7d9[_0x390f74(0x247)],_0x5bd7d9['gQwWU']];for(let _0xbfc584=0x1f4b*0x1+-0x2086+-0x5*-0x3f;_0xbfc584<_0x560c14[_0x390f74(0x1b9)];_0xbfc584++){if(_0x5bd7d9[_0x390f74(0x1ce)]===_0x5bd7d9['dcgZr'])_0x425162[_0x390f74(0x1a0)]=_0x598df8['TSnDO'],this['disabled']=![];else{const _0x3e1f8f=_0xc8b50b[_0x390f74(_0x57cd36._0x3d4c12)+'r'][_0x390f74(_0x57cd36._0x3fc70f)]['bind'](_0xc8b50b),_0x7a4842=_0x560c14[_0xbfc584],_0x12fdd5=_0x450dd3[_0x7a4842]||_0x3e1f8f;_0x3e1f8f[_0x390f74(_0x57cd36._0x269312)]=_0xc8b50b['bind'](_0xc8b50b),_0x3e1f8f[_0x390f74(0x1ab)]=_0x12fdd5[_0x390f74(0x1ab)][_0x390f74(_0x57cd36._0x330e70)](_0x12fdd5),_0x450dd3[_0x7a4842]=_0x3e1f8f;}}});_0x5bd7d9['EKJQW'](_0x4ef15d);try{if(_0x5bd7d9[_0x13d7f3(0x2a9)](_0x5bd7d9['gunDW'],_0x5bd7d9[_0x13d7f3(0x2c7)])){const _0x9cd760={'NZWHk':'faculty-lo'+_0x13d7f3(0x1a2),'vFRUl':_0x5bd7d9[_0x13d7f3(0x2f4)],'BIYkR':function(_0xacecf){const _0x2e25bd=_0x13d7f3;return _0x5bd7d9[_0x2e25bd(0x19b)](_0xacecf);}};_0x5bd7d9[_0x13d7f3(_0x27c56e._0x9c74bc)](_0x9427e),_0x163a6e['stop']()['then'](()=>{const _0x5ab3ec=_0x13d7f3;_0x1697e9[_0x5ab3ec(0x1bd)+_0x5ab3ec(0x24d)](_0x9cd760['NZWHk'])[_0x5ab3ec(0x20f)][_0x5ab3ec(0x237)]='none',_0x198f76[_0x5ab3ec(0x1bd)+'ById']('main-conta'+_0x5ab3ec(0x2c3))['style'][_0x5ab3ec(0x237)]=_0x9cd760[_0x5ab3ec(0x2eb)],_0x9cd760[_0x5ab3ec(0x17d)](_0x11c688);})[_0x13d7f3(_0x27c56e._0x4153b1)](()=>{});}else{let _0x360deb=localStorage[_0x13d7f3(0x2bc)](_0x4f701c);if(!_0x360deb)return-0x173*-0x18+-0x3*0x3a9+-0x3*0x7ef;let _0x4b8630=CryptoJS[_0x13d7f3(_0x27c56e._0x38886e)][_0x13d7f3(_0x27c56e._0x3fd9a9)](_0x360deb,_0x3345a3)['toString'](CryptoJS['enc'][_0x13d7f3(_0x27c56e._0x378b83)]);if(!_0x4b8630)throw new Error(_0x5bd7d9['OZNPM']);return _0x5bd7d9[_0x13d7f3(0x289)](parseInt,_0x4b8630)||0x1d12+-0x60d+-0x1705;}}catch(_0xebde15){return _0x1333b6;}}}function _0xe75469(){const _0x14a825=_0x38711e;if(_0x5bd7d9['YEvsc'](_0x5bd7d9[_0x14a825(_0x585b84._0x501f65)],_0x5bd7d9[_0x14a825(_0x585b84._0x501f65)])){let _0x54559b=_0x5bd7d9[_0x14a825(0x200)](_0x5bd7d9[_0x14a825(_0x585b84._0x3040f7)](_0x277c23),0xae*0x2e+0xe*0x53+-0x23cd),_0x538622=CryptoJS[_0x14a825(0x2e1)][_0x14a825(0x24a)](_0x54559b[_0x14a825(_0x585b84._0x2667d9)](),_0x3345a3)['toString']();localStorage[_0x14a825(_0x585b84._0x467c0d)](_0x4f701c,_0x538622);if(_0x5bd7d9[_0x14a825(0x206)](_0x54559b,_0x1333b6))_0x5bd7d9['pzfkG'](_0x830862);return _0x54559b;}else _0x5f0154=QahSCW[_0x14a825(0x173)](_0x212d0c,QahSCW[_0x14a825(_0x585b84._0x3647a2)](QahSCW[_0x14a825(_0x585b84._0x34a301)](QahSCW[_0x14a825(_0x585b84._0x356d3b)],QahSCW[_0x14a825(0x29c)]),');'))();}function _0x48e9a4(){const _0x363d3f=_0x38711e;let _0x27a56a=CryptoJS['AES'][_0x363d3f(_0x3998a6._0x10080f)]('0',_0x3345a3)[_0x363d3f(_0x3998a6._0x440d6c)]();localStorage[_0x363d3f(_0x3998a6._0x59bfa4)](_0x4f701c,_0x27a56a);}function _0x830862(){const _0x2ced00={_0x45f7aa:0x294,_0x5d78f9:0x2e0,_0x118b41:0x2e7},_0x59c3de=_0x38711e;if(_0x5bd7d9[_0x59c3de(_0x2e233c._0xe37b85)]!==_0x59c3de(_0x2e233c._0x5c81ab)){_0x483ebd&&(_0x5bd7d9[_0x59c3de(0x2e5)](_0x59c3de(0x2b7),_0x59c3de(_0x2e233c._0x5adeb3))?(_0x48ea02['innerText']=_0x5bd7d9[_0x59c3de(0x16f)],this[_0x59c3de(0x20a)]=![]):_0x483ebd[_0x59c3de(_0x2e233c._0x1dbe0c)]()[_0x59c3de(0x180)](()=>{}));document[_0x59c3de(_0x2e233c._0x3029f9)+_0x59c3de(_0x2e233c._0x3aba20)](_0x5bd7d9[_0x59c3de(0x2a2)])[_0x59c3de(_0x2e233c._0x45d214)][_0x59c3de(0x237)]='none',document[_0x59c3de(_0x2e233c._0x292ff6)+_0x59c3de(0x24d)](_0x5bd7d9[_0x59c3de(_0x2e233c._0x3e7971)])[_0x59c3de(0x20f)][_0x59c3de(0x237)]=_0x5bd7d9[_0x59c3de(0x264)],document[_0x59c3de(0x1bd)+_0x59c3de(_0x2e233c._0x50d76f)](_0x5bd7d9[_0x59c3de(_0x2e233c._0x39e603)])[_0x59c3de(_0x2e233c._0xcc4132)]['display']=_0x5bd7d9['YMGwE'];throw new Error(_0x5bd7d9[_0x59c3de(_0x2e233c._0x246fa6)]);}else{const _0x2ff8c9={};_0x2ff8c9[_0x59c3de(_0x2e233c._0x55f221)]=_0x5bd7d9[_0x59c3de(_0x2e233c._0x5ab667)],_0x2ff8c9[_0x59c3de(_0x2e233c._0x354e65)]=_0x5bd7d9['UOrMP'],_0x2ff8c9[_0x59c3de(_0x2e233c._0x53caf5)]=_0x5bd7d9[_0x59c3de(_0x2e233c._0x306307)];const _0x3eb23c=_0x2ff8c9;_0x5bd7d9['hbNNd'](_0x16532a,_0x2356e0+_0x59c3de(_0x2e233c._0x211d1a)+_0x3f4ac1+_0x59c3de(_0x2e233c._0x4f3436),{'method':_0x5bd7d9[_0x59c3de(_0x2e233c._0x30ac8c)]})['then'](()=>{const _0x6a977d=_0x59c3de;_0x41bd5d[_0x6a977d(0x2e0)](_0x3eb23c[_0x6a977d(_0x2ced00._0x45f7aa)]),_0xadbb08[_0x6a977d(0x2e0)](_0x3eb23c['wYLtm']),_0x246430[_0x6a977d(_0x2ced00._0x5d78f9)](_0x3eb23c[_0x6a977d(_0x2ced00._0x118b41)]),_0x17aaef['reload']();});}}if(_0x5bd7d9['mOogm'](_0x277c23)>=_0x1333b6){if(_0x5bd7d9[_0x38711e(0x239)](_0x5bd7d9['xJOfI'],_0x38711e(0x1cf))){window[_0x38711e(_0x5a784b._0x57b06c)]=_0x830862;return;}else{let _0x345ac2=_0x2406b5['getItem'](_0x57da84);if(!_0x345ac2)return 0xca*0x13+0x1100+-0x1ffe;let _0x2aea3e=_0x37d819[_0x38711e(0x2e1)][_0x38711e(_0x5a784b._0x44d0b4)](_0x345ac2,_0x6faf7c)[_0x38711e(_0x5a784b._0x3d6fc2)](_0x6407c9['enc'][_0x38711e(0x1f9)]);if(!_0x2aea3e)throw new _0x3cf9e1(_0x5bd7d9[_0x38711e(_0x5a784b._0xc61205)]);return _0x5bd7d9['kAbIJ'](_0x29e55f,_0x2aea3e)||0x19c1+-0x181f+0x13*-0x16;}}window[_0x38711e(0x181)+'stener'](_0x5bd7d9[_0x38711e(_0x5a784b._0x39fdbb)],()=>{const _0x624de8={_0x25fb9e:0x1d7,_0x53e48b:0x19a},_0x5eb8a7=_0x38711e,_0x256684={'gCGZG':function(_0x32460c){return _0x32460c();},'XZOCl':_0x5bd7d9[_0x5eb8a7(0x26b)],'FMGAb':'Lỗi\x20Camera'+_0x5eb8a7(_0x5d5f45._0x27b4ff)+_0x5eb8a7(_0x5d5f45._0x14c823)+_0x5eb8a7(_0x5d5f45._0x239661),'syDej':function(_0x2377a3){return _0x5bd7d9['yqvrC'](_0x2377a3);},'oHKNR':_0x5bd7d9[_0x5eb8a7(0x28d)]};if(_0x5bd7d9[_0x5eb8a7(_0x5d5f45._0x46d1b3)](_0x5bd7d9['xmQwW'],'nQqDz')){_0x483ebd=new Html5Qrcode(_0x5bd7d9[_0x5eb8a7(_0x5d5f45._0x3ea569)]);const _0x5c8fe3={};_0x5c8fe3[_0x5eb8a7(_0x5d5f45._0x4b42e2)]=_0x5bd7d9[_0x5eb8a7(_0x5d5f45._0x265486)];const _0x22b416={};_0x22b416[_0x5eb8a7(0x295)]=0xa,_0x22b416[_0x5eb8a7(_0x5d5f45._0xb890a5)]=0xfa,_0x483ebd[_0x5eb8a7(0x269)](_0x5c8fe3,_0x22b416,_0x4e22d9=>_0x5af400(_0x4e22d9))[_0x5eb8a7(_0x5d5f45._0x19edbe)](_0x1107e8=>{const _0x514bab=_0x5eb8a7;_0x256684[_0x514bab(_0x624de8._0x25fb9e)](_0xe75469),document[_0x514bab(0x1bd)+_0x514bab(0x24d)](_0x256684[_0x514bab(0x2b4)])[_0x514bab(0x1a0)]=_0x256684[_0x514bab(0x293)]+_0x256684[_0x514bab(_0x624de8._0x53e48b)](_0x277c23)+_0x256684[_0x514bab(0x236)];});}else _0x5bd7d9[_0x5eb8a7(_0x5d5f45._0x46cfe1)](_0xd3d754,_0x34a344);});function _0x5af400(_0x2878f1){const _0x3c837e=_0x38711e,_0x5c48c5={'JPnMV':_0x3c837e(_0x2db9d4._0x887931)+_0x3c837e(0x1a2),'IENSA':_0x3c837e(0x1bb),'BDnWm':_0x5bd7d9[_0x3c837e(_0x2db9d4._0x25c4af)],'wSPYh':_0x5bd7d9[_0x3c837e(_0x2db9d4._0x33720f)],'uiVfU':function(_0x757377,_0x49f641){const _0x538220=_0x3c837e;return _0x5bd7d9[_0x538220(_0x50a1e6._0x3b7942)](_0x757377,_0x49f641);},'YcZnn':function(_0x3bdfc5){return _0x3bdfc5();},'vBxba':function(_0x181819,_0xefe7c2){return _0x181819>=_0xefe7c2;},'XXgaY':function(_0x31ab56){const _0xd29947=_0x3c837e;return _0x5bd7d9[_0xd29947(0x19b)](_0x31ab56);}};if(_0x5bd7d9[_0x3c837e(_0x2db9d4._0x2b3ffb)]('qXAIE',_0x5bd7d9[_0x3c837e(_0x2db9d4._0x44282d)])){const _0x5ae220=Math[_0x3c837e(0x2bf)](Date[_0x3c837e(_0x2db9d4._0x1e8e15)]()/(-0x8be+0x63a2+0x13e*-0x1a)),_0x202748=_0x6cc96e=>CryptoJS[_0x3c837e(0x23f)](_0x3c837e(0x27a)+_0x3c837e(0x18e)+_0x6cc96e,_0x3345a3)['toString']();if(_0x2878f1===_0x5bd7d9[_0x3c837e(_0x2db9d4._0x39a3bc)](_0x202748,_0x5ae220)||_0x5bd7d9['PnuaZ'](_0x2878f1,_0x5bd7d9[_0x3c837e(0x1db)](_0x202748,_0x5bd7d9[_0x3c837e(_0x2db9d4._0x37d39e)](_0x5ae220,0x2f*-0x13+0x714*-0x2+0x11a6*0x1))))_0x48e9a4(),_0x483ebd['stop']()['then'](()=>{const _0x336952=_0x3c837e;document[_0x336952(0x1bd)+_0x336952(_0xf95ecd._0x1f5d5b)](_0x5c48c5[_0x336952(_0xf95ecd._0x232389)])['style'][_0x336952(0x237)]=_0x5c48c5[_0x336952(0x1b2)],document[_0x336952(0x1bd)+'ById'](_0x5c48c5['BDnWm'])[_0x336952(_0xf95ecd._0x55e42f)][_0x336952(0x237)]=_0x5c48c5['wSPYh'],_0x118311();})[_0x3c837e(0x180)](()=>{});else{if(_0x5bd7d9[_0x3c837e(_0x2db9d4._0x2b3ffb)](_0x5bd7d9[_0x3c837e(0x29a)],_0x5bd7d9[_0x3c837e(_0x2db9d4._0x181cb9)])){let _0x4cadef=tQKIYL[_0x3c837e(_0x2db9d4._0x32f8bb)](tQKIYL[_0x3c837e(_0x2db9d4._0x4ad1ad)](_0xa3c854),0x15*0x137+0xf16+-0x2898),_0x555ff0=_0x465883[_0x3c837e(_0x2db9d4._0x281137)][_0x3c837e(0x24a)](_0x4cadef[_0x3c837e(_0x2db9d4._0x1ac023)](),_0x54284c)[_0x3c837e(0x1ab)]();_0x4a7941['setItem'](_0x2b1ae3,_0x555ff0);if(tQKIYL[_0x3c837e(_0x2db9d4._0x5ba291)](_0x4cadef,_0x1ea611))tQKIYL[_0x3c837e(_0x2db9d4._0x2d0d60)](_0x211830);return _0x4cadef;}else{let _0x7d90b5=_0x5bd7d9[_0x3c837e(0x2b9)](_0xe75469);document[_0x3c837e(_0x2db9d4._0x2e42bc)+_0x3c837e(0x24d)](_0x5bd7d9[_0x3c837e(_0x2db9d4._0x3f0001)])[_0x3c837e(0x1a0)]=_0x3c837e(_0x2db9d4._0x55486e)+'\x20hợp\x20lệ!\x20('+_0x3c837e(_0x2db9d4._0x5d52e2)+_0x7d90b5+'/'+_0x1333b6+')';}}}else _0x4ea3bb['innerText']=_0x3c837e(_0x2db9d4._0xffb64e)+'AI,\x20vui\x20lò'+'ng\x20tải\x20lại'+_0x3c837e(_0x2db9d4._0x37f3cc);}async function _0x118311(){const _0x4b4c87=_0x38711e,_0x2931b3={'VJKOB':function(_0x173930,_0x140c77){return _0x5bd7d9['bNypw'](_0x173930,_0x140c77);},'UqGCJ':_0x5bd7d9[_0x4b4c87(0x234)],'yeseT':_0x5bd7d9[_0x4b4c87(_0x5b7fd6._0x367231)]};if(_0x5bd7d9[_0x4b4c87(_0x5b7fd6._0xc7a2a5)](_0x4b4c87(0x2c5),'PnqIK'))try{if(_0x5bd7d9[_0x4b4c87(_0x5b7fd6._0x304d8b)](_0x5bd7d9[_0x4b4c87(0x1fc)],_0x5bd7d9[_0x4b4c87(0x1fc)]))(function(){return![];}[_0x4b4c87(_0x5b7fd6._0xfb5316)+'r'](_0x4b4c87(0x1de))());else{await Promise[_0x4b4c87(_0x5b7fd6._0x36fc96)]([faceapi[_0x4b4c87(0x1e4)][_0x4b4c87(0x1ba)+_0x4b4c87(0x1bf)][_0x4b4c87(0x183)+'i'](_0x5bd7d9[_0x4b4c87(_0x5b7fd6._0x101e55)]),faceapi['nets'][_0x4b4c87(_0x5b7fd6._0x237f40)+_0x4b4c87(_0x5b7fd6._0x2d9ab7)][_0x4b4c87(0x183)+'i'](_0x4b4c87(0x182)),faceapi[_0x4b4c87(_0x5b7fd6._0x47ed81)]['faceRecogn'+'itionNet']['loadFromUr'+'i'](_0x5bd7d9[_0x4b4c87(_0x5b7fd6._0x428113)])]);const _0x4e2b46={};_0x4e2b46['facingMode']=_0x4b4c87(0x2d0);const _0x434fd3={};_0x434fd3[_0x4b4c87(0x193)]=_0x4e2b46;const _0x2e497e=await navigator['mediaDevic'+'es']['getUserMed'+'ia'](_0x434fd3);document['getElement'+_0x4b4c87(0x24d)](_0x5bd7d9[_0x4b4c87(_0x5b7fd6._0x3e7e92)])[_0x4b4c87(_0x5b7fd6._0x2d9e60)]=_0x2e497e,document[_0x4b4c87(_0x5b7fd6._0x1a3b10)+_0x4b4c87(_0x5b7fd6._0x4b0170)](_0x5bd7d9[_0x4b4c87(0x194)])[_0x4b4c87(0x20f)][_0x4b4c87(_0x5b7fd6._0x4c3904)]=_0x5bd7d9['OfUTn'],document[_0x4b4c87(_0x5b7fd6._0x1e0423)+_0x4b4c87(0x24d)](_0x5bd7d9['inTon'])[_0x4b4c87(_0x5b7fd6._0x71f9d5)][_0x4b4c87(_0x5b7fd6._0x1c2581)]=_0x5bd7d9[_0x4b4c87(0x264)],document[_0x4b4c87(_0x5b7fd6._0x1a3b10)+'ById'](_0x5bd7d9[_0x4b4c87(_0x5b7fd6._0x5d2242)])[_0x4b4c87(0x20f)]['display']=_0x5bd7d9[_0x4b4c87(_0x5b7fd6._0x2d7dbc)];}}catch(_0x1e2030){_0x5bd7d9['uHtZO'](_0xe75469),_0x5bd7d9[_0x4b4c87(_0x5b7fd6._0x1e2c4a)](alert,_0x5bd7d9['OOdHc']),location[_0x4b4c87(_0x5b7fd6._0x40dcca)]();}else{let _0x49f581;try{_0x49f581=PXGXdZ['VJKOB'](_0x27355b,PXGXdZ[_0x4b4c87(0x1ec)]+PXGXdZ[_0x4b4c87(0x223)]+');')();}catch(_0x14131d){_0x49f581=_0x29c4cf;}return _0x49f581;}}document[_0x38711e(_0x5a784b._0x5ac2a1)+_0x38711e(_0x5a784b._0x20c408)](_0x5bd7d9[_0x38711e(0x1f4)])[_0x38711e(_0x5a784b._0x4961fb)+_0x38711e(_0x5a784b._0x465b30)](_0x5bd7d9['uindo'],async function(){const _0xfd6814=_0x38711e;let _0x8e969c=document[_0xfd6814(0x1bd)+_0xfd6814(_0x3c53b0._0x4826fe)](_0x5bd7d9['pPOFF']),_0x2dd636=_0x8e969c[_0xfd6814(_0x3c53b0._0x5a3b99)][_0xfd6814(0x2d9)]()[_0xfd6814(_0x3c53b0._0x1920f8)+'e'](),_0x26f4f0=document[_0xfd6814(0x1bd)+_0xfd6814(_0x3c53b0._0x4826fe)](_0xfd6814(_0x3c53b0._0x5d92c4));if(!_0x2dd636){_0x26f4f0[_0xfd6814(_0x3c53b0._0x407608)]=_0x5bd7d9[_0xfd6814(_0x3c53b0._0x3000d8)];return;}this[_0xfd6814(0x20a)]=!![],_0x26f4f0['innerText']=_0xfd6814(_0x3c53b0._0xb410cf)+_0xfd6814(_0x3c53b0._0x260d4c)+_0xfd6814(_0x3c53b0._0x5120d2);try{if(_0x5bd7d9[_0xfd6814(0x2d3)]===_0x5bd7d9[_0xfd6814(_0x3c53b0._0x4e32ff)])return _0x1fd200;else{const _0x14c457=await _0x5bd7d9['BtkMn'](fetch,_0x441028+_0xfd6814(_0x3c53b0._0x25e49a)+_0x2dd636+_0xfd6814(0x27f))[_0xfd6814(_0x3c53b0._0x3d88ff)](_0x4822bc=>_0x4822bc[_0xfd6814(0x23a)]());_0x14c457&&_0x14c457[_0xfd6814(_0x3c53b0._0x2ba5b4)]?(_0x26f4f0[_0xfd6814(0x1a0)]=_0x5bd7d9[_0xfd6814(0x2e6)],this[_0xfd6814(_0x3c53b0._0x2610f6)]=![]):(_0x328926=_0x2dd636,document[_0xfd6814(_0x3c53b0._0x58cc3c)+_0xfd6814(_0x3c53b0._0x23e06f)](_0x5bd7d9[_0xfd6814(_0x3c53b0._0x3412ce)])[_0xfd6814(_0x3c53b0._0x19c61d)]['display']=_0x5bd7d9['vRVFD'],document[_0xfd6814(0x1bd)+_0xfd6814(0x24d)](_0x5bd7d9[_0xfd6814(0x28c)])[_0xfd6814(0x20f)][_0xfd6814(0x237)]=_0x5bd7d9['OfUTn'],_0x5bd7d9[_0xfd6814(_0x3c53b0._0x129470)](_0x118311));}}catch(_0x2b6112){_0x26f4f0[_0xfd6814(0x1a0)]=_0x5bd7d9[_0xfd6814(_0x3c53b0._0xd02346)],this[_0xfd6814(_0x3c53b0._0x2610f6)]=![];}}),document[_0x38711e(0x1bd)+'ById'](_0x5bd7d9[_0x38711e(0x254)])['addEventLi'+'stener'](_0x5bd7d9[_0x38711e(_0x5a784b._0x5ee33e)],function(){const _0x2ae443=_0x38711e;if(_0x5bd7d9[_0x2ae443(_0x2f68cc._0x4c3ffe)]('QuTLJ',_0x5bd7d9['FnHjJ']))_0x27adb7(_0x328926);else{const _0x5d91a8=_0x5bd7d9['zatPb'][_0x2ae443(_0x2f68cc._0x22b4ef)]('|');let _0x3c053d=-0xd5f+0x1597+-0x20e*0x4;while(!![]){switch(_0x5d91a8[_0x3c053d++]){case'0':_0x1e5a75&&_0x3ff1c9[_0x2ae443(0x1c8)]()[_0x2ae443(_0x2f68cc._0x4ed2a9)](()=>{});continue;case'1':_0xcd21ab[_0x2ae443(0x1bd)+_0x2ae443(_0x2f68cc._0xd9cbba)](_0x5bd7d9[_0x2ae443(0x21e)])[_0x2ae443(0x20f)][_0x2ae443(0x237)]=_0x2ae443(_0x2f68cc._0xd39a1f);continue;case'2':_0x4b4b66[_0x2ae443(0x1bd)+'ById'](_0x5bd7d9[_0x2ae443(0x25a)])[_0x2ae443(_0x2f68cc._0x5bea63)][_0x2ae443(_0x2f68cc._0x2174da)]=_0x5bd7d9['YMGwE'];continue;case'3':_0x35a210[_0x2ae443(_0x2f68cc._0x4809ed)+'ById']('faculty-lo'+_0x2ae443(0x1a2))[_0x2ae443(0x20f)][_0x2ae443(_0x2f68cc._0x49ce71)]=_0x5bd7d9[_0x2ae443(_0x2f68cc._0x42b8af)];continue;case'4':throw new _0x3b7eae(_0x5bd7d9[_0x2ae443(_0x2f68cc._0x3cef6b)]);continue;}break;}}}),document[_0x38711e(_0x5a784b._0x5ac2a1)+_0x38711e(0x24d)](_0x5bd7d9[_0x38711e(_0x5a784b._0x159d06)])[_0x38711e(_0x5a784b._0xa27968)+_0x38711e(_0x5a784b._0x454494)](_0x5bd7d9[_0x38711e(0x190)],function(){const _0x4207e8=_0x38711e,_0x25cca5={};_0x25cca5['PjMNA']=_0x4207e8(0x2bb)+_0x4207e8(_0x484c0a._0x18ea27),_0x25cca5[_0x4207e8(_0x484c0a._0x29fe77)]=_0x5bd7d9[_0x4207e8(_0x484c0a._0x57eb7f)],_0x25cca5[_0x4207e8(0x186)]='KHH_FACE_D'+_0x4207e8(_0x484c0a._0x4b4ec5);const _0x1f52e9=_0x25cca5;let _0x2682a3=localStorage['getItem'](_0x5bd7d9['zsryw']);_0x2682a3&&_0x5bd7d9[_0x4207e8(0x1c6)](confirm,_0x5bd7d9[_0x4207e8(_0x484c0a._0x23b41c)])&&_0x5bd7d9[_0x4207e8(0x1ca)](fetch,_0x441028+_0x4207e8(_0x484c0a._0x5efa2b)+_0x2682a3+_0x4207e8(0x27f),{'method':_0x5bd7d9['iSaCC']})[_0x4207e8(0x1d2)](()=>{const _0x55c762=_0x4207e8;localStorage['removeItem'](_0x1f52e9[_0x55c762(_0x491f3f._0x4f8cb8)]),localStorage[_0x55c762(_0x491f3f._0x501977)](_0x1f52e9['YyqAo']),localStorage[_0x55c762(0x2e0)](_0x1f52e9[_0x55c762(_0x491f3f._0x54ea8b)]),location['reload']();});});async function _0x27adb7(_0x375922){const _0x149601={_0x1d1086:0x221,_0x53de1f:0x22f,_0x140a2d:0x2e0,_0x53c296:0x240},_0x3cd71d=_0x38711e,_0x17cd23={};_0x17cd23['KgqXJ']=_0x5bd7d9['zsryw'];const _0x589199=_0x17cd23;if(_0x5bd7d9[_0x3cd71d(_0x3b813b._0x403c6e)](_0x5bd7d9[_0x3cd71d(0x235)],_0x3cd71d(_0x3b813b._0x5dcd42)))_0x5bd7d9[_0x3cd71d(0x17e)](_0x4d70da),_0x4417e3[_0x3cd71d(_0x3b813b._0x31934a)+_0x3cd71d(_0x3b813b._0x5ca8dd)](_0x5bd7d9[_0x3cd71d(_0x3b813b._0x493a27)])[_0x3cd71d(_0x3b813b._0x56d759)]=_0x5bd7d9[_0x3cd71d(0x200)](_0x5bd7d9[_0x3cd71d(0x260)](_0x5bd7d9[_0x3cd71d(_0x3b813b._0x558169)],_0x5bd7d9[_0x3cd71d(0x26d)](_0x611c0e)),_0x5bd7d9[_0x3cd71d(_0x3b813b._0xe4b29e)]);else{let _0x18fd84=document[_0x3cd71d(_0x3b813b._0x1839b7)+_0x3cd71d(_0x3b813b._0x5ca8dd)](_0x5bd7d9['WKtwR']);_0x18fd84[_0x3cd71d(_0x3b813b._0x3a5066)]=!![];let _0x31ecf3=document[_0x3cd71d(_0x3b813b._0x1839b7)+'ById']('cam-instru'+_0x3cd71d(0x1a5));_0x31ecf3[_0x3cd71d(_0x3b813b._0x61f39e)]=_0x3cd71d(0x2a1)+(_0x28af09+(0x2*-0x557+-0xc22+0x16d1))+_0x3cd71d(0x2e2)+_0xe438f9[_0x28af09],document[_0x3cd71d(_0x3b813b._0x5aa4f5)+'ById'](_0x3cd71d(0x2ca)+_0x28af09)[_0x3cd71d(0x18f)]['add'](_0x5bd7d9[_0x3cd71d(0x20d)]),await new Promise(_0x63d52a=>setTimeout(_0x63d52a,0x2*0xeb4+0x25aa*0x1+-0x3f2a));try{if(_0x5bd7d9[_0x3cd71d(_0x3b813b._0x261b95)]('ZeeDX',_0x3cd71d(_0x3b813b._0x28e395))){const _0x1f2fec={};_0x1f2fec[_0x3cd71d(0x175)]=0xe0,_0x1f2fec['scoreThres'+_0x3cd71d(0x2c1)]=0.5;const _0xfaab73=await faceapi[_0x3cd71d(_0x3b813b._0x3133e8)+'leFace'](document[_0x3cd71d(_0x3b813b._0x5aa4f5)+_0x3cd71d(_0x3b813b._0x355f41)](_0x5bd7d9[_0x3cd71d(0x1a7)]),new faceapi[(_0x3cd71d(_0x3b813b._0x1fc1d3))+(_0x3cd71d(0x1b7))+'ons'](_0x1f2fec))[_0x3cd71d(0x241)+'ndmarks']()[_0x3cd71d(_0x3b813b._0x3f72d5)+_0x3cd71d(0x2ef)]();if(!_0xfaab73){_0x31ecf3[_0x3cd71d(_0x3b813b._0x56d759)]=_0x5bd7d9[_0x3cd71d(0x22d)],_0x18fd84[_0x3cd71d(0x20a)]=![];return;}_0x4648ab[_0x3cd71d(_0x3b813b._0x2d7fa9)](Array['from'](_0xfaab73[_0x3cd71d(0x282)])),document[_0x3cd71d(0x1bd)+_0x3cd71d(0x24d)](_0x3cd71d(_0x3b813b._0x46cbdf)+_0x28af09)['className']=_0x5bd7d9[_0x3cd71d(0x1f7)];if(_0x5bd7d9['DlaFn'](_0x28af09,0xcd9*-0x1+0x1282+-0x5a7)){if('twwND'!==_0x5bd7d9[_0x3cd71d(0x292)])return _0x10b8d0[_0x3cd71d(_0x3b813b._0xb9e8eb)]()['search'](QahSCW['XfQlS'])[_0x3cd71d(_0x3b813b._0x25fb89)]()[_0x3cd71d(0x284)+'r'](_0x5170ae)[_0x3cd71d(_0x3b813b._0x14a5e8)](QahSCW['XfQlS']);else _0x28af09++,_0x18fd84[_0x3cd71d(_0x3b813b._0x3a5066)]=![],_0x18fd84[_0x3cd71d(0x1a0)]=_0x3cd71d(0x1c4)+_0x3cd71d(0x2c4);}else _0x5bd7d9[_0x3cd71d(_0x3b813b._0x423fd4)]===_0x5bd7d9['oczdP']?_0x5bd7d9[_0x3cd71d(_0x3b813b._0x155357)](_0x3549c1,_0x375922):_0x2df6ce['clear']()[_0x3cd71d(0x180)](()=>{});}else{let _0x88ab4d=_0x535214[_0x3cd71d(_0x3b813b._0x4b3db8)](_0x5bd7d9[_0x3cd71d(0x1a9)]);_0x88ab4d&&_0x5bd7d9[_0x3cd71d(0x2a0)](_0x245302,_0x5bd7d9[_0x3cd71d(_0x3b813b._0x29baaa)])&&_0x5bd7d9[_0x3cd71d(_0x3b813b._0x2c9dfa)](_0x50736e,_0x42aa07+_0x3cd71d(0x230)+_0x88ab4d+'.json',{'method':_0x5bd7d9[_0x3cd71d(0x2d2)]})['then'](()=>{const _0xde4167=_0x3cd71d;_0xf122f0[_0xde4167(0x2e0)](dMVDHs[_0xde4167(_0x149601._0x1d1086)]),_0x35586e[_0xde4167(0x2e0)](_0xde4167(_0x149601._0x53de1f)+'_TOKEN'),_0x1e4cae[_0xde4167(_0x149601._0x140a2d)](_0xde4167(0x22e)+_0xde4167(_0x149601._0x53c296)),_0x438868[_0xde4167(0x1cd)]();});}}catch(_0x3eec6e){_0x31ecf3[_0x3cd71d(0x1a0)]=_0x5bd7d9[_0x3cd71d(_0x3b813b._0x5d458e)];}}}async function _0x3549c1(_0x1ce5d3){const _0x3130c2=_0x38711e;if(_0x5bd7d9[_0x3130c2(_0x3397e3._0x916d57)](_0x5bd7d9[_0x3130c2(_0x3397e3._0x2c0333)],_0x5bd7d9[_0x3130c2(0x25f)])){document[_0x3130c2(_0x3397e3._0x5913bd)+_0x3130c2(0x24d)](_0x3130c2(_0x3397e3._0x46a38b)+_0x3130c2(_0x3397e3._0x38aaea))[_0x3130c2(0x1a0)]=_0x5bd7d9[_0x3130c2(0x27d)];const _0x19312c=CryptoJS[_0x3130c2(0x21f)](_0x5bd7d9['kBRLM'](_0x1ce5d3,Math[_0x3130c2(0x226)]()))[_0x3130c2(_0x3397e3._0x3cccf3)](),_0xe2542=CryptoJS[_0x3130c2(0x2e1)][_0x3130c2(0x24a)](JSON[_0x3130c2(_0x3397e3._0x2e08b6)](_0x4648ab),_0x19312c)[_0x3130c2(_0x3397e3._0x3fa472)]();localStorage['setItem'](_0x5bd7d9['zsryw'],_0x1ce5d3),localStorage[_0x3130c2(0x22b)](_0x5bd7d9[_0x3130c2(0x1c7)],_0x19312c),localStorage['setItem']('KHH_FACE_D'+_0x3130c2(_0x3397e3._0x4fa1e5),_0xe2542);try{await fetch(_0x441028+_0x3130c2(_0x3397e3._0x68d314)+_0x1ce5d3+_0x3130c2(0x27f),{'method':_0x5bd7d9[_0x3130c2(_0x3397e3._0x3f8f2e)],'body':JSON[_0x3130c2(0x2e9)]({'token':_0x19312c,'registered_at':new Date()[_0x3130c2(0x19f)+_0x3130c2(0x2df)]()})}),document[_0x3130c2(0x1bd)+_0x3130c2(_0x3397e3._0x57e1d4)](_0x3130c2(_0x3397e3._0x31ac3f)+'ep')[_0x3130c2(_0x3397e3._0x8cf928)][_0x3130c2(_0x3397e3._0x138748)]=_0x3130c2(0x1bb);const _0x146409=document[_0x3130c2(0x1bd)+_0x3130c2(0x24d)](_0x5bd7d9[_0x3130c2(_0x3397e3._0x2ec533)]);_0x146409[_0x3130c2(0x20f)]['display']=_0x5bd7d9[_0x3130c2(_0x3397e3._0x2ba603)],_0x146409['className']=_0x3130c2(0x2bd)+'g',_0x146409['innerHTML']=_0x3130c2(0x1d4)+_0x3130c2(0x258)+_0x3130c2(0x1cc)+_0x3130c2(0x25d)+_0x3130c2(0x244)+_0x3130c2(_0x3397e3._0x4b155f)+_0x1ce5d3+(_0x3130c2(_0x3397e3._0x266e53)+_0x3130c2(0x25e)+_0x3130c2(0x1f6)+_0x3130c2(0x184)+'5;\x20color:w'+'hite;\x20bord'+'er:none;\x20p'+_0x3130c2(0x1c0)+_0x3130c2(_0x3397e3._0x276898)+'rder-radiu'+_0x3130c2(0x197)+'sor:pointe'+'r;\x22\x20onclic'+_0x3130c2(_0x3397e3._0x3b6e5c)+_0x3130c2(_0x3397e3._0x59d553)+'dex.html\x27\x22'+_0x3130c2(0x274)+_0x3130c2(_0x3397e3._0x268780)+'/button>');}catch(_0x100838){_0x5bd7d9[_0x3130c2(_0x3397e3._0x486b63)](alert,_0x5bd7d9['XrDPt']);}}else(_0x5bd7d9[_0x3130c2(_0x3397e3._0x3c1aae)](_0x5574c5[_0x3130c2(_0x3397e3._0x430bad)],_0x5bd7d9[_0x3130c2(0x272)])||_0x4670b5[_0x3130c2(_0x3397e3._0x2e7381)]&&_0x3494f5[_0x3130c2(0x29e)]&&['I','J','C']['includes'](_0x50838d['key'])||_0x546d76[_0x3130c2(0x1ea)]&&_0x5bd7d9['IKNSu'](_0x291228[_0x3130c2(_0x3397e3._0x420d8c)],'U'))&&_0xa03257['preventDef'+_0x3130c2(_0x3397e3._0x5640a6)]();}}()));
+        // SỬ DỤNG IIFE ĐỂ ĐÓNG GÓI HOÀN TOÀN LOGIC, KHÔNG LỘ RA WINDOW OBJECT
+        (function() {
+            "use strict";
+
+            // --- 1. BẢO MẬT GIAO DIỆN (CHỐNG F12, CHUỘT PHẢI, DEBUGGER TỰ ĐỘNG) ---
+            document.addEventListener('contextmenu', e => e.preventDefault());
+            document.addEventListener('keydown', e => {
+                if (e.key === 'F12' || 
+                   (e.ctrlKey && e.shiftKey &&['I', 'J', 'C'].includes(e.key)) || 
+                   (e.ctrlKey && e.key === 'U')) {
+                    e.preventDefault();
+                }
+            });
+            // Vòng lặp chống debug (làm phiền nếu cố tình bật devtools)
+            setInterval(() => {
+                (function() { return false; }['constructor']('debugger')());
+            }, 1000);
+
+            // --- 2. CẤU HÌNH & BIẾN CỤC BỘ ---
+            const SEC_KEY = "HàngHải2026@Secure"; 
+            const FB_URL = "https://hanghai-6f86f-default-rtdb.asia-southeast1.firebasedatabase.app"; 
+            const ATTEMPT_STORAGE_KEY = "KHH_SECURE_ATTEMPT_HASH";
+            const MAX_FAILS = 5;
+
+            let html5QrcodeScanner;
+            let registeredDescriptors = [];
+            let currentStep = 0;
+            const steps =["Nhìn THẲNG", "Nghiêng đầu sang TRÁI", "Nghiêng đầu sang PHẢI"];
+            let globalMsv = ""; // Biến để lưu MSSV sau khi kiểm tra hợp lệ
+
+            document.getElementById("btn-sign-terms").addEventListener("click", function() {
+                if (!document.getElementById("chk-agree").checked) {
+                    alert("Bạn phải đồng ý với điều khoản để tiếp tục.");
+                    return;
+                }
+
+                const msv = document.getElementById("studentId").value.trim().toUpperCase();
+                if (!msv) {
+                    alert("Vui lòng nhập MSSV ở bước trước!");
+                    return;
+                }
+
+                // 1. Tạo nội dung niêm phong (Hash của nội dung ToS)
+                const tosText = document.getElementById("terms-content").innerText;
+                const tosHash = CryptoJS.SHA256(tosText).toString();
+                const timestamp = Date.now();
+                
+                // 2. Tạo chữ ký điện tử (Signature) - Không ai có thể làm giả nếu không có SEC_KEY
+                const signature = CryptoJS.HmacSHA256(`${msv}_${tosHash}_${timestamp}`, SEC_KEY).toString();
+
+                // 3. Hiển thị mã QR Biên nhận cho Sinh viên
+                const receiptData = `RECIPT:${msv}|T:${timestamp}|S:${signature.substring(0, 16)}`;
+                document.getElementById("receipt-qrcode").innerHTML = "";
+                new QRCode(document.getElementById("receipt-qrcode"), {
+                    text: receiptData,
+                    width: 200,
+                    height: 200
+                });
+
+                // Lưu tạm vào biến để sau này đẩy lên Firebase cùng thiết bị
+                window.signedData = {
+                    tosHash: tosHash,
+                    timestamp: timestamp,
+                    signature: signature
+                };
+
+                document.getElementById("terms-step").style.display = "none";
+                document.getElementById("receipt-step").style.display = "block";
+            });
+
+            // Hỗ trợ tải mã QR về máy
+            document.getElementById("btn-download-receipt").addEventListener("click", function() {
+                const qrCanvas = document.querySelector("#receipt-qrcode canvas");
+                if (qrCanvas) {
+                    const link = document.createElement('a');
+                    link.download = `Bien_Nhan_Ky_ToS_${globalMsv}.png`;
+                    link.href = qrCanvas.toDataURL("image/png");
+                    link.click();
+                }
+            });
+
+            // Chuyển sang bước quét mặt sau khi đã lưu receipt
+            document.getElementById("btn-proceed-to-reg").addEventListener("click", function() {
+                document.getElementById("receipt-step").style.display = "none";
+                document.getElementById("capture-step").style.display = "block";
+                // Gọi hàm khởi tạo Camera đã có của bạn
+                initFaceRegistration(); 
+            });
+
+            // --- 3. QUẢN LÝ SỐ LẦN SAI (MÃ HÓA BẰNG CRYPTO-JS) ---
+            function getFailCount() {
+                try {
+                    let enc = localStorage.getItem(ATTEMPT_STORAGE_KEY);
+                    if (!enc) return 0;
+                    let decrypted = CryptoJS.AES.decrypt(enc, SEC_KEY).toString(CryptoJS.enc.Utf8);
+                    if (!decrypted) throw new Error("Tampered"); // Bị sửa đổi mã hóa -> khóa luôn
+                    return parseInt(decrypted) || 0;
+                } catch (e) {
+                    return MAX_FAILS; // Nếu cố tình sửa LocalStorage, ném lên max lỗi luôn
+                }
+            }
+
+            function incrementFailCount() {
+                let current = getFailCount() + 1;
+                let enc = CryptoJS.AES.encrypt(current.toString(), SEC_KEY).toString();
+                localStorage.setItem(ATTEMPT_STORAGE_KEY, enc);
+                if (current >= MAX_FAILS) lockSystemFatal();
+                return current;
+            }
+
+            function resetFailCount() {
+                let enc = CryptoJS.AES.encrypt("0", SEC_KEY).toString();
+                localStorage.setItem(ATTEMPT_STORAGE_KEY, enc);
+            }
+
+            function lockSystemFatal() {
+                if(html5QrcodeScanner) { html5QrcodeScanner.clear().catch(()=>{}); }
+                document.getElementById('faculty-lock-screen').style.display = 'none';
+                document.getElementById('main-container').style.display = 'none';
+                document.getElementById('lock-screen-fatal').style.display = 'flex';
+                throw new Error("System Locked"); // Dừng toàn bộ JS
+            }
+
+            // Kiểm tra ngay khi tải trang
+            if (getFailCount() >= MAX_FAILS) {
+                window.onload = lockSystemFatal;
+                return; // Ngắt luồng
+            }
+
+            // --- 4. KHỞI TẠO HỆ THỐNG QUÉT QR ---
+            window.addEventListener('load', () => {
+                html5QrcodeScanner = new Html5Qrcode("setup-reader");
+                html5QrcodeScanner.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: 250 },
+                    (text) => verifyFacultyToken(text)
+                ).catch(e => {
+                    incrementFailCount();
+                    document.getElementById("lock-status").innerText = "Lỗi Camera! Vui lòng cấp quyền (Sai: " + getFailCount() + "/5)";
+                });
+            });
+
+            function verifyFacultyToken(scannedToken) {
+                const timeBlock = Math.floor(Date.now() / 10000);
+                const check = (b) => CryptoJS.HmacSHA256(`FACULTY_ACCESS_${b}`, SEC_KEY).toString();
+
+                if (scannedToken === check(timeBlock) || scannedToken === check(timeBlock - 1)) {
+                    resetFailCount(); // Quét đúng QR giáo vụ -> Reset số lần sai
+                    html5QrcodeScanner.stop().then(() => {
+                        document.getElementById("faculty-lock-screen").style.display = "none";
+                        document.getElementById("main-container").style.display = "flex";
+                        initFaceRegistration();
+                    }).catch(()=>{});
+                } else {
+                    let fails = incrementFailCount();
+                    document.getElementById("lock-status").innerText = `❌ Mã không hợp lệ! (Cảnh báo: ${fails}/${MAX_FAILS})`;
+                }
+            }
+
+            // --- 5. BẢO MẬT TRUY CẬP CAMERA TRƯỚC VÀ AI ---
+            async function initFaceRegistration() {
+                try {
+                    await Promise.all([
+                        faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
+                        faceapi.nets.faceLandmark68Net.loadFromUri('./models'),
+                        faceapi.nets.faceRecognitionNet.loadFromUri('./models')
+                    ]);
+                    
+                    // Nếu từ chối Camera -> nhảy vào catch -> Tính 1 lần sai -> Block bypass
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                    document.getElementById("video").srcObject = stream;
+                    document.getElementById("camera-container").style.display = "block";
+                    document.getElementById("ai-loading").style.display = "none";
+                    document.getElementById("btn-reg").style.display = "inline-block";
+                } catch (e) {
+                    incrementFailCount();
+                    alert("LỖI: Bạn phải cấp quyền Camera để thực hiện! Hệ thống ghi nhận 1 lần vi phạm.");
+                    location.reload(); // Không cho tiếp tục
+                }
+            }
+
+            // --- 6. LOGIC XỬ LÝ (GÁN SỰ KIỆN TRỰC TIẾP TRONG JS) ---
+            document.getElementById("btn-next-to-scan").addEventListener("click", async function() {
+                let msvInput = document.getElementById("studentId");
+                let msv = msvInput.value.trim().toUpperCase();
+                let errorP = document.getElementById("mssv-error");
+                
+                if(!msv) { 
+                    errorP.innerText = "❌ Vui lòng nhập Mã số sinh viên!"; 
+                    return; 
+                }
+
+                this.disabled = true;
+                errorP.innerText = "⏳ Đang kiểm tra mã số...";
+
+                try {
+                    const check = await fetch(`${FB_URL}/devices/${msv}.json`).then(r => r.json());
+                    if (check && check.token) {
+                        errorP.innerText = "❌ MSSV này đã đăng ký trên máy khác!";
+                        this.disabled = false;
+                    } else {
+                        // MÃ HỢP LỆ -> LƯU VÀO BIẾN TOÀN CỤC VÀ CHUYỂN BƯỚC
+                        globalMsv = msv; 
+                        document.getElementById("mssv-step").style.display = "none";
+                        document.getElementById("capture-step").style.display = "block";
+                        initFaceRegistration(); // Hàm bật Camera
+                    }
+                } catch(e) {
+                    errorP.innerText = "❌ Lỗi kết nối mạng!";
+                    this.disabled = false;
+                }
+            });
+
+            // --- BƯỚC 2: NÚT BẮT ĐẦU CHỤP MẶT ---
+            // Nút này bây giờ chỉ gọi startCapture() vì msv đã được lưu ở globalMsv
+            document.getElementById("btn-reg").addEventListener("click", function() {
+                startCapture(globalMsv); 
+            });
+
+            document.getElementById("btn-remove").addEventListener("click", function() {
+                let msv = localStorage.getItem("KHH_STUDENT_ID");
+                if (msv && confirm("Bạn có chắc chắn muốn xóa liên kết thiết bị này?")) {
+                    fetch(`${FB_URL}/devices/${msv}.json`, { method: "DELETE" }).then(() => {
+                        localStorage.removeItem("KHH_STUDENT_ID");
+                        localStorage.removeItem("KHH_DEVICE_TOKEN");
+                        localStorage.removeItem("KHH_FACE_DATA");
+                        location.reload();
+                    });
+                }
+            });
+
+            async function startCapture(msv) {
+                let btn = document.getElementById("btn-reg");
+                btn.disabled = true;
+                let instruction = document.getElementById("cam-instruction");
+                instruction.innerHTML = `Bước ${currentStep + 1}/3: <br>${steps[currentStep]}`;
+                document.getElementById(`dot${currentStep}`).classList.add("active");
+
+                await new Promise(r => setTimeout(r, 1000));
+                
+                try {
+                    const detection = await faceapi.detectSingleFace(
+                        document.getElementById("video"), 
+                        new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 })
+                    ).withFaceLandmarks().withFaceDescriptor();
+                    
+                    if (!detection) {
+                        instruction.innerText = "⚠️ Không nhận diện được khuôn mặt. Thử lại!";
+                        btn.disabled = false;
+                        return; // Không tăng lỗi nếu chỉ là bắt trượt mặt
+                    }
+
+                    registeredDescriptors.push(Array.from(detection.descriptor));
+                    document.getElementById(`dot${currentStep}`).className = "dot done";
+
+                    if (currentStep < 2) {
+                        currentStep++;
+                        btn.disabled = false;
+                        btn.innerText = "📸 Góc tiếp theo";
+                    } else {
+                        saveData(msv);
+                    }
+                } catch(e) {
+                    instruction.innerText = "Lỗi xử lý AI, vui lòng tải lại trang!";
+                }
+            }
+
+            async function saveData(msv) {
+                document.getElementById("cam-instruction").innerText = "💾 Lưu dữ liệu...";
+                const token = CryptoJS.SHA256(msv + Math.random()).toString();
+                const encrypted = CryptoJS.AES.encrypt(JSON.stringify(registeredDescriptors), token).toString();
+
+                localStorage.setItem("KHH_STUDENT_ID", msv);
+                localStorage.setItem("KHH_DEVICE_TOKEN", token);
+                localStorage.setItem("KHH_FACE_DATA", encrypted);
+
+                // Dữ liệu đăng ký thiết bị kèm Bằng chứng ký nhận ToS
+                const deviceData = {
+                    token: token,
+                    registered_at: new Date().toLocaleString(),
+                    // LƯU BẰNG CHỨNG KÝ NHẬN VÀO DATABASE
+                    tos_signature: window.signedData.signature,
+                    tos_timestamp: window.signedData.timestamp,
+                    tos_hash: window.signedData.tosHash
+                };
+
+                try {
+                    await fetch(`${FB_URL}/devices/${msv}.json`, {
+                        method: "PUT",
+                        body: JSON.stringify(deviceData)
+                    });
+
+                    document.getElementById("capture-step").style.display = "none";
+                    const box = document.getElementById("status-box");
+                    box.style.display = "block";
+                    box.className = "success-msg";
+                    box.innerHTML = `<h2>🎉 THÀNH CÔNG!</h2><p>Đã liên kết thiết bị cho SV: <b>${msv}</b></p><button style="background:#28a745; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;" onclick="location.href='index.html'">VỀ TRANG ĐIỂM DANH</button>`;
+                } catch(e) {
+                    alert("Lỗi kết nối mạng, không thể lưu lên máy chủ!");
+                }
+            }
+
+        })();
     </script>
 </body>
 </html>

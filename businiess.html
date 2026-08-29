@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cổng Kết Nối Doanh Nghiệp - Marine Manager</title>
+    <style>
+        :root {
+            --primary-color: #1a237e;
+            --accent-color: #0277bd;
+            --text-color: #2c3e50;
+            --bg-color: #f4f7f9;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: #ffffff;
+            width: 90%;
+            max-width: 400px;
+            padding: 30px 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .logo {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 18px;
+            color: var(--primary-color);
+            margin: 0 0 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        p {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin: 0 0 25px 0;
+            line-height: 1.5;
+        }
+
+        /* Hiệu ứng xoay của Spinner tải trang */
+        .spinner {
+            width: 45px;
+            height: 45px;
+            border: 4px solid rgba(26, 35, 126, 0.1);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            margin: 0 auto 20px auto;
+            animation: spin 1s infinite linear;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Khung thông báo lỗi hoặc offline */
+        .alert-box {
+            display: none;
+            padding: 15px;
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+            border-radius: 8px;
+            font-size: 13px;
+            text-align: left;
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+
+        .btn-retry {
+            display: none;
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-retry:active {
+            background-color: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="logo">⚓</div>
+        <h2>Cổng Kết Nối Doanh Nghiệp</h2>
+        <p id="status-text">Đang kết nối tới máy chủ trung tâm...</p>
+        
+        <div class="spinner" id="loading-spinner"></div>
+        
+        <!-- Khung cảnh báo lỗi nếu máy chủ trường chưa bật -->
+        <div class="alert-box" id="error-alert">
+            <strong>⚠️ Ca trực chưa được mở:</strong><br>
+            Máy chủ tại văn phòng trường hiện đang ngoại tuyến (Offline) hoặc Giáo vụ khoa chưa kích hoạt ca thực tập hôm nay.<br><br>
+            <em>Vui lòng liên hệ với Giáo vụ để được hỗ trợ kiểm tra đường truyền.</em>
+        </div>
+
+        <button class="btn-retry" id="btn-retry" onclick="location.reload()">Thử kết nối lại</button>
+    </div>
+
+    <script>
+        (function() {
+            "use strict";
+
+            // Đường dẫn REST API nhẹ tới Firebase Realtime Database của bạn
+            const FIREBASE_REST_URL = "https://hanghai-6f86f-default-rtdb.asia-southeast1.firebasedatabase.app/server_config.json";
+            
+            const statusText = document.getElementById("status-text");
+            const spinner = document.getElementById("loading-spinner");
+            const errorAlert = document.getElementById("error-alert");
+            const btnRetry = document.getElementById("btn-retry");
+
+            async function resolveAndRedirect() {
+                try {
+                    // Gọi Firebase thông qua REST để lấy thông số cấu hình mạng nhanh nhất
+                    const response = await fetch(FIREBASE_REST_URL, { cache: "no-store" });
+                    if (!response.ok) throw new Error("Firebase network error");
+
+                    const config = await response.json();
+                    
+                    // Lấy địa chỉ Web Portal của doanh nghiệp
+                    const targetUrl = config ? config.business_portal_url : null;
+
+                    if (targetUrl && targetUrl.trim() !== "") {
+                        statusText.innerText = "Kết nối thành công! Đang chuyển hướng...";
+                        
+                        // Chuyển hướng an toàn và xóa lịch sử back để tránh quay lại trang loading
+                        window.location.replace(targetUrl);
+                    } else {
+                        showOfflineState();
+                    }
+                } catch (error) {
+                    console.error("Lỗi đối soát cấu hình:", error);
+                    showOfflineState();
+                }
+            }
+
+            function showOfflineState() {
+                statusText.innerText = "Không thể kết nối máy chủ!";
+                statusText.style.color = "#c62828";
+                spinner.style.display = "none";
+                errorAlert.style.display = "block";
+                btnRetry.style.display = "block";
+            }
+
+            // Tiến hành chuyển hướng khi tải trang
+            resolveAndRedirect();
+        })();
+    </script>
+</body>
+</html>
