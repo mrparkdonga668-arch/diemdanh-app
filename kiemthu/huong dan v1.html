@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cẩm Nang Kiểm Thử Hệ Thống Quản Lý Đào Tạo Thông Minh</title>
+    <style>
+        :root {
+            --primary: #1a237e;
+            --primary-light: #283593;
+            --accent: #0277bd;
+            --success: #2e7d32;
+            --warning: #f57f17;
+            --danger: #c62828;
+            --bg: #f4f7f9;
+            --card-bg: #ffffff;
+            --text-main: #263238;
+            --text-muted: #546e7a;
+            --border: #cfd8dc;
+        }
+
+        * { box-sizing: border-box; transition: all 0.2s ease; }
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* Hero Banner */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, #0d47a1 50%, var(--accent) 100%);
+            color: white;
+            padding: 50px 20px 45px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        .hero h1 { margin: 0 0 10px; font-size: 32px; letter-spacing: 0.5px; }
+        .hero p { margin: 0 auto; max-width: 820px; font-size: 16px; opacity: 0.92; }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: -25px auto 60px;
+            padding: 0 20px;
+        }
+
+        /* Tracker bar */
+        .progress-card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 20px 30px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            border-left: 6px solid var(--accent);
+        }
+        .progress-info { font-weight: bold; font-size: 17px; color: var(--primary); }
+        .progress-bar-bg {
+            flex: 1;
+            min-width: 220px;
+            height: 14px;
+            background: #eceff1;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 0 20px;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            border-radius: 20px;
+            transition: width 0.4s ease;
+        }
+
+        /* Cards Layout */
+        .card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 28px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+            border-bottom: 2px solid #eceff1;
+            padding-bottom: 12px;
+        }
+        .card-header h2 { margin: 0; font-size: 20px; color: var(--primary); }
+        .badge-step {
+            background: var(--primary);
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 4px 14px;
+            border-radius: 30px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid var(--border);
+            padding: 12px 14px;
+            text-align: left;
+        }
+        th { background: #f8f9fa; color: var(--primary); font-weight: 600; }
+        .account-chip {
+            background: #e8eaf6;
+            color: var(--primary);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: Consolas, monospace;
+            font-weight: bold;
+        }
+
+        /* 2-Column Split for Simulator */
+        .split-view {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 25px;
+            align-items: start;
+        }
+        @media(max-width: 900px) {
+            .split-view { grid-template-columns: 1fr; }
+        }
+
+        /* Phone Mockup Simulator */
+        .phone-mockup {
+            background: #111;
+            border-radius: 36px;
+            padding: 14px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+        .phone-screen {
+            background: #f8f9fa;
+            border-radius: 26px;
+            padding: 16px 14px;
+            min-height: 440px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        .phone-notch {
+            width: 100px;
+            height: 14px;
+            background: #111;
+            border-radius: 0 0 10px 10px;
+            margin: -16px auto 12px;
+        }
+        .phone-app-header {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 14px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .session-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        }
+        .btn-mock {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 6px;
+        }
+        .btn-mock.warn { background: var(--warning); color: #000; }
+        .btn-mock:hover { opacity: 0.9; }
+
+        /* Canvas QR */
+        #qrCanvas {
+            background: white;
+            border-radius: 8px;
+            display: block;
+            margin: 8px auto;
+            border: 2px dashed #0277bd;
+        }
+
+        /* Checkbox Task List */
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px;
+            background: #fdfdfd;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+        .checklist-item:hover { background: #f0f7ff; border-color: var(--accent); }
+        .checklist-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            accent-color: var(--success);
+            cursor: pointer;
+        }
+        .checklist-content strong { color: var(--primary); display: block; font-size: 15px; }
+
+        /* Callout Box */
+        .callout {
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+        .callout-info { background: #e1f5fe; border-left: 4px solid var(--accent); color: #01579b; }
+        .callout-warning { background: #fffde7; border-left: 4px solid var(--warning); color: #f57f17; }
+        .callout-success { background: #e8f5e9; border-left: 4px solid var(--success); color: #2e7d32; }
+    </style>
+</head>
+<body>
+
+    <!-- Header / Banner -->
+    <div class="hero">
+        <h1>⚓ CẨM NANG HƯỚNG DẪN KIỂM THỬ HỆ THỐNG</h1>
+        <p>Tài liệu hướng dẫn trực quan dành cho Quý Thầy/Cô và Cán bộ Đào tạo tham gia đánh giá, kiểm thử các tính năng mới của phần mềm.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- Progress Tracker Bar (0/5) -->
+        <div class="progress-card">
+            <div class="progress-info">
+                <span>🎯 Tiến độ hoàn thành bài test: </span>
+                <span id="progress-text" style="color: var(--accent);">0 / 5 nội dung (0%)</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div id="progressBar" class="progress-bar-fill"></div>
+            </div>
+            <div style="font-size: 13px; color: var(--text-muted); font-style: italic;">
+                Tích chọn vào từng mục sau khi kiểm tra xong
+            </div>
+        </div>
+
+        <!-- 0. THÔNG TIN KHỞI TẠO & TÀI KHOẢN TRUY CẬP -->
+        <div class="card">
+            <div class="card-header">
+                <span class="badge-step">Chuẩn bị</span>
+                <h2>Danh Mục Tài Khoản Thử Nghiệm & Quy Ước Mặc Định</h2>
+            </div>
+            <p>Hệ thống hỗ trợ cơ chế bảo vệ danh tính hai cấp. Khi đăng nhập lần đầu, hệ thống sẽ tự động yêu cầu Quý Thầy/Cô ký bản cam kết bảo mật và thiết lập mật khẩu mới.</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Vai trò</th>
+                        <th>Tên đăng nhập</th>
+                        <th>Mật khẩu khởi tạo</th>
+                        <th>Quy tắc đăng nhập lần đầu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><b>Giáo vụ khoa</b></td>
+                        <td><span class="account-chip">giaovu</span></td>
+                        <td><span class="account-chip">Academic@2026</span></td>
+                        <td>Tích cam kết, nhập đúng Họ Tên để ký số & đổi mật khẩu từ 8 ký tự.</td>
+                    </tr>
+                    <tr>
+                        <td><b>Ban Giám Hiệu / Trưởng Khoa</b></td>
+                        <td><span class="account-chip">giamban</span></td>
+                        <td><span class="account-chip">DeanBgh@2026</span></td>
+                        <td>Có quyền xem xét phê duyệt tài chính, xét duyệt đơn xin hoãn dạy của Giảng viên.</td>
+                    </tr>
+                    <tr>
+                        <td><b>Giảng viên lên lớp</b></td>
+                        <td><i>Mã GV</i> (VD: <span class="account-chip">GV01</span>)</td>
+                        <td><i>Mặc định chính là Mã GV</i></td>
+                        <td>Đăng nhập trên điện thoại. Bắt buộc đổi mật khẩu mới trong lần truy cập đầu.</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="callout callout-info">
+                💡 <b>Mẹo thao tác:</b> Mọi Thầy/Cô đều có thể dùng tài khoản <code>giaovu</code> để trải nghiệm trọn vẹn màn hình điều hành chính tại văn phòng trường.
+            </div>
+        </div>
+
+        <!-- THỬ NGHIỆM 1 -->
+        <div class="card">
+            <div class="card-header">
+                <span class="badge-step">Thử nghiệm 1</span>
+                <h2>Kiểm Tra Tính Năng Nhập Danh Sách Sinh Viên & Gom Lớp Thông Minh</h2>
+            </div>
+            <p><b>Mục tiêu:</b> Kiểm chứng khả năng tự động nhận diện tên lớp viết tắt/viết hoa (ví dụ: <code>02CCNTCI</code>) và đưa chính xác sinh viên về mã lớp gốc (<code>02CNTT</code>), triệt tiêu lỗi tạo ra các lớp ảo có sĩ số 0.</p>
+
+            <div class="callout callout-warning">
+                📂 <b>Thao tác chuẩn bị:</b> Tại giao diện chính trên máy tính, chuyển sang Tab <b>📂 Nhập liệu</b> ➔ Chọn file Excel danh sách sinh viên ➔ Nhấn nút <b>⚡ ĐỒNG BỘ NHÂN SỰ</b>.
+            </div>
+
+            <label class="checklist-item" onclick="toggleTask(this)">
+                <input type="checkbox" id="chk-task-1">
+                <div class="checklist-content">
+                    <strong>Kết quả quan sát 1 (Đạt yêu cầu):</strong>
+                    <span>Chuyển sang Tab <b>🏫 Quản lý Lớp học</b>: Danh sách lớp hiển thị đúng mã chuẩn (<code>02CNTT</code>) kèm sĩ số sinh viên thực tế được cộng dồn chính xác. Không phát sinh thêm bất kỳ lớp trùng tên nào có sĩ số bằng 0.</span>
+                </div>
+            </label>
+        </div>
+
+        <!-- THỬ NGHIỆM 2 -->
+        <div class="card">
+            <div class="card-header">
+                <span class="badge-step">Thử nghiệm 2</span>
+                <h2>Kiểm Tra Cơ Chế Khóa An Toàn & Ràng Buộc Khi Xóa Lớp</h2>
+            </div>
+            <p><b>Mục tiêu:</b> Đảm bảo Giáo vụ không thể vô tình xóa nhầm những lớp đang có lịch giảng dạy trong thời khóa biểu tuần.</p>
+
+            <div class="callout callout-warning">
+                🛑 <b>Thao tác thử nghiệm:</b>
+                <ol style="margin: 5px 0; padding-left: 20px;">
+                    <li>Mở Tab <b>🏫 Quản lý Lớp học</b>.</li>
+                    <li>Nhấp chọn một lớp <b>đang có ca học trong tuần</b> từ danh sách bên trái.</li>
+                    <li>Nhấn nút màu đỏ: <b>🗑️ Xóa Lớp đang chọn</b>.</li>
+                </ol>
+            </div>
+
+            <label class="checklist-item" onclick="toggleTask(this)">
+                <input type="checkbox" id="chk-task-2">
+                <div class="checklist-content">
+                    <strong>Kết quả quan sát 2 (Đạt yêu cầu):</strong>
+                    <span>Hệ thống bật hộp thoại thông báo từ chối hành động: <i>"Không thể xóa lớp! Lớp hiện đang có [X] ca học trong Thời khóa biểu..."</i>. Dữ liệu lớp học và lịch dạy được bảo vệ toàn vẹn 100%.</span>
+                </div>
+            </label>
+        </div>
+
+        <!-- THỬ NGHIỆM 3 & TRÌNH MÔ PHỎNG -->
+        <div class="card">
+            <div class="card-header">
+                <span class="badge-step">Thử nghiệm 3</span>
+                <h2>Trải Nghiệm Cổng Giảng Viên Trên Thiết Bị Di Động</h2>
+            </div>
+            
+            <div class="split-view">
+                <div>
+                    <p><b>Mục tiêu:</b> Giảng viên sử dụng điện thoại để xem lịch dạy hôm nay và phát mã QR điểm danh động có đổi mã liên tục (chống chụp ảnh truyền ra ngoài).</p>
+                    
+                    <div class="callout callout-info">
+                        📱 <b>Thao tác trải nghiệm:</b>
+                        <ol style="margin: 5px 0; padding-left: 20px;">
+                            <li>Trên điện thoại, mở trình duyệt và truy cập Cổng Giảng viên.</li>
+                            <li>Đăng nhập với Mã Giảng viên (ví dụ: <code>GV01</code>).</li>
+                            <li>Xem các ca dạy hiển thị trong ngày (Giờ bắt đầu, Tên môn, Số tiết).</li>
+                            <li>Bấm <b>"Chọn ca dạy ➔"</b> rồi bấm <b>"BẮT ĐẦU ĐIỂM DANH"</b>.</li>
+                        </ol>
+                    </div>
+
+                    <label class="checklist-item" onclick="toggleTask(this)">
+                        <input type="checkbox" id="chk-task-3">
+                        <div class="checklist-content">
+                            <strong>Kết quả quan sát 3 (Đạt yêu cầu):</strong>
+                            <span>Đồng hồ đếm ngược phiên làm việc chạy chính xác; mã QR tự động làm mới xoay vòng; danh sách sinh viên hiện diện hiển thị tức thời khi có lượt quét hợp lệ.</span>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Mô Phỏng Di Động Sống Động -->
+                <div class="phone-mockup">
+                    <div class="phone-screen">
+                        <div class="phone-notch"></div>
+                        <div class="phone-app-header">⚓ CỔNG GIẢNG VIÊN (MÔ PHỎNG)</div>
+                        
+                        <div id="mock-session-list">
+                            <div class="session-item">
+                                <b style="color: var(--primary);">⏰ 07:30 - Lớp 02CNTT</b><br>
+                                Môn: <b>Luật Hàng Hải (3 tiết)</b><br>
+                                <span style="color: var(--success); font-size: 11px;">● Sẵn sàng mở lớp</span>
+                                <button class="btn-mock" onclick="simulateOpenSession()">Chọn ca dạy & Phát QR ➔</button>
+                            </div>
+                        </div>
+
+                        <!-- Khu vực QR ảo -->
+                        <div id="mock-qr-panel" style="display: none; text-align: center; margin-top: 5px;">
+                            <span style="font-size: 11px; font-weight: bold; color: var(--danger);">⏱ CÒN LẠI: <span id="mockTimer">09:59</span></span>
+                            <canvas id="qrCanvas" width="130" height="130"></canvas>
+                            <span style="font-size: 10px; color: #666;">QR xoay vòng chống chụp ảnh</span>
+                            <button class="btn-mock warn" onclick="simulateRequestAbsence()">📝 Báo hoãn / Xin nghỉ</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- THỬ NGHIỆM 4 -->
+        <div class="card">
+            <div class="card-header">
+                <span class="badge-step">Thử nghiệm 4</span>
+                <h2>Quy Trình Báo Hoãn / Đổi Ca Dạy 2 Cấp (Không Xóa Lịch)</h2>
+            </div>
+            <p><b>Mục tiêu:</b> Giảng viên có việc đột xuất có thể gửi yêu cầu xin nghỉ dạy từ điện thoại. Hệ thống <b>không tự tiện xóa lịch dạy</b> mà chuyển sang trạng thái chờ cấp Lãnh đạo Khoa/Ban Giám Hiệu phê duyệt.</p>
+
+            <div class="callout callout-warning">
+                📝 <b>Thao tác kiểm thử:</b>
+                <ol style="margin: 5px 0; padding-left: 20px;">
+                    <li>Tại ca dạy trên điện thoại, bấm nút <b>"Báo hoãn / Xin đổi ca dạy"</b>.</li>
+                    <li>Nhập lý do xin nghỉ (Ví dụ: <i>"Bận công tác đột xuất"</i>) và bấm Gửi.</li>
+                    <li>Kiểm tra trạng thái hiển thị trên cả điện thoại và ứng dụng văn phòng trường.</li>
+                </ol>
+            </div>
+
+            <label class="checklist-item" onclick="toggleTask(this)">
+                <input type="checkbox" id="chk-task-4">
+                <div class="checklist-content">
+                    <strong>Kết quả quan sát 4 (Đạt yêu cầu):</strong>
+                    <span>
+                        - Trên điện thoại Giảng viên: Ca học chuyển sang huy hiệu màu vàng <b>"⏳ Chờ duyệt nghỉ"</b>.<br>
+                        - Trên phần mềm quản lý: Lịch dạy vẫn được giữ nguyên vẹn, ghi nhận vết lý do để Ban Giám Hiệu xem xét điều động giảng viên dạy thay.
+                    </span>
+                </div>
+            </label>
+        </div>
+
+        <!-- THỬ NGHIỆM 5 -->
+        <div class="card">
+            <div class="card-header">
+                <span class="badge-step">Thử nghiệm 5</span>
+                <h2>Kiểm Tra Tính Năng Khôi Phục Mật Khẩu (Reset Giảng Viên)</h2>
+            </div>
+            <p><b>Mục tiêu:</b> Giúp Giáo vụ hỗ trợ ngay lập tức khi Giảng viên quên mật khẩu cá nhân mà không cần can thiệp kỹ thuật phức tạp.</p>
+
+            <div class="callout callout-warning">
+                🔑 <b>Thao tác kiểm thử:</b>
+                <ol style="margin: 5px 0; padding-left: 20px;">
+                    <li>Trên phần mềm trường, vào Tab <b>👨‍🏫 Giảng viên</b>.</li>
+                    <li>Nhấp chọn một Giảng viên trong danh sách.</li>
+                    <li>Bấm nút: <b>🔑 Reset MK về Mã GV</b> và xác nhận.</li>
+                    <li>Dùng điện thoại đăng nhập lại bằng tài khoản Giảng viên đó với mật khẩu là chính Mã GV.</li>
+                </ol>
+            </div>
+
+            <label class="checklist-item" onclick="toggleTask(this)">
+                <input type="checkbox" id="chk-task-5">
+                <div class="checklist-content">
+                    <strong>Kết quả quan sát 5 (Đạt yêu cầu):</strong>
+                    <span>Giảng viên đăng nhập thành công ngay lập tức. Màn hình bảo mật xuất hiện yêu cầu Giảng viên đọc lại cam kết và tạo mật khẩu mới để bảo vệ tài khoản.</span>
+                </div>
+            </label>
+        </div>
+
+    </div>
+
+    <!-- Script Tương Tác: Lưu tiến độ cục bộ & Mô phỏng điện thoại -->
+    <script>
+        const totalTasks = 5;
+
+        // Khôi phục trạng thái checkbox từ trình duyệt
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedChecks = JSON.parse(localStorage.getItem("UAT_TESTER_CHECKS") || "[]");
+            savedChecks.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.checked = true;
+            });
+            updateProgressUI();
+        });
+
+        // Xử lý khi nhấn vào thẻ checkbox
+        function toggleTask(element) {
+            const chk = element.querySelector('input[type="checkbox"]');
+            if (event.target !== chk) {
+                chk.checked = !chk.checked;
+            }
+
+            const checkedIds = Array.from(document.querySelectorAll('.checklist-item input:checked')).map(c => c.id);
+            localStorage.setItem("UAT_TESTER_CHECKS", JSON.stringify(checkedIds));
+            updateProgressUI();
+        }
+
+        function updateProgressUI() {
+            let checkedBoxes = document.querySelectorAll('.checklist-item input[type="checkbox"]:checked').length;
+            let percent = Math.round((checkedBoxes / totalTasks) * 100);
+
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('progress-text').innerText = `${checkedBoxes} / ${totalTasks} nội dung (${percent}%)`;
+            document.getElementById('progress-text').style.color = (percent === 100) ? 'var(--success)' : 'var(--accent)';
+        }
+
+        // --- MÔ PHỎNG ĐIỆN THOẠI TRỰC QUAN (CANVAS QR & ĐẾM NGƯỢC) ---
+        const canvas = document.getElementById('qrCanvas');
+        const ctx = canvas ? canvas.getContext('2d') : null;
+        let timerVal = 600;
+
+        function drawAnimatedQR() {
+            if (!ctx) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const size = 10, rows = canvas.width / size;
+            drawQREye(10, 10);
+            drawQREye(canvas.width - 40, 10);
+            drawQREye(10, canvas.height - 40);
+
+            ctx.fillStyle = "#1a237e";
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < rows; j++) {
+                    if ((i < 5 && j < 5) || (i > rows - 6 && j < 5) || (i < 5 && j > rows - 6)) continue;
+                    if (Math.random() > 0.55) {
+                        ctx.fillRect(i * size + 2, j * size + 2, size - 4, size - 4);
+                    }
+                }
+            }
+        }
+
+        function drawQREye(x, y) {
+            ctx.fillStyle = "#1a237e"; ctx.fillRect(x, y, 30, 30);
+            ctx.fillStyle = "white"; ctx.fillRect(x + 5, y + 5, 20, 20);
+            ctx.fillStyle = "#0277bd"; ctx.fillRect(x + 10, y + 10, 10, 10);
+        }
+
+        function simulateOpenSession() {
+            document.getElementById('mock-session-list').style.display = 'none';
+            document.getElementById('mock-qr-panel').style.display = 'block';
+            drawAnimatedQR();
+            setInterval(drawAnimatedQR, 15000);
+            setInterval(() => {
+                if (timerVal > 0) {
+                    timerVal--;
+                    let m = String(Math.floor(timerVal / 60)).padStart(2, '0');
+                    let s = String(timerVal % 60).padStart(2, '0');
+                    document.getElementById('mockTimer').innerText = `${m}:${s}`;
+                }
+            }, 1000);
+        }
+
+        function simulateRequestAbsence() {
+            let reason = prompt("Nhập lý do Giảng viên xin hoãn / nghỉ ca dạy này:");
+            if (reason) {
+                alert("✅ Đã gửi đơn xin nghỉ thành công! Ca dạy đã chuyển sang trạng thái 'Chờ duyệt nghỉ' và không bị xóa khỏi lịch.");
+                document.getElementById('mock-qr-panel').innerHTML = `
+                    <div style="background:#fff3cd; color:#856404; padding:14px; border-radius:8px; font-size:12px; margin-top:20px; line-height:1.5;">
+                        ⏳ <b>TRẠNG THÁI: CHỜ DUYỆT NGHỈ</b><br>
+                        Lý do: "${reason}"<br>
+                        <small>Hồ sơ đã chuyển lên Ban Giám Hiệu xem xét.</small>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
