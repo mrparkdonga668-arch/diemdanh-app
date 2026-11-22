@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hướng Dẫn Trải Nghiệm & Đánh Giá Hệ Thống Điểm Danh Thông Minh</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --navy: #0f2460;
+            --ocean: #0284c7;
+            --teal: #0d9488;
+            --emerald: #16a34a;
+            --amber: #d97706;
+            --crimson: #dc2626;
+            --purple: #7c3aed;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.65;
+        }
+        .hero {
+            background: linear-gradient(135deg, #0f2460 0%, #0284c7 55%, #0d9488 100%);
+            color: white;
+            padding: 36px 20px 44px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(15, 36, 96, 0.25);
+        }
+        .hero h1 { margin: 0; font-size: 28px; letter-spacing: 0.4px; }
+        .hero p { margin: 10px auto 0; max-width: 780px; opacity: 0.94; font-size: 15px; }
+        .badge-ver {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 5px 14px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.18);
+            border: 1px solid rgba(255,255,255,0.35);
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .container { max-width: 1200px; margin: -22px auto 40px; padding: 0 16px; }
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 22px;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+            border: 1px solid #e2e8f0;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 16px;
+            font-size: 20px;
+            color: var(--navy);
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+            gap: 16px;
+        }
+        .qr-card {
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+            background: #ffffff;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .qr-card:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(0,0,0,0.08); }
+        .qr-card.sv-reg { border-top: 5px solid var(--teal); }
+        .qr-card.sv-att { border-top: 5px solid var(--emerald); }
+        .qr-card.gv-cls { border-top: 5px solid var(--ocean); }
+        .qr-card.dn-int { border-top: 5px solid var(--amber); }
+        .qr-card.adm-gt { border-top: 5px solid var(--purple); }
+        .qr-role-tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 999px;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .qr-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px auto;
+            padding: 8px;
+            background: #fff;
+            border: 1px dashed #cbd5e1;
+            border-radius: 10px;
+            width: 158px;
+            height: 158px;
+        }
+        .qr-url {
+            font-size: 11.5px;
+            color: var(--ocean);
+            word-break: break-all;
+            margin: 6px 0 10px;
+            font-family: Consolas, monospace;
+        }
+        .btn-row { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: 7px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-open { background: var(--navy); }
+        .btn-dl { background: var(--teal); }
+        .btn-copy {
+            background: #e2e8f0;
+            color: #0f172a;
+            border: none;
+            border-radius: 6px;
+            padding: 3px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-left: 4px;
+        }
+        .btn-copy:hover { background: #cbd5e1; }
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+        .tab-btn {
+            border: none;
+            padding: 11px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            background: #e2e8f0;
+            color: #334155;
+            transition: all 0.2s;
+        }
+        .tab-btn.active { color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.14); }
+        .tab-panel { display: none; animation: fadeIn 0.25s ease; }
+        .tab-panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+        .diagram-wrap {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px;
+            margin: 14px 0 18px;
+            overflow-x: auto;
+        }
+        .illu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 16px;
+            margin-top: 12px;
+        }
+        .illu-box {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+        .illu-box h4 { margin: 0 0 8px; color: var(--navy); font-size: 15px; }
+        .step-list { list-style: none; padding: 0; margin: 12px 0; }
+        .step-list li {
+            position: relative;
+            padding: 12px 14px 12px 48px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            background: #f8fafc;
+            border-left: 4px solid var(--ocean);
+        }
+        .step-num {
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--ocean);
+            color: white;
+            font-weight: 800;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13.5px; }
+        th, td { border: 1px solid #cbd5e1; padding: 10px 12px; text-align: left; }
+        th { background: #f1f5f9; color: var(--navy); }
+        code {
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 2px 6px;
+            border-radius: 5px;
+            font-weight: 700;
+            font-family: Consolas, monospace;
+        }
+        .note-box {
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin: 12px 0;
+            font-size: 13.5px;
+        }
+        .note-info { background: #eff6ff; border-left: 5px solid var(--ocean); color: #1e3a8a; }
+        .note-warn { background: #fffbeb; border-left: 5px solid var(--amber); color: #92400e; }
+        .note-ok { background: #f0fdf4; border-left: 5px solid var(--emerald); color: #166534; }
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #0f172a;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            display: none;
+            z-index: 9999;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+        @media print {
+            .tabs, .btn-copy, #toast { display: none !important; }
+            .tab-panel { display: block !important; page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>⚓ HƯỚNG DẪN ĐÁNH GIÁ HỆ THỐNG ĐIỂM DANH & THỰC TẬP THÔNG MINH</h1>
+    <p>Tài liệu hướng dẫn từng bước dành cho Sinh viên, Giảng viên, Doanh nghiệp, Giáo vụ Khoa và Ban Giám hiệu trong đợt kiểm thử đánh giá thực tế.</p>
+    <div class="badge-ver">🌐 Cổng truy cập chính thức: https://hanghai.dpdns.org | Bộ phiên bản v10</div>
+</div>
+
+<div class="container">
+
+    <!-- 1. MÃ QR TRUY CẬP NHANH -->
+    <div class="card">
+        <h2 class="section-title">📱 1. Quét Mã QR Truy Cập Đúng Vai Trò Của Bạn</h2>
+        <p style="margin-top:0; color:var(--muted); font-size:14px;">Dùng camera điện thoại quét trực tiếp mã QR tương ứng với vai trò, hoặc bấm <strong>Mở trang</strong> nếu thao tác trên máy tính.</p>
+        <div class="qr-grid" id="qr-portal-grid"></div>
+    </div>
+
+    <!-- 2. MÔ HÌNH TƯƠNG TÁC TỔNG THỂ (VẼ BẰNG SCRIPT) -->
+    <div class="card">
+        <h2 class="section-title">🧭 2. Mô Hình Tương Tác Toàn Hệ Thống (Từ A → Z)</h2>
+        <p style="margin-top:0; color:var(--muted); font-size:14px;">Nhấn vào từng vai trò trong sơ đồ bên dưới để mở nhanh hướng dẫn chi tiết cho đối tượng đó.</p>
+        <div class="diagram-wrap" id="master-ecosystem-diagram"></div>
+
+        <h3 style="margin:18px 0 8px; color:var(--navy); font-size:16px;">🔬 Minh Họa Trực Quan 3 Công Nghệ Xác Thực Trên Hệ Thống</h3>
+        <div class="illu-grid">
+            <div class="illu-box">
+                <h4>📡 1. Định Vị Khu Vực An Toàn (300m)</h4>
+                <canvas id="canvas-gps" width="280" height="190"></canvas>
+                <p style="font-size:12.5px; color:var(--muted); margin:6px 0 0;">Người điểm danh phải đứng trong phạm vi 300m quanh vị trí Giảng viên / Doanh nghiệp.</p>
+            </div>
+            <div class="illu-box">
+                <h4>🔐 2. Mã QR Động Tự Đổi Mỗi 10 Giây</h4>
+                <canvas id="canvas-qr-dyn" width="280" height="190"></canvas>
+                <p style="font-size:12.5px; color:var(--muted); margin:6px 0 0;">Mã tự thay đổi liên tục trong 10 phút, ngăn chặn chụp ảnh gửi cho người ở xa.</p>
+            </div>
+            <div class="illu-box">
+                <h4>📸 3. Sinh Trắc Khuôn Mặt & Quay Đầu</h4>
+                <canvas id="canvas-face" width="280" height="190"></canvas>
+                <p style="font-size:12.5px; color:var(--muted); margin:6px 0 0;">Đối chiếu khuôn mặt đã đăng ký và yêu cầu quay trái/phải để xác minh người thật.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. HƯỚNG DẪN CHI TIẾT THEO TỪNG ĐỐI TƯỢNG -->
+    <div class="card">
+        <h2 class="section-title">📖 3. Hướng Dẫn Thao Tác & Tài Khoản Đánh Giá Theo Vai Trò</h2>
+
+        <div class="tabs" id="role-tabs">
+            <button class="tab-btn active" data-tab="sv" style="background:var(--emerald); color:white;">🎓 Sinh viên</button>
+            <button class="tab-btn" data-tab="gv">👨‍🏫 Giảng viên</button>
+            <button class="tab-btn" data-tab="dn">🏢 Doanh nghiệp</button>
+            <button class="tab-btn" data-tab="gvu">📋 Giáo vụ Khoa</button>
+            <button class="tab-btn" data-tab="bgh">🛡️ Trưởng Khoa / BGH</button>
+        </div>
+
+        <!-- PANEL: SINH VIÊN -->
+        <div class="tab-panel active" id="panel-sv">
+            <div class="diagram-wrap" id="flow-sv"></div>
+            <div class="note-box note-info">
+                <strong>🔗 Liên kết sử dụng:</strong><br>
+                • <b>Bước 1 (Làm 1 lần duy nhất):</b> <code>https://hanghai.dpdns.org/setup_v10.html</code><br>
+                • <b>Bước 2 (Điểm danh hàng ngày):</b> <code>https://hanghai.dpdns.org/index_v10.html</code>
+            </div>
+
+            <h3 style="color:var(--teal);">Phần A — Đăng ký Thiết bị Lần đầu (setup_v10.html)</h3>
+            <ul class="step-list">
+                <li><span class="step-num" style="background:var(--teal);">1</span><strong>Quét mã xác thực tại Văn phòng Khoa:</strong> Giáo vụ mở bảng phát mã QR xác thực thiết bị trên phần mềm tại Văn phòng Khoa. Sinh viên mở <code>setup_v10.html</code> trên trình duyệt điện thoại, cấp quyền Camera và hướng về màn hình phát mã của Giáo vụ.</li>
+                <li><span class="step-num" style="background:var(--teal);">2</span><strong>Nhập Mã số Sinh viên (MSSV):</strong> Chọn đúng 1 MSSV thuộc nhóm <em>Lớp học</em> (nếu test với Giảng viên) hoặc nhóm <em>Thực tập</em> (nếu test với Doanh nghiệp) ở bảng dưới và bấm <em>Tiếp theo</em>.</li>
+                <li><span class="step-num" style="background:var(--teal);">3</span><strong>Ký nhận Điều khoản sử dụng:</strong> Cuộn đọc Bản cam kết → Tích chọn đồng ý → Bấm <strong>📝 Ký nhận điện tử</strong>. Có thể tải ảnh biên lai QR ký nhận về máy.</li>
+                <li><span class="step-num" style="background:var(--teal);">4</span><strong>Quét khuôn mặt 3 góc:</strong> Lần lượt thực hiện: <b>Nhìn THẲNG → Nghiêng TRÁI → Nghiêng PHẢI</b> đến khi hệ thống báo <em>Thành công</em>. (Sau bước này, hãy mở trang <code>index_v10.html</code> để tiến hành điểm danh).</li>
+            </ul>
+
+            <h3 style="color:var(--emerald);">Phần B — Điểm danh Hàng ngày (index_v10.html)</h3>
+            <ul class="step-list">
+                <li><span class="step-num" style="background:var(--emerald);">1</span>Mở <code>index_v10.html</code> bằng <b>chính điện thoại đã đăng ký ở Phần A</b> → Bấm <strong>🚀 Bắt đầu Điểm Danh</strong>.</li>
+                <li><span class="step-num" style="background:var(--emerald);">2</span>Bấm <b>Cho phép Vị trí (GPS)</b> khi trình duyệt hỏi để xác nhận đang có mặt tại lớp/doanh nghiệp.</li>
+                <li><span class="step-num" style="background:var(--emerald);">3</span><strong>Quét mã QR động</strong> từ màn hình Giảng viên (<code>admin_v10.html</code>) hoặc màn hình Doanh nghiệp (<code>business_v10.html</code>).</li>
+                <li><span class="step-num" style="background:var(--emerald);">4</span><strong>Xác thực khuôn mặt &amp; cử động đầu:</strong> Nhìn vào camera trước → Khi hiện chữ <em>"KHỚP MẶT! QUAY ĐẦU SANG TRÁI HOẶC PHẢI"</em> thì xoay nhẹ đầu → Hệ thống báo <strong>🎉 ĐIỂM DANH THÀNH CÔNG</strong> (có thể bật thêm chế độ Tiếp sức 60 giây).</li>
+            </ul>
+
+            <div class="note-box note-warn">
+                <strong>⚠️ Lưu ý cho Sinh viên khi test:</strong><br>
+                • Mỗi MSSV gắn cố định với 1 thiết bị trình duyệt. Tránh quét nhầm mã QR khác quá 5 lần liên tiếp ở bước đầu <code>setup_v10.html</code> để không bị khóa bảo vệ trình duyệt.<br>
+                • Giảng viên và Sinh viên test điểm danh lớp học dùng nhóm mã <code>SV_UAT_01</code> → <code>SV_UAT_04</code> hoặc <code>UAT.2026001</code>. Doanh nghiệp và Sinh viên test thực tập dùng riêng <code>SV_UAT_05</code> hoặc <code>SV_UAT_06</code> để hai luồng chạy song song không bị vướng nhau.
+            </div>
+
+            <h3 style="color:var(--navy);">📋 Danh sách Mã Sinh viên Test Đã Chuẩn Bị Sẵn (Lịch sẵn 7 ngày)</h3>
+            <table>
+                <thead><tr><th>MSSV</th><th>Họ và Tên</th><th>Phạm vi áp dụng test</th><th>Chữ ký xác nhận &amp; Ghi chú</th></tr></thead>
+                <tbody>
+                    <tr><td><code>SV_UAT_01</code> <button class="btn-copy" onclick="copyTxt('SV_UAT_01')">Copy</button></td><td>Nguyễn Minh Hải</td><td>Lớp <code>LOP_UAT_A</code> (GV <code>GV_UAT_01</code> / <code>GV_UAT_02</code>)</td><td>Ký bằng nút bấm trên <code>setup_v10.html</code></td></tr>
+                    <tr><td><code>SV_UAT_02</code> <button class="btn-copy" onclick="copyTxt('SV_UAT_02')">Copy</button></td><td>Trần Thu Trang</td><td>Lớp <code>LOP_UAT_A</code></td><td>Dùng thiết bị điện thoại thật để quét</td></tr>
+                    <tr><td><code>SV_UAT_03</code> <button class="btn-copy" onclick="copyTxt('SV_UAT_03')">Copy</button></td><td>Lê Hoàng Nam</td><td>Lớp <code>LOP_UAT_A</code></td><td>Dùng test điểm danh lớp &amp; Tiếp sức</td></tr>
+                    <tr><td><code>UAT.2026001</code> <button class="btn-copy" onclick="copyTxt('UAT.2026001')">Copy</button></td><td>Đỗ Quang Vinh</td><td>Lớp <code>LOP_UAT_A</code></td><td>Kiểm tra MSSV có ký tự dấu chấm</td></tr>
+                    <tr><td><code>SV_UAT_04</code> <button class="btn-copy" onclick="copyTxt('SV_UAT_04')">Copy</button></td><td>Phạm Lan Anh</td><td>Lớp <code>LOP_UAT_B</code> (GV <code>GV_UAT_02</code>)</td><td>Dành cho ca lớp <code>LOP_UAT_B</code> (08:15)</td></tr>
+                    <tr><td><code>SV_UAT_05</code> <button class="btn-copy" onclick="copyTxt('SV_UAT_05')">Copy</button></td><td>Vũ Đức Cường</td><td><b>Chuyên Thực tập</b> tại <code>DN_UAT_01</code></td><td>Dùng test quét QR trên <code>business_v10.html</code></td></tr>
+                    <tr><td><code>SV_UAT_06</code> <button class="btn-copy" onclick="copyTxt('SV_UAT_06')">Copy</button></td><td>Bùi Thảo Vy</td><td><b>Chuyên Thực tập</b> tại <code>DN_UAT_01</code></td><td>Dùng test quét QR hoặc cán bộ chấm hộ</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PANEL: GIẢNG VIÊN -->
+        <div class="tab-panel" id="panel-gv">
+            <div class="diagram-wrap" id="flow-gv"></div>
+            <div class="note-box note-info">
+                <strong>🔗 Cổng Giảng viên:</strong> <code>https://hanghai.dpdns.org/admin_v10.html</code>
+            </div>
+            <ul class="step-list">
+                <li><span class="step-num">1</span><strong>Đăng nhập lần đầu (với <code>GV_UAT_01</code>):</strong> Nhập Mã GV và mật khẩu mặc định là chính Mã GV → Hệ thống tự động mở <b>Bản cam kết sử dụng &amp; Đổi mật khẩu</b>.</li>
+                <li><span class="step-num">2</span><strong>Ký số xác nhận &amp; đặt mật khẩu mới:</strong> Tích ô đồng ý → Nhập chính xác <b>Họ và Tên</b> vào ô chữ ký → Đặt mật khẩu mới (tối thiểu 8 ký tự, gồm chữ HOA, chữ thường, số và ký tự đặc biệt thuộc nhóm <code>@$!%*?&amp;</code>) → Bấm <b>Ký xác nhận &amp; Hoàn tất</b>.</li>
+                <li><span class="step-num">3</span><strong>Chọn ca dạy &amp; phát QR:</strong> Tại mục <em>Lịch giảng dạy hôm nay</em>, bấm <strong>Chọn ca dạy</strong> → Chọn chế độ điểm danh (Toàn buổi / Tiết lẻ / Đầu-Cuối ca) → Bấm <strong>🚀 Bắt đầu điểm danh</strong> và cho phép GPS. Mã QR đổi mỗi 10 giây trong 10 phút.</li>
+                <li><span class="step-num">4</span><strong>Theo dõi sĩ số:</strong> Bấm <strong>🔄 Cập nhật (Refresh)</strong> để xem trạng thái từng mã sinh viên (Hiện diện / Chờ lượt / Vắng / Cảnh báo gian lận). <em>(Lưu ý: giao diện hiện hiển thị theo mã sinh viên dạng "Sinh viên [MSSV]")</em>.</li>
+                <li><span class="step-num">5</span><strong>Báo hoãn / Xin nghỉ ca:</strong> Khi cần xin hoãn buổi dạy, bấm <strong>📝 Báo hoãn / Xin đổi ca dạy</strong>, nhập lý do để chuyển lên Trưởng khoa phê duyệt.</li>
+            </ul>
+
+            <div class="note-box note-warn">
+                <strong>📌 Phạm vi đánh giá đợt này:</strong> Giao diện web Giảng viên tập trung đánh giá: ký cam kết đổi mật khẩu lần đầu, xem lịch hôm nay, phát QR 3 chế độ, theo dõi bảng điểm danh trực tiếp và gửi đơn báo hoãn. Tính năng xem lịch sử giảng dạy nhiều ngày trên web sẽ bổ sung ở đợt nâng cấp tiếp theo.
+            </div>
+
+            <table>
+                <thead><tr><th>Mã GV (Tên đăng nhập)</th><th>Mật khẩu thử nghiệm</th><th>Họ và Tên (Chữ ký số nhập chính xác)</th><th>Ca dạy hôm nay &amp; Mục đích test</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><code>GV_UAT_01</code> <button class="btn-copy" onclick="copyTxt('GV_UAT_01')">Copy</button></td>
+                        <td><code>GV_UAT_01</code> <button class="btn-copy" onclick="copyTxt('GV_UAT_01')">Copy</button></td>
+                        <td><code>ThS. Nguyễn Văn Hùng</code> <button class="btn-copy" onclick="copyTxt('ThS. Nguyễn Văn Hùng')">Copy</button></td>
+                        <td><b>Lần đầu đăng nhập</b> (<code>LOP_UAT_A</code> - 07:30). Test ký cam kết &amp; đổi MK (gợi ý: <code>GvUat@2026</code> <button class="btn-copy" onclick="copyTxt('GvUat@2026')">Copy</button>)</td>
+                    </tr>
+                    <tr>
+                        <td><code>GV_UAT_02</code> <button class="btn-copy" onclick="copyTxt('GV_UAT_02')">Copy</button></td>
+                        <td><code>GvUat@2026</code> <button class="btn-copy" onclick="copyTxt('GvUat@2026')">Copy</button></td>
+                        <td><code>TS. Trần Thị Mai</code> <button class="btn-copy" onclick="copyTxt('TS. Trần Thị Mai')">Copy</button></td>
+                        <td><b>Đã kích hoạt</b> (<code>LOP_UAT_B</code> - 08:15, <code>LOP_UAT_A</code> - 13:30). Vào thẳng phát QR &amp; báo hoãn</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PANEL: DOANH NGHIỆP -->
+        <div class="tab-panel" id="panel-dn">
+            <div class="diagram-wrap" id="flow-dn"></div>
+            <div class="note-box note-info">
+                <strong>🔗 Cổng Doanh nghiệp:</strong> <code>https://hanghai.dpdns.org/business_v10.html</code>
+            </div>
+            <ul class="step-list">
+                <li><span class="step-num" style="background:var(--amber);">1</span>Mở <code>business_v10.html</code> bằng điện thoại hoặc máy tính có bật dịch vụ Vị trí (GPS).</li>
+                <li><span class="step-num" style="background:var(--amber);">2</span>Nhập <strong>Mã Doanh Nghiệp</strong> và <strong>Mật mã truy cập trạm</strong> → Chọn chế độ quét (<em>1 lần đầu ca</em> hoặc <em>2 lần Đầu ca &amp; Cuối ca</em>).</li>
+                <li><span class="step-num" style="background:var(--amber);">3</span>Bấm <strong>🚀 Kích hoạt điểm danh hàng ngày</strong> → Cho phép truy cập vị trí → Hiển thị mã QR động cho sinh viên thực tập (<code>SV_UAT_05</code>, <code>SV_UAT_06</code>) quét bằng <code>index_v10.html</code>.</li>
+                <li><span class="step-num" style="background:var(--amber);">4</span><strong>Hỗ trợ sự cố thiết bị:</strong> Nếu sinh viên hỏng điện thoại/hết pin, nhập MSSV (<code>SV_UAT_05</code> hoặc <code>SV_UAT_06</code>), lý do, chọn ảnh chụp tại chỗ → Bấm <strong>Xác minh đặc cách</strong>. Bấm <strong>🔄 Cập nhật danh sách có mặt</strong> để kiểm tra kết quả.</li>
+            </ul>
+            <div class="note-box note-warn">
+                <strong>📌 Phạm vi đánh giá đợt này:</strong> Giao diện web Doanh nghiệp hiện tập trung kiểm thử: xác thực trạm, phát QR thực tập 1 lần / 2 lần, điểm danh đặc cách có ảnh minh chứng và xem danh sách có mặt trong ngày.
+            </div>
+            <table>
+                <thead><tr><th>Mã Doanh Nghiệp</th><th>Mật mã trạm</th><th>Tên Doanh Nghiệp mẫu</th><th>Sinh viên có lịch thực tập (7 ngày)</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><code>DN_UAT_01</code> <button class="btn-copy" onclick="copyTxt('DN_UAT_01')">Copy</button></td>
+                        <td><code>DnUat@2026</code> <button class="btn-copy" onclick="copyTxt('DnUat@2026')">Copy</button></td>
+                        <td>Công ty Vận tải Biển Hải Đăng (UAT)</td>
+                        <td><code>SV_UAT_05</code>, <code>SV_UAT_06</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PANEL: GIÁO VỤ KHOA -->
+        <div class="tab-panel" id="panel-gvu">
+            <div class="diagram-wrap" id="flow-gvu"></div>
+            <div class="note-box note-info">
+                <strong>🔗 Cổng Điều hành Từ xa:</strong> <code>https://hanghai.dpdns.org/remote_gateway.html</code>
+            </div>
+            <ul class="step-list">
+                <li><span class="step-num" style="background:var(--ocean);">1</span>Truy cập <code>remote_gateway.html</code> → Đăng nhập bằng tài khoản Giáo vụ (với <code>giaovu_uat_new</code>, đọc cam kết, nhập chính xác Họ và Tên ký số và đặt mật khẩu mới).</li>
+                <li><span class="step-num" style="background:var(--ocean);">2</span><strong>Lập ca giảng dạy:</strong> Điền Mã lớp (<code>LOP_UAT_A</code>), Mã GV (<code>GV_UAT_01</code>), Tên môn, Ngày hôm nay, Giờ (<em>gợi ý chọn giờ trống như <code>10:00</code> để tạo thành công, hoặc nhập <code>07:30</code> để test hệ thống tự chặn trùng lịch</em>) → Bấm <strong>✍️ Ký số &amp; Đẩy vào hàng đợi</strong>.</li>
+                <li><span class="step-num" style="background:var(--ocean);">3</span><strong>Thêm hồ sơ sinh viên mới:</strong> Nhập MSSV mới (ví dụ <code>SV_UAT_99</code>), Họ tên, CCCD, Khoa → Ký số gửi vào hàng đợi.</li>
+                <li><span class="step-num" style="background:var(--ocean);">4</span><strong>Theo dõi Hàng đợi &amp; Vết ký số:</strong> Chuyển sang tab <em>Hàng đợi &amp; Nhật ký ký số</em> → Bấm <strong>🔄 Cập nhật tiến độ</strong> để kiểm tra trạng thái Thành công / Bị từ chối.</li>
+                <li><span class="step-num" style="background:var(--ocean);">5</span><strong>Tại Văn phòng Khoa (Phần mềm quản lý chính):</strong> Vào mục <em>Quản lý Thiết bị</em> để phát mã QR xác thực 5 phút cho sinh viên quét đăng ký trên <code>setup_v10.html</code>, nhập hàng loạt file Excel và xuất báo cáo thống kê.</li>
+            </ul>
+            <table>
+                <thead><tr><th>Tên đăng nhập</th><th>Mật khẩu</th><th>Họ và Tên (Chữ ký số nhập chính xác)</th><th>Mục đích kiểm thử</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><code>giaovu_uat</code> <button class="btn-copy" onclick="copyTxt('giaovu_uat')">Copy</button></td>
+                        <td><code>GvKhoa@2026</code> <button class="btn-copy" onclick="copyTxt('GvKhoa@2026')">Copy</button></td>
+                        <td>Lê Thị Hương (Giáo vụ UAT)</td>
+                        <td>Vào thẳng lập lịch &amp; thêm SV từ xa</td>
+                    </tr>
+                    <tr>
+                        <td><code>giaovu_uat_new</code> <button class="btn-copy" onclick="copyTxt('giaovu_uat_new')">Copy</button></td>
+                        <td><code>GvKhoaInit@2026</code> <button class="btn-copy" onclick="copyTxt('GvKhoaInit@2026')">Copy</button></td>
+                        <td><code>Phạm Văn Bình</code> <button class="btn-copy" onclick="copyTxt('Phạm Văn Bình')">Copy</button></td>
+                        <td>Test ký cam kết lần đầu (MK mới gợi ý: <code>GvKhoaNew@2026</code> <button class="btn-copy" onclick="copyTxt('GvKhoaNew@2026')">Copy</button>)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PANEL: TRƯỞNG KHOA / BGH -->
+        <div class="tab-panel" id="panel-bgh">
+            <div class="diagram-wrap" id="flow-bgh"></div>
+            <div class="note-box note-info">
+                <strong>🔗 Cổng Điều hành BGH Từ xa:</strong> <code>https://hanghai.dpdns.org/remote_gateway.html</code>
+            </div>
+            <ul class="step-list">
+                <li><span class="step-num" style="background:var(--purple);">1</span>Truy cập <code>remote_gateway.html</code> → Đăng nhập bằng tài khoản Trưởng Khoa / Ban Giám Hiệu (với <code>bgh_uat_new</code>, ký số đúng Họ và Tên &amp; đổi mật khẩu).</li>
+                <li><span class="step-num" style="background:var(--purple);">2</span>Chọn tab <strong>🛡️ Trạm Phê duyệt BGH</strong> (chỉ hiển thị với tài khoản BGH/Trưởng Khoa).</li>
+                <li><span class="step-num" style="background:var(--purple);">3</span>Bấm <strong>Tải đơn báo hoãn</strong>: hệ thống đã chuẩn bị sẵn 1 đơn mẫu của lớp <code>LOP_UAT_B (15:30)</code> (hoặc các đơn do Giảng viên vừa gửi) → Bấm <b>Phê duyệt</b> hoặc <b>Từ chối</b> để kiểm tra.</li>
+                <li><span class="step-num" style="background:var(--purple);">4</span>Bấm <b>Tải Nhật ký kiểm toán</b> để giám sát toàn bộ lịch sử đăng nhập, ký số và thay đổi dữ liệu trong hệ thống.</li>
+            </ul>
+            <table>
+                <thead><tr><th>Tên đăng nhập</th><th>Mật khẩu</th><th>Họ và Tên (Chữ ký số nhập chính xác)</th><th>Mục đích kiểm thử</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><code>bgh_uat</code> <button class="btn-copy" onclick="copyTxt('bgh_uat')">Copy</button></td>
+                        <td><code>BghUat@2026</code> <button class="btn-copy" onclick="copyTxt('BghUat@2026')">Copy</button></td>
+                        <td>PGS.TS. Hoàng Đức Thắng</td>
+                        <td>Vào thẳng Trạm Phê duyệt BGH &amp; Xem nhật ký</td>
+                    </tr>
+                    <tr>
+                        <td><code>bgh_uat_new</code> <button class="btn-copy" onclick="copyTxt('bgh_uat_new')">Copy</button></td>
+                        <td><code>BghInit@2026</code> <button class="btn-copy" onclick="copyTxt('BghInit@2026')">Copy</button></td>
+                        <td><code>TS. Đặng Minh Tuấn</code> <button class="btn-copy" onclick="copyTxt('TS. Đặng Minh Tuấn')">Copy</button></td>
+                        <td>Test ký cam kết lần đầu (MK mới gợi ý: <code>BghNew@2026</code> <button class="btn-copy" onclick="copyTxt('BghNew@2026')">Copy</button>)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 4. PHIẾU GHI NHẬN ĐÁNH GIÁ -->
+    <div class="card">
+        <h2 class="section-title">📝 4. Tiêu Chí Góp Ý Đánh Giá Dành Cho Người Thử Nghiệm</h2>
+        <div class="note-box note-ok">
+            Sau khi trải nghiệm, Thầy/Cô và các em Sinh viên vui lòng phản hồi theo 4 tiêu chí sau:<br>
+            1. <b>Tốc độ &amp; Trải nghiệm thao tác:</b> Thời gian mở trang, quét QR, nhận diện khuôn mặt có mượt trên điện thoại không?<br>
+            2. <b>Độ chính xác định vị &amp; chống gian lận:</b> Cảnh báo ngoài 300m, chặn quét mã cũ quá 10 giây, chặn sai chữ ký họ tên khi cam kết.<br>
+            3. <b>Tính đồng bộ giữa các vai trò:</b> Sinh viên quét xong có hiện ngay ở bảng Giảng viên/Doanh nghiệp không? Đơn báo hoãn GV có lên BGH duyệt được không?<br>
+            4. <b>Các bất tiện thực tế phát sinh</b> (nếu có) kèm ảnh chụp màn hình để đội ngũ hoàn thiện trước khi vận hành chính thức.
+        </div>
+    </div>
+</div>
+
+<div id="toast">✅ Đã sao chép vào bộ nhớ tạm!</div>
+
+<script>
+(function () {
+    "use strict";
+
+    const DOMAIN = "https://hanghai.dpdns.org";
+
+    const PORTALS = [
+        { id: "qr_sv_reg", cls: "sv-reg", color: "#0d9488", role: "SINH VIÊN (LẦN ĐẦU)", title: "Đăng Ký Thiết Bị", url: `${DOMAIN}/setup_v10.html` },
+        { id: "qr_sv_att", cls: "sv-att", color: "#16a34a", role: "SINH VIÊN (HÀNG NGÀY)", title: "Điểm Danh Lớp / TT", url: `${DOMAIN}/index_v10.html` },
+        { id: "qr_gv_cls", cls: "gv-cls", color: "#0284c7", role: "GIẢNG VIÊN", title: "Phát QR & Lớp Học", url: `${DOMAIN}/admin_v10.html` },
+        { id: "qr_dn_int", cls: "dn-int", color: "#d97706", role: "DOANH NGHIỆP", title: "Chấm Công Thực Tập", url: `${DOMAIN}/business_v10.html` },
+        { id: "qr_adm_gt", cls: "adm-gt", color: "#7c3aed", role: "GIÁO VỤ & BGH", title: "Cổng Điều Hành Từ Xa", url: `${DOMAIN}/remote_gateway.html` }
+    ];
+
+    const grid = document.getElementById("qr-portal-grid");
+    PORTALS.forEach((p) => {
+        const card = document.createElement("div");
+        card.className = `qr-card ${p.cls}`;
+        card.innerHTML = `
+            <div>
+                <span class="qr-role-tag" style="background:${p.color}">${p.role}</span>
+                <h3 style="margin:2px 0 4px; font-size:15px; color:#0f172a;">${p.title}</h3>
+                <div class="qr-box" id="${p.id}"></div>
+                <div class="qr-url">${p.url}</div>
+            </div>
+            <div class="btn-row">
+                <a class="btn btn-open" href="${p.url}" target="_blank">🌐 Mở trang</a>
+                <button class="btn btn-dl" onclick="downloadPortalQR('${p.id}', '${p.id}')">📥 Tải QR</button>
+            </div>
+        `;
+        grid.appendChild(card);
+
+        if (typeof QRCode !== "undefined") {
+            new QRCode(document.getElementById(p.id), { text: p.url, width: 138, height: 138, colorDark: "#0f2460", colorLight: "#ffffff" });
+        } else {
+            document.getElementById(p.id).innerHTML = `<small style="color:#dc2626;">Bật Internet để vẽ mã QR</small>`;
+        }
+    });
+
+    window.downloadPortalQR = function (boxId, fileName) {
+        const box = document.getElementById(boxId);
+        const canvas = box.querySelector("canvas");
+        const img = box.querySelector("img");
+        const link = document.createElement("a");
+        link.download = `${fileName}.png`;
+        if (canvas) { link.href = canvas.toDataURL("image/png"); link.click(); }
+        else if (img) { link.href = img.src; link.click(); }
+    };
+
+    const tabColors = { sv: "#16a34a", gv: "#0284c7", dn: "#d97706", gvu: "#0f2460", bgh: "#7c3aed" };
+    window.switchRoleTab = function (key) {
+        document.querySelectorAll(".tab-btn").forEach((b) => {
+            const active = b.dataset.tab === key;
+            b.classList.toggle("active", active);
+            b.style.background = active ? tabColors[key] : "#e2e8f0";
+            b.style.color = active ? "white" : "#334155";
+        });
+        document.querySelectorAll(".tab-panel").forEach((p) => {
+            p.classList.toggle("active", p.id === "panel-" + key);
+        });
+    };
+    document.querySelectorAll(".tab-btn").forEach((btn) => {
+        btn.addEventListener("click", () => window.switchRoleTab(btn.dataset.tab));
+    });
+
+    window.copyTxt = function (txt) {
+        navigator.clipboard.writeText(txt).then(() => {
+            const t = document.getElementById("toast");
+            t.innerText = `✅ Đã sao chép: ${txt}`;
+            t.style.display = "block";
+            setTimeout(() => { t.style.display = "none"; }, 1800);
+        });
+    };
+
+    function drawMasterDiagram() {
+        const ns = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(ns, "svg");
+        svg.setAttribute("viewBox", "0 0 1060 300");
+        svg.setAttribute("width", "100%");
+        svg.style.minWidth = "760px";
+
+        svg.innerHTML = `
+            <defs>
+                <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#475569"/>
+                </marker>
+                <linearGradient id="hubGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#0f2460"/>
+                    <stop offset="100%" stop-color="#0284c7"/>
+                </linearGradient>
+            </defs>
+            <rect x="380" y="102" width="300" height="94" rx="18" fill="url(#hubGrad)" stroke="#93c5fd" stroke-width="2"/>
+            <text x="530" y="138" text-anchor="middle" fill="#ffffff" font-size="16" font-weight="bold">🏛️ TRUNG TÂM ĐIỀU PHỐI NHÀ TRƯỜNG</text>
+            <text x="530" y="160" text-anchor="middle" fill="#e0f2fe" font-size="12">Đồng bộ Lịch dạy • Xác thực Định vị &amp; Chữ ký số</text>
+            <text x="530" y="180" text-anchor="middle" fill="#bae6fd" font-size="12">Chốt Chuyên cần &amp; Lưu Nhật ký Kiểm toán</text>
+
+            <path d="M 270 62 L 378 125" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="6,4" marker-end="url(#arr)"/>
+            <path d="M 270 238 L 378 175" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="6,4" marker-end="url(#arr)"/>
+            <path d="M 682 125 L 788 62" stroke="#0d9488" stroke-width="2.5" marker-end="url(#arr)"/>
+            <path d="M 682 175 L 788 238" stroke="#d97706" stroke-width="2.5" marker-end="url(#arr)"/>
+            <path d="M 530 198 L 530 242" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arr)"/>
+
+            <g style="cursor:pointer" onclick="switchRoleTab('gvu')">
+                <rect x="20" y="18" width="250" height="76" rx="14" fill="#eff6ff" stroke="#0284c7" stroke-width="2.5"/>
+                <text x="145" y="45" text-anchor="middle" fill="#0f2460" font-size="14" font-weight="bold">📋 1. GIÁO VỤ KHOA</text>
+                <text x="145" y="66" text-anchor="middle" fill="#334155" font-size="12">Cấp QR đăng ký • Lập lịch • Thêm SV</text>
+                <text x="145" y="83" text-anchor="middle" fill="#0284c7" font-size="11" font-weight="bold">remote_gateway.html ↗</text>
+            </g>
+
+            <g style="cursor:pointer" onclick="switchRoleTab('bgh')">
+                <rect x="20" y="204" width="250" height="76" rx="14" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2.5"/>
+                <text x="145" y="231" text-anchor="middle" fill="#5b21b6" font-size="14" font-weight="bold">🛡️ 2. TRƯỞNG KHOA / BGH</text>
+                <text x="145" y="252" text-anchor="middle" fill="#334155" font-size="12">Duyệt đơn hoãn • Kiểm tra Nhật ký</text>
+                <text x="145" y="269" text-anchor="middle" fill="#7c3aed" font-size="11" font-weight="bold">remote_gateway.html ↗</text>
+            </g>
+
+            <g style="cursor:pointer" onclick="switchRoleTab('gv')">
+                <rect x="790" y="18" width="250" height="76" rx="14" fill="#ecfeff" stroke="#0891b2" stroke-width="2.5"/>
+                <text x="915" y="45" text-anchor="middle" fill="#155e75" font-size="14" font-weight="bold">👨‍🏫 3. GIẢNG VIÊN</text>
+                <text x="915" y="66" text-anchor="middle" fill="#334155" font-size="12">Phát QR lớp • Theo dõi • Báo hoãn</text>
+                <text x="915" y="83" text-anchor="middle" fill="#0891b2" font-size="11" font-weight="bold">admin_v10.html ↗</text>
+            </g>
+
+            <g style="cursor:pointer" onclick="switchRoleTab('dn')">
+                <rect x="790" y="204" width="250" height="76" rx="14" fill="#fffbeb" stroke="#d97706" stroke-width="2.5"/>
+                <text x="915" y="231" text-anchor="middle" fill="#92400e" font-size="14" font-weight="bold">🏢 4. DOANH NGHIỆP</text>
+                <text x="915" y="252" text-anchor="middle" fill="#334155" font-size="12">Phát QR thực tập • Hỗ trợ sự cố</text>
+                <text x="915" y="269" text-anchor="middle" fill="#d97706" font-size="11" font-weight="bold">business_v10.html ↗</text>
+            </g>
+
+            <g style="cursor:pointer" onclick="switchRoleTab('sv')">
+                <rect x="370" y="244" width="320" height="52" rx="14" fill="#f0fdf4" stroke="#16a34a" stroke-width="2.5"/>
+                <text x="530" y="266" text-anchor="middle" fill="#166534" font-size="14" font-weight="bold">🎓 5. SINH VIÊN (setup_v10 → index_v10)</text>
+                <text x="530" y="284" text-anchor="middle" fill="#334155" font-size="11.5">Ký cam kết + 3 góc mặt → Quét QR + GPS + Liveness</text>
+            </g>
+        `;
+        document.getElementById("master-ecosystem-diagram").appendChild(svg);
+    }
+
+    function drawProcessFlow(containerId, color, steps) {
+        const ns = "http://www.w3.org/2000/svg";
+        const boxW = 195, gap = 36, pad = 16;
+        const totalW = pad * 2 + steps.length * boxW + (steps.length - 1) * gap;
+        const svg = document.createElementNS(ns, "svg");
+        svg.setAttribute("viewBox", `0 0 ${totalW} 105`);
+        svg.setAttribute("width", "100%");
+        svg.style.minWidth = Math.min(totalW, 880) + "px";
+
+        let html = `<defs><marker id="ar_${containerId}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 1 L 10 5 L 0 9 z" fill="${color}"/></marker></defs>`;
+        steps.forEach((st, idx) => {
+            const x = pad + idx * (boxW + gap);
+            html += `
+                <rect x="${x}" y="12" width="${boxW}" height="80" rx="12" fill="#ffffff" stroke="${color}" stroke-width="2"/>
+                <circle cx="${x + 22}" cy="34" r="12" fill="${color}"/>
+                <text x="${x + 22}" y="38" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">${idx + 1}</text>
+                <text x="${x + 42}" y="38" fill="#0f172a" font-size="12.5" font-weight="bold">${st.t}</text>
+                <text x="${x + 14}" y="62" fill="#475569" font-size="11">${st.s1}</text>
+                <text x="${x + 14}" y="78" fill="#64748b" font-size="11">${st.s2}</text>
+            `;
+            if (idx < steps.length - 1) {
+                const x1 = x + boxW + 4, x2 = x + boxW + gap - 4;
+                html += `<line x1="${x1}" y1="52" x2="${x2}" y2="52" stroke="${color}" stroke-width="2.5" marker-end="url(#ar_${containerId})"/>`;
+            }
+        });
+        svg.innerHTML = html;
+        document.getElementById(containerId).appendChild(svg);
+    }
+
+    function initCanvasIllustrations() {
+        const c1 = document.getElementById("canvas-gps").getContext("2d");
+        let rPulse = 0;
+        setInterval(() => {
+            c1.clearRect(0, 0, 280, 190);
+            c1.fillStyle = "#ecfeff";
+            c1.fillRect(0, 0, 280, 190);
+            c1.beginPath(); c1.arc(140, 95, 68, 0, Math.PI * 2);
+            c1.fillStyle = "rgba(22, 163, 74, 0.14)"; c1.fill();
+            c1.strokeStyle = "#16a34a"; c1.lineWidth = 2; c1.setLineDash([5, 4]); c1.stroke(); c1.setLineDash([]);
+            rPulse = (rPulse + 1.4) % 68;
+            c1.beginPath(); c1.arc(140, 95, rPulse, 0, Math.PI * 2);
+            c1.strokeStyle = `rgba(2, 132, 199, ${1 - rPulse / 68})`; c1.lineWidth = 2; c1.stroke();
+            c1.beginPath(); c1.arc(140, 95, 8, 0, Math.PI * 2); c1.fillStyle = "#0f2460"; c1.fill();
+            c1.fillStyle = "#0f2460"; c1.font = "bold 11px Segoe UI"; c1.fillText("Trạm GV / DN", 104, 118);
+            c1.beginPath(); c1.arc(178, 72, 6, 0, Math.PI * 2); c1.fillStyle = "#16a34a"; c1.fill();
+            c1.fillStyle = "#166534"; c1.font = "11px Segoe UI"; c1.fillText("✓ Hợp lệ (<300m)", 152, 60);
+            c1.beginPath(); c1.arc(242, 148, 6, 0, Math.PI * 2); c1.fillStyle = "#dc2626"; c1.fill();
+            c1.fillStyle = "#dc2626"; c1.fillText("✕ Ngoài vùng", 200, 168);
+        }, 50);
+
+        const c2 = document.getElementById("canvas-qr-dyn").getContext("2d");
+        let sec = 10, seed = 1;
+        setInterval(() => {
+            sec--;
+            if (sec <= 0) { sec = 10; seed++; }
+            c2.clearRect(0, 0, 280, 190);
+            c2.fillStyle = "#f8fafc"; c2.fillRect(0, 0, 280, 190);
+            c2.fillStyle = "#ffffff"; c2.strokeStyle = "#0284c7"; c2.lineWidth = 2;
+            c2.fillRect(85, 18, 110, 110); c2.strokeRect(85, 18, 110, 110);
+            for (let r = 0; r < 9; r++) {
+                for (let col = 0; col < 9; col++) {
+                    const isCorner = (r < 3 && col < 3) || (r < 3 && col > 5) || (r > 5 && col < 3);
+                    const on = isCorner || (((r * 7 + col * 13 + seed * 5) % 3) === 0);
+                    if (on) {
+                        c2.fillStyle = "#0f2460";
+                        c2.fillRect(94 + col * 10, 27 + r * 10, 8, 8);
+                    }
+                }
+            }
+            c2.fillStyle = "#dc2626"; c2.font = "bold 14px Segoe UI";
+            c2.fillText(`⏱ Đổi mã sau: ${sec}s`, 82, 154);
+            c2.fillStyle = "#475569"; c2.font = "11px Segoe UI";
+            c2.fillText("Ảnh chụp màn hình cũ sẽ bị từ chối", 52, 174);
+        }, 1000);
+
+        const c3 = document.getElementById("canvas-face").getContext("2d");
+        let tick = 0;
+        const labels = ["1. Nhìn THẲNG", "2. Nghiêng TRÁI", "3. Nghiêng PHẢI", "4. Quay đầu Xác nhận"];
+        setInterval(() => {
+            tick++;
+            const phase = Math.floor(tick / 18) % 4;
+            const offsetX = phase === 1 ? -14 : (phase === 2 ? 14 : (phase === 3 ? Math.sin(tick * 0.4) * 16 : 0));
+            c3.clearRect(0, 0, 280, 190);
+            c3.fillStyle = "#0f172a"; c3.fillRect(0, 0, 280, 190);
+            c3.beginPath(); c3.ellipse(140, 85, 44, 58, 0, 0, Math.PI * 2);
+            c3.strokeStyle = "#22c55e"; c3.lineWidth = 3; c3.stroke();
+            c3.beginPath(); c3.arc(140 + offsetX, 85, 26, 0, Math.PI * 2);
+            c3.fillStyle = "#fde68a"; c3.fill();
+            c3.fillStyle = "#0f172a";
+            c3.beginPath(); c3.arc(131 + offsetX, 79, 3, 0, Math.PI * 2); c3.fill();
+            c3.beginPath(); c3.arc(149 + offsetX, 79, 3, 0, Math.PI * 2); c3.fill();
+            c3.beginPath(); c3.arc(140 + offsetX, 92, 8, 0, Math.PI); c3.strokeStyle = "#0f172a"; c3.lineWidth = 2; c3.stroke();
+            c3.fillStyle = "#4ade80"; c3.font = "bold 13px Segoe UI";
+            c3.fillText(labels[phase], 72, 168);
+        }, 80);
+    }
+
+    drawMasterDiagram();
+    drawProcessFlow("flow-sv", "#16a34a", [
+        { t: "Quét QR Khoa", s1: "Mở setup_v10.html", s2: "Quét mã tại VP Khoa" },
+        { t: "Ký Cam Kết", s1: "Nhập MSSV & đọc", s2: "Bấm Ký nhận điện tử" },
+        { t: "Quét 3 Góc Mặt", s1: "Thẳng • Trái • Phải", s2: "Gắn cố định thiết bị" },
+        { t: "Điểm Danh Ngày", s1: "Mở index_v10.html", s2: "GPS + QR + Quay đầu" }
+    ]);
+    drawProcessFlow("flow-gv", "#0284c7", [
+        { t: "Đăng Nhập", s1: "Mở admin_v10.html", s2: "Mã GV & Mật khẩu" },
+        { t: "Ký Số (Lần 1)", s1: "Nhập đúng Họ Tên", s2: "Đổi mật khẩu mới" },
+        { t: "Mở Ca Phát QR", s1: "Chọn ca & chế độ", s2: "Bật GPS -> Phát QR" },
+        { t: "Đối Soát / Hoãn", s1: "Bấm Refresh xem SV", s2: "Hoặc gửi đơn báo hoãn" }
+    ]);
+    drawProcessFlow("flow-dn", "#d97706", [
+        { t: "Mở Cổng DN", s1: "Vào business_v10", s2: "Nhập Mã DN + Mật mã" },
+        { t: "Chọn Chế Độ", s1: "1 lần hoặc 2 lần", s2: "(Đầu ca / Cuối ca)" },
+        { t: "Phát QR Động", s1: "Cấp quyền GPS", s2: "SV quét bằng index_v10" },
+        { t: "Hỗ Trợ Sự Cố", s1: "Chụp ảnh + Lý do", s2: "Xác minh đặc cách" }
+    ]);
+    drawProcessFlow("flow-gvu", "#0f2460", [
+        { t: "Vào Cổng Từ Xa", s1: "remote_gateway", s2: "Ký cam kết lần đầu" },
+        { t: "Lập Ca / Thêm SV", s1: "Điền form trực tuyến", s2: "Ký số đẩy Hàng đợi" },
+        { t: "Kiểm Tra Tiến Độ", s1: "Xem tab Hàng đợi", s2: "Thành công / Trùng" },
+        { t: "Tại VP Khoa", s1: "Phát QR 5p cho SV", s2: "Nhập Excel & Xuất BC" }
+    ]);
+    drawProcessFlow("flow-bgh", "#7c3aed", [
+        { t: "Đăng Nhập BGH", s1: "remote_gateway", s2: "Tài khoản DEAN_BGH" },
+        { t: "Ký Số Lần Đầu", s1: "Đọc cam kết & ký", s2: "Đổi mật khẩu mới" },
+        { t: "Trạm Phê Duyệt", s1: "Xem đơn báo hoãn GV", s2: "Bấm Duyệt / Từ chối" },
+        { t: "Giám Sát Kiểm Toán", s1: "Tra cứu nhật ký", s2: "Theo dõi thao tác" }
+    ]);
+    initCanvasIllustrations();
+})();
+</script>
+</body>
+</html>
