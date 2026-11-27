@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hướng Dẫn Đánh Giá &amp; Trải Nghiệm Hệ Thống Đào Tạo Thông Minh</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --navy: #0f2460;
+            --ocean: #0284c7;
+            --teal: #0d9488;
+            --emerald: #16a34a;
+            --amber: #d97706;
+            --rose: #e11d48;
+            --purple: #7c3aed;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, #e0f2fe 0%, #f1f5f9 260px);
+            color: var(--text);
+            line-height: 1.65;
+        }
+        .hero {
+            background: linear-gradient(135deg, #0f2460 0%, #0284c7 45%, #0d9488 85%, #16a34a 100%);
+            color: white;
+            padding: 36px 20px 48px;
+            text-align: center;
+            box-shadow: 0 10px 28px rgba(15, 36, 96, 0.28);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero h1 { margin: 0; font-size: 28px; text-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .hero p { margin: 10px auto 0; max-width: 820px; opacity: 0.96; font-size: 15px; }
+        .badge-ver {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 6px 18px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.45);
+            font-size: 13.5px;
+            font-weight: 700;
+        }
+        .container { max-width: 1240px; margin: -24px auto 48px; padding: 0 16px; }
+        .card {
+            background: var(--card);
+            border-radius: 18px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+            border: 1px solid #e2e8f0;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 16px;
+            font-size: 20px;
+            color: var(--navy);
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+            gap: 16px;
+        }
+        .qr-card {
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+            background: #ffffff;
+            transition: transform 0.25s, box-shadow 0.25s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .qr-card:hover { transform: translateY(-5px); box-shadow: 0 12px 26px rgba(0,0,0,0.09); }
+        .qr-role-tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 999px;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .qr-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px auto;
+            padding: 8px;
+            background: #fff;
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 12px;
+            width: 158px;
+            height: 158px;
+        }
+        .qr-url {
+            font-size: 11px;
+            color: var(--ocean);
+            word-break: break-all;
+            margin: 6px 0 10px;
+            font-family: Consolas, monospace;
+        }
+        .btn-row { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-copy {
+            background: #e2e8f0;
+            color: #0f172a;
+            border: none;
+            border-radius: 6px;
+            padding: 3px 9px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-left: 4px;
+            transition: background 0.15s;
+        }
+        .btn-copy:hover { background: #bae6fd; }
+        .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+        .tab-btn {
+            border: none;
+            padding: 11px 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 13.5px;
+            cursor: pointer;
+            background: #e2e8f0;
+            color: #334155;
+            transition: all 0.2s;
+        }
+        .tab-btn.active { color: white; box-shadow: 0 4px 14px rgba(0,0,0,0.16); transform: translateY(-1px); }
+        .tab-panel { display: none; animation: fadeIn 0.28s ease; }
+        .tab-panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .illu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin-top: 14px;
+        }
+        .illu-box {
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            border: 1.5px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 14px;
+            text-align: center;
+        }
+        .illu-box h4 { margin: 0 0 8px; color: var(--navy); font-size: 14.5px; }
+        .diagram-wrap {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 12px 0 18px;
+            overflow-x: auto;
+        }
+        .step-list { list-style: none; padding: 0; margin: 12px 0; }
+        .step-list li {
+            position: relative;
+            padding: 13px 16px 13px 52px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            background: #f8fafc;
+            border-left: 5px solid var(--ocean);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+        .step-num {
+            position: absolute;
+            left: 14px;
+            top: 13px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--ocean);
+            color: white;
+            font-weight: 800;
+            font-size: 13.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .search-bar {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 14.5px;
+            margin-bottom: 12px;
+        }
+        .search-bar:focus { outline: none; border-color: var(--ocean); }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        th, td { border: 1px solid #cbd5e1; padding: 9px 11px; text-align: left; vertical-align: top; }
+        th { background: #eff6ff; color: var(--navy); font-weight: 700; }
+        tr:nth-child(even) td { background: #fafcff; }
+        code {
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 2px 6px;
+            border-radius: 5px;
+            font-weight: 700;
+            font-family: Consolas, monospace;
+        }
+        .role-pill {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+            color: white;
+        }
+        .note-box { border-radius: 12px; padding: 14px 18px; margin: 12px 0; font-size: 13.5px; }
+        .note-info { background: #eff6ff; border-left: 5px solid var(--ocean); color: #1e3a8a; }
+        .note-warn { background: #fffbeb; border-left: 5px solid var(--amber); color: #92400e; }
+        .note-ok { background: #f0fdf4; border-left: 5px solid var(--emerald); color: #166534; }
+        .pw-rule {
+            background: #fdf2f8;
+            border-left: 5px solid var(--rose);
+            color: #9f1239;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 12px 0;
+            font-size: 13.5px;
+        }
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #0f172a;
+            color: white;
+            padding: 11px 20px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 700;
+            display: none;
+            z-index: 9999;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>⚓ HƯỚNG DẪN ĐÁNH GIÁ &amp; TRẢI NGHIỆM HỆ THỐNG ĐÀO TẠO THÔNG MINH</h1>
+    <p>Tài liệu hướng dẫn từng bước trực quan cho Ban Giám hiệu, Giáo vụ Khoa, Giảng viên, Sinh viên và Doanh nghiệp trong tuần đánh giá thực tế.</p>
+    <div class="badge-ver">📅 Tuần mô phỏng chính thức: 27/11/2026 → 03/12/2026 (7 ngày liên tiếp)</div>
+</div>
+
+<div class="container">
+
+    <!-- 1. MÃ QR TRUY CẬP -->
+    <div class="card">
+        <h2 class="section-title">📱 1. Quét Mã QR Hoặc Nhấn Mở Trang Đúng Vai Trò</h2>
+        <p style="margin-top:0; color:var(--muted); font-size:14px;">Quét bằng Camera điện thoại (hoặc Zalo) để mở nhanh, hoặc bấm nút <strong>Mở trang</strong> nếu dùng máy tính.</p>
+        <div class="qr-grid" id="qr-portal-grid"></div>
+    </div>
+
+    <!-- 2. MÔ HÌNH & HOẠT HỌA TRỰC QUAN -->
+    <div class="card">
+        <h2 class="section-title">🎬 2. Minh Họa Trực Quan Các Bước Hoạt Động Trên Hệ Thống</h2>
+        <div class="diagram-wrap" id="master-diagram"></div>
+        <div class="illu-grid">
+            <div class="illu-box">
+                <h4>📡 1. Định Vị Khu Vực Lớp / DN (300m)</h4>
+                <canvas id="cv-gps" width="260" height="175"></canvas>
+                <p style="font-size:12px; color:var(--muted); margin:4px 0 0;">Người điểm danh phải có mặt trong bán kính 300m quanh Giảng viên / Doanh nghiệp.</p>
+            </div>
+            <div class="illu-box">
+                <h4>🔐 2. Mã QR Động Đổi Mỗi 10 Giây</h4>
+                <canvas id="cv-qr" width="260" height="175"></canvas>
+                <p style="font-size:12px; color:var(--muted); margin:4px 0 0;">Ngăn chặn việc chụp ảnh mã QR gửi qua tin nhắn để nhờ điểm danh hộ.</p>
+            </div>
+            <div class="illu-box">
+                <h4>📸 3. Nhận Diện Mặt &amp; Quay Đầu</h4>
+                <canvas id="cv-face" width="260" height="175"></canvas>
+                <p style="font-size:12px; color:var(--muted); margin:4px 0 0;">Quét thẳng + trái + phải lúc đăng ký; quay đầu xác minh người thật khi điểm danh.</p>
+            </div>
+            <div class="illu-box">
+                <h4>📊 4. Nhập Excel &amp; Duyệt 2 Cấp</h4>
+                <canvas id="cv-excel" width="260" height="175"></canvas>
+                <p style="font-size:12px; color:var(--muted); margin:4px 0 0;">Giáo vụ tải file Excel lên cổng trực tuyến, hệ thống tự kiểm tra và tách dòng lỗi.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. TABS CHI TIẾT THEO TỪNG VAI TRÒ -->
+    <div class="card">
+        <h2 class="section-title">🧭 3. Tra Cứu Tài Khoản Cá Nhân &amp; Hướng Dẫn Thao Tác Chi Tiết</h2>
+
+        <div class="tabs" id="role-tabs">
+            <button class="tab-btn active" data-tab="roster" style="background:var(--navy); color:white;">👥 Danh sách 20 Thành viên &amp; Việc cần làm</button>
+            <button class="tab-btn" data-tab="gv">👨‍🏫 Giảng viên</button>
+            <button class="tab-btn" data-tab="gvu">📋 Giáo vụ Khoa (+ Nhập Excel)</button>
+            <button class="tab-btn" data-tab="bgh">🛡️ Trưởng Khoa / BGH</button>
+            <button class="tab-btn" data-tab="sv">🎓 Sinh viên</button>
+            <button class="tab-btn" data-tab="dn">🏢 Doanh nghiệp</button>
+            <button class="tab-btn" data-tab="week">📅 Lịch 1 Tuần (27/11/2026–03/12/2026)</button>
+        </div>
+
+        <!-- TAB 0: 20 THÀNH VIÊN -->
+        <div class="tab-panel active" id="panel-roster">
+            <div class="note-box note-info">
+                <strong>💡 Cách tìm nhanh thông tin của bạn:</strong> Gõ <b>Mã nhân sự (VD: KTCN08)</b> hoặc <b>Họ tên</b> vào ô tìm kiếm dưới đây.
+                Khi đăng nhập lần đầu và hệ thống yêu cầu <b>Ký xác nhận Họ và Tên</b>, hãy bấm nút <b>Copy</b> ngay bên cạnh tên của mình để dán vào cho chính xác 100% dấu tiếng Việt!
+            </div>
+            <input type="text" id="roster-search" class="search-bar" placeholder="🔍 Gõ tên hoặc mã KTCN của bạn để lọc nhanh (VD: Thu Hà, Công Bảo, KTCN13...)">
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã</th>
+                            <th>Họ và Tên (Dùng làm Chữ ký số)</th>
+                            <th>Vai trò được phân</th>
+                            <th>Tên đăng nhập &amp; Mật khẩu đầu</th>
+                            <th>Trang truy cập &amp; Việc cần kiểm thử</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roster-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 1: GIẢNG VIÊN -->
+        <div class="tab-panel" id="panel-gv">
+            <div class="diagram-wrap" id="flow-gv"></div>
+            <div class="note-box note-info">
+                <strong>🔗 Cổng Giảng viên:</strong> <code>https://hanghai.dpdns.org/admin_v10.html</code>
+            </div>
+            <div class="pw-rule">
+                <strong>🔑 Quy tắc đặt Mật khẩu mới (áp dụng khi đăng nhập lần đầu):</strong><br>
+                • Dài tối thiểu <b>8 ký tự</b>, phải có đủ: <b>chữ HOA</b>, <b>chữ thường</b>, <b>chữ số</b> và <b>1 ký tự đặc biệt trong nhóm <code>@ $ ! % * ? &amp;</code></b>.<br>
+                • <b>Gợi ý dùng chung để dễ nhớ:</b> <code>GvKhaoSat@2026</code> <button class="btn-copy" onclick="copyTxt('GvKhaoSat@2026')">Copy mật khẩu gợi ý</button>
+            </div>
+            <ul class="step-list">
+                <li><span class="step-num">1</span><strong>Đăng nhập lần đầu:</strong> Mở trang Giảng viên → Nhập <b>Mã GV</b> (ví dụ <code>KTCN05</code>) và <b>Mật khẩu</b> cũng chính là <b>Mã GV</b> đó → Bấm <b>Đăng Nhập</b>.</li>
+                <li><span class="step-num">2</span><strong>Ký Bản cam kết &amp; Đổi mật khẩu:</strong> Cuộn đọc cam kết → Tích ô <em>"Tôi cam kết tuân thủ..."</em> → Dán chính xác <b>Họ và Tên</b> của bạn (lấy từ bảng 20 thành viên) vào ô Chữ ký → Nhập mật khẩu mới <code>GvKhaoSat@2026</code> vào 2 ô mật khẩu → Bấm <b>📝 Ký xác nhận &amp; Hoàn tất</b>.</li>
+                <li><span class="step-num" style="background:var(--emerald);">3</span><strong>Mở lớp phát mã QR điểm danh:</strong> Xem mục <em>Lịch giảng dạy hôm nay</em> → Bấm <b>Chọn ca dạy ➔</b> → Chọn chế độ (Toàn buổi / Tiết lẻ / Đầu-Cuối ca) → Bấm <b>🚀 Bắt đầu điểm danh</b> → Chọn <b>Cho phép Vị trí</b>.</li>
+                <li><span class="step-num" style="background:var(--teal);">4</span><strong>Theo dõi sĩ số:</strong> Khi sinh viên quét xong, bấm nút <b>🔄 Cập nhật (Refresh)</b> màu xanh để thấy trạng thái sinh viên chuyển sang <b>Hiện diện</b>. Bạn cũng có thể thử nút <b>📊 Tải lịch sử dạy</b> và <b>🛑 Đóng ca QR sớm</b>.</li>
+                <li><span class="step-num" style="background:var(--amber);">5</span><strong>Thử nghiệm Báo hoãn ca dạy:</strong> Ở ca thứ 2 hoặc khi muốn test xin nghỉ, bấm nút màu cam <b>📝 Báo hoãn / Xin đổi ca dạy</b>, nhập lý do và xác nhận để gửi đơn lên Trưởng Khoa duyệt.</li>
+            </ul>
+        </div>
+
+        <!-- TAB 2: GIÁO VỤ KHOA -->
+        <div class="tab-panel" id="panel-gvu">
+            <div class="diagram-wrap" id="flow-gvu"></div>
+            <div class="note-box note-info">
+                <strong>🔗 Cổng Điều Hành Trực Tuyến:</strong> <code>https://hanghai.dpdns.org/remote_gateway_v10.html</code> (hoặc <code>remote_gateway.html</code>)<br>
+                <strong>👥 Nhân sự được phân công:</strong> <code>KTCN08</code> (Bùi Công Bảo — Tài khoản: <code>ktcn08_gv</code> / MK: <code>GvKhaoSat@2026</code>), <code>KTCN02</code> (Đồng Phong Huyền — <code>ktcn02_gv</code> / <code>GvInit@2026</code> - Ký lần đầu), <code>KTCN04</code> (Nguyễn Thị Thu Hà — <code>ktcn04_gv</code> / <code>GvKhaoSat@2026</code>).
+            </div>
+            <ul class="step-list">
+                <li><span class="step-num">1</span><strong>Đăng nhập &amp; Ký cam kết (nếu lần đầu):</strong> Mở cổng trực tuyến → Nhập tài khoản Giáo vụ. Với <code>ktcn02_gv</code>, tích đồng ý cam kết → Gõ chính xác <code>Đồng Phong Huyền</code> <button class="btn-copy" onclick="copyTxt('Đồng Phong Huyền')">Copy</button> → Đặt MK mới (VD: <code>GvMoi@2026</code> <button class="btn-copy" onclick="copyTxt('GvMoi@2026')">Copy</button>).</li>
+                <li><span class="step-num" style="background:var(--teal);">2</span><strong>Thử tính năng MỚI — Cập nhật dữ liệu từ file Excel:</strong> Tại mục <em>📥 Nhập &amp; Cập Nhật Dữ Liệu Hàng Loạt Từ File Excel</em>:<br>
+                    • Chọn lần lượt từng loại trong danh sách và nạp các file mẫu trong thư mục <code>excel_samples</code>:<br>
+                    &nbsp;&nbsp;1) Chọn <em>1. Danh sách Sinh viên</em> → Tải lên file <code>01_SinhVien_KiemThu.xlsx</code><br>
+                    &nbsp;&nbsp;2) Chọn <em>2. Danh sách Giảng viên</em> → Tải lên file <code>02_GiangVien_KiemThu.xlsx</code><br>
+                    &nbsp;&nbsp;3) Chọn <em>3. Danh mục Lớp học</em> → Tải lên file <code>03_DanhMucLop_KiemThu.xlsx</code><br>
+                    &nbsp;&nbsp;4) Chọn <em>4. Lịch giảng dạy</em> → Tải lên file <code>04_LichDay_1Tuan_KiemThu.xlsx</code> (file này có cố tình 1 dòng sai ngày để test nút tải file lỗi!)<br>
+                    &nbsp;&nbsp;5) Chọn <em>5. Lịch phân bổ Thực tập</em> → Tải lên file <code>05_ThucTap_1Tuan_KiemThu.xlsx</code> (có cố tình 1 dòng sai tên SV để test đối soát kép!)<br>
+                    • Khi hệ thống hiện nút màu cam <b>📥 TẢI FILE CÁC DÒNG CẦN SỬA</b>, bấm vào để kiểm tra file báo lỗi tự động.
+                </li>
+                <li><span class="step-num" style="background:var(--ocean);">3</span><strong>Lập ca dạy &amp; Thêm Sinh viên trực tiếp:</strong> Điền biểu mẫu <em>Lập ca giảng dạy</em> (VD lớp <code>LOP_UAT_A</code>, mã GV <code>KTCN05</code>, giờ <code>18:00</code>) rồi bấm <b>✍️ Ký số &amp; Đẩy vào hàng đợi</b>. Sang tab <b>⏳ Hàng đợi</b> bấm <b>🔄 Cập nhật tiến độ</b> để xem kết quả.</li>
+                <li><span class="step-num" style="background:var(--emerald);">4</span><strong>Phát mã QR xác thực cho Sinh viên:</strong> Tại mục <em>🔐 Trạm Phát Mã QR Xác Thực Thiết Bị SV Từ Xa</em>, bấm <b>📱 Phát / Làm mới mã QR xác thực</b> để sinh viên quét khi đăng ký máy mới.</li>
+                <li><span class="step-num" style="background:var(--amber);">5</span><strong>Tra cứu/Sửa hồ sơ SV &amp; Kỷ luật thực tập:</strong> Gõ <code>SV_UAT</code> vào ô Tìm SV → Sửa thử tên 1 SV và bấm Lưu. Thử nhập kỷ luật cho <code>SV_UAT_08</code> tại DN <code>DN_UAT_01</code>.</li>
+            </ul>
+        </div>
+
+        <!-- TAB 3: BGH / TRƯỞNG KHOA -->
+        <div class="tab-panel" id="panel-bgh">
+            <div class="diagram-wrap" id="flow-bgh"></div>
+            <div class="note-box note-info">
+                <strong>🔗 Cổng Điều Hành BGH:</strong> <code>https://hanghai.dpdns.org/remote_gateway_v10.html</code><br>
+                <strong>🛡️ Nhân sự được phân công:</strong><br>
+                • <code>KTCN01</code> — <b>Trịnh Ngọc Thu Hà</b>: Tài khoản <code>ktcn01_bgh</code> <button class="btn-copy" onclick="copyTxt('ktcn01_bgh')">Copy</button> | MK: <code>BghKhaoSat@2026</code> <button class="btn-copy" onclick="copyTxt('BghKhaoSat@2026')">Copy</button> (Vào thẳng trạm duyệt).<br>
+                • <code>KTCN03</code> — <b>Nguyễn Huy Thưởng</b>: Tài khoản <code>ktcn03_bgh</code> <button class="btn-copy" onclick="copyTxt('ktcn03_bgh')">Copy</button> | MK đầu: <code>BghInit@2026</code> <button class="btn-copy" onclick="copyTxt('BghInit@2026')">Copy</button> | Chữ ký: <code>Nguyễn Huy Thưởng</code> <button class="btn-copy" onclick="copyTxt('Nguyễn Huy Thưởng')">Copy</button> (Test ký cam kết lần đầu).
+            </div>
+            <ul class="step-list">
+                <li><span class="step-num" style="background:var(--purple);">1</span>Đăng nhập cổng trực tuyến bằng tài khoản BGH (nếu dùng <code>ktcn03_bgh</code>, hoàn tất ký cam kết &amp; đổi MK thành <code>BghMoi@2026</code>).</li>
+                <li><span class="step-num" style="background:var(--purple);">2</span>Bấm chọn tab <b>🛡️ Trạm Phê duyệt BGH</b> trên thanh menu.</li>
+                <li><span class="step-num" style="background:var(--rose);">3</span>Bấm <b>📋 Tải Đơn Báo Hoãn Chờ Duyệt</b> → Sẽ thấy đơn xin nghỉ mẫu của <code>KTCN19</code> (và các đơn do Giảng viên vừa bấm báo hoãn) → Bấm <b>✅ Duyệt</b> hoặc <b>❌ Từ chối</b>.</li>
+                <li><span class="step-num" style="background:var(--navy);">4</span>Bấm <b>🔍 Tải Nhật Ký Kiểm Toán</b> để kiểm tra toàn bộ vết thao tác: ai vừa nhập Excel, ai vừa đăng nhập, ai vừa sửa tên sinh viên, ai vừa phê duyệt đơn.</li>
+            </ul>
+        </div>
+
+        <!-- TAB 4: SINH VIÊN -->
+        <div class="tab-panel" id="panel-sv">
+            <div class="diagram-wrap" id="flow-sv"></div>
+            <div class="note-box note-info">
+                <strong>🔗 Liên kết cho Sinh viên:</strong><br>
+                • <b>Bước A (Đăng ký thiết bị 1 lần duy nhất):</b> <code>https://hanghai.dpdns.org/setup_v10.html</code><br>
+                • <b>Bước B (Điểm danh hàng ngày):</b> <code>https://hanghai.dpdns.org/index_v10.html</code>
+            </div>
+            <ul class="step-list">
+                <li><span class="step-num" style="background:var(--teal);">1</span>Mở <code>setup_v10.html</code> trên điện thoại → Cho phép Camera → Quét mã QR xác thực từ màn hình của Giáo vụ.</li>
+                <li><span class="step-num" style="background:var(--teal);">2</span>Nhập 1 mã SV trong bảng dưới (VD: <code>SV_UAT_01</code> cho lớp học, hoặc <code>SV_UAT_08</code> cho thực tập DN) → Cuộn đọc điều khoản → Bấm <b>📝 Ký nhận điện tử</b>.</li>
+                <li><span class="step-num" style="background:var(--teal);">3</span>Quét khuôn mặt đủ 3 góc: <b>Nhìn THẲNG → Nghiêng TRÁI → Nghiêng PHẢI</b> → Bấm <b>Về trang điểm danh</b>.</li>
+                <li><span class="step-num" style="background:var(--emerald);">4</span>Trên <code>index_v10.html</code>, bấm <b>🚀 Bắt đầu Điểm Danh</b> → Cho phép Vị trí → Quét mã QR trên màn hình Giảng viên/Doanh nghiệp → Nhìn camera trước &amp; quay nhẹ đầu trái/phải khi được yêu cầu → Hoàn tất!</li>
+            </ul>
+            <table>
+                <thead><tr><th>MSSV Test</th><th>Họ và Tên</th><th>Lớp / Doanh nghiệp áp dụng</th></tr></thead>
+                <tbody id="student-tbody"></tbody>
+            </table>
+        </div>
+
+        <!-- TAB 5: DOANH NGHIỆP -->
+        <div class="tab-panel" id="panel-dn">
+            <div class="diagram-wrap" id="flow-dn"></div>
+            <div class="note-box note-info">
+                <strong>🔗 Cổng Doanh nghiệp:</strong> <code>https://hanghai.dpdns.org/business_v10.html</code><br>
+                <strong>🏢 Thông tin trạm Doanh nghiệp mẫu:</strong> Mã DN: <code>DN_UAT_01</code> <button class="btn-copy" onclick="copyTxt('DN_UAT_01')">Copy</button> | Mật mã trạm: <code>DnUat@2026</code> <button class="btn-copy" onclick="copyTxt('DnUat@2026')">Copy</button>
+            </div>
+            <ul class="step-list">
+                <li><span class="step-num" style="background:var(--amber);">1</span>Mở <code>business_v10.html</code> → Nhập Mã DN <code>DN_UAT_01</code> và Mật mã <code>DnUat@2026</code>.</li>
+                <li><span class="step-num" style="background:var(--amber);">2</span>Chọn chế độ (<em>1 lần đầu ca</em> hoặc <em>2 lần Đầu &amp; Cuối ca</em>) → Bấm <b>🚀 Kích hoạt điểm danh hàng ngày</b> → Cho phép Vị trí để phát mã QR.</li>
+                <li><span class="step-num" style="background:var(--amber);">3</span>Sinh viên thực tập (<code>SV_UAT_08</code> hoặc <code>SV_UAT_09</code>) dùng điện thoại quét mã QR → Bấm <b>🔄 Cập nhật danh sách có mặt</b> để kiểm tra.</li>
+                <li><span class="step-num" style="background:var(--rose);">4</span><strong>Thử tính năng Điểm danh hộ khi SV hỏng máy:</strong> Nhập <code>SV_UAT_09</code>, lý do (VD: <em>"Hỏng điện thoại"</em>), chọn 1 bức ảnh bất kỳ → Bấm <b>Xác minh đặc cách</b>.</li>
+            </ul>
+        </div>
+
+        <!-- TAB 6: LỊCH 1 TUẦN -->
+        <div class="tab-panel" id="panel-week">
+            <div class="note-box note-ok">
+                <strong>📅 Lịch mô phỏng 7 ngày liên tiếp (27/11/2026 → 03/12/2026)</strong> đã được đồng bộ sẵn trong hệ thống để mọi thành viên có thể kiểm thử bất kỳ ngày nào trong tuần.
+            </div>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead><tr><th>Ngày</th><th>Giờ</th><th>Lớp</th><th>Mã GV</th><th>Giảng viên</th><th>Môn học</th><th>Trạng thái</th></tr></thead>
+                    <tbody id="week-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toast">✅ Đã sao chép!</div>
+
+<script>
+(function() {
+    "use strict";
+    const DOMAIN = "https://hanghai.dpdns.org";
+    const MEMBERS = [{"id": "KTCN01", "full_name": "Trịnh Ngọc Thu Hà", "existed_before": true, "assigned_role": "DEAN_BGH", "username": "ktcn01_bgh", "init_password": "BghKhaoSat@2026", "first_login_tos": false, "task_desc": "Trưởng Khoa / Trưởng Bộ Phận - Phê duyệt & Giám sát", "assigned_days": []}, {"id": "KTCN02", "full_name": "Đồng Phong Huyền", "existed_before": true, "assigned_role": "ACADEMIC", "username": "ktcn02_gv", "init_password": "GvInit@2026", "first_login_tos": true, "task_desc": "Giáo vụ - Ký cam kết lần đầu & Cấp QR Thiết bị SV", "assigned_days": []}, {"id": "KTCN03", "full_name": "Nguyễn Huy Thưởng", "existed_before": true, "assigned_role": "DEAN_BGH", "username": "ktcn03_bgh", "init_password": "BghInit@2026", "first_login_tos": true, "task_desc": "Ban Giám Hiệu - Kiểm thử Ký cam kết lần đầu & Phê duyệt", "assigned_days": []}, {"id": "KTCN04", "full_name": "Nguyễn Thị Thu Hà", "existed_before": true, "assigned_role": "ACADEMIC", "username": "ktcn04_gv", "init_password": "GvKhaoSat@2026", "first_login_tos": false, "task_desc": "Giáo vụ - Kỷ luật thực tập & Sửa hồ sơ SV", "assigned_days": []}, {"id": "KTCN05", "full_name": "Lê Thị Bình Nguyên", "existed_before": true, "assigned_role": "TEACHER", "username": "KTCN05", "init_password": "KTCN05", "first_login_tos": true, "task_desc": "Giảng viên - Ký cam kết lần đầu, Phát QR điểm danh, Theo dõi lớp & Báo hoãn", "assigned_days": ["27/11 07:00 (LOP_UAT_A)", "30/11 14:00 (LOP_UAT_B)"]}, {"id": "KTCN06", "full_name": "Lê Thị Lĩnh", "existed_before": true, "assigned_role": "TEACHER", "username": "KTCN06", "init_password": "KTCN06", "first_login_tos": true, "task_desc": "Giảng viên - Ký cam kết lần đầu, Phát QR điểm danh, Theo dõi lớp & Báo hoãn", "assigned_days": ["27/11 08:00 (LOP_UAT_A)", "01/12 07:30 (LOP_UAT_A)"]}, {"id": "KTCN07", "full_name": "Trần Thị Hải Thanh", "existed_before": true, "assigned_role": "TEACHER", "username": "KTCN07", "init_password": "KTCN07", "first_login_tos": true, "task_desc": "Giảng viên - Ký cam kết lần đầu, Phát QR điểm danh, Theo dõi lớp & Báo hoãn", "assigned_days": ["27/11 09:00 (LOP_UAT_A)", "01/12 13:30 (LOP_UAT_A)"]}, {"id": "KTCN08", "full_name": "Bùi Công Bảo", "existed_before": true, "assigned_role": "ACADEMIC", "username": "ktcn08_gv", "init_password": "GvKhaoSat@2026", "first_login_tos": false, "task_desc": "Giáo vụ chính - Nhập Excel, Lập lịch & Tra cứu SV", "assigned_days": []}, {"id": "KTCN09", "full_name": "Đặng Thị Thanh Nhàn", "existed_before": true, "assigned_role": "TEACHER", "username": "KTCN09", "init_password": "KTCN09", "first_login_tos": true, "task_desc": "Giảng viên - Ký cam kết lần đầu, Phát QR điểm danh, Theo dõi lớp & Báo hoãn", "assigned_days": ["27/11 10:00 (LOP_UAT_A)", "01/12 08:00 (LOP_UAT_B)"]}, {"id": "KTCN10", "full_name": "Đàm Thị Ngọc Anh", "existed_before": true, "assigned_role": "TEACHER", "username": "KTCN10", "init_password": "KTCN10", "first_login_tos": true, "task_desc": "Giảng viên - Ký cam kết lần đầu, Phát QR điểm danh, Theo dõi lớp & Báo hoãn", "assigned_days": ["27/11 11:00 (LOP_UAT_A)", "28/11 07:30 (LOP_UAT_A)", "01/12 14:00 (LOP_UAT_B)"]}, {"id": "KTCN11", "full_name": "Nguyễn Thị Phương", "existed_before": true, "assigned_role": "TEACHER", "username": "KTCN11", "init_password": "KTCN11", "first_login_tos": true, "task_desc": "Giảng viên - Ký cam kết lần đầu, Phát QR điểm danh, Theo dõi lớp & Báo hoãn", "assigned_days": ["27/11 13:00 (LOP_UAT_A)", "28/11 13:30 (LOP_UAT_A)", "02/12 07:30 (LOP_UAT_A)"]}, {"id": "KTCN12", "full_name": "Trương Nhật Phương", "existed_before": true, "assigned_role": "TEACHER", "username": "KTCN12", "init_password": "KTCN12", "first_login_tos": true, "task_desc": "Giảng viên - Ký cam kết lần đầu, Phát QR điểm danh, Theo dõi lớp & Báo hoãn", "assigned_days": ["27/11 14:00 (LOP_UAT_A)", "28/11 08:00 (LOP_UAT_B)", "02/12 13:30 (LOP_UAT_A)"]}, {"id": "KTCN13", "full_name": "Phạm Thị Thanh Thuỷ", "existed_before": true, "assigned_role": "TEACHER", "username": "KTCN13", "init_password": "KTCN13", "first_login_tos": true, "task_desc": "Giảng viên - Ký cam kết lần đầu, Phát QR điểm danh, Theo dõi lớp & Báo hoãn", "assigned_days": ["27/11 15:00 (LOP_UAT_A)", "28/11 14:00 (LOP_UAT_B)", "02/12 08:00 (LOP_UAT_B)"]}, {"id": "KTCN14", "full_name": "Đỗ Thị Thu Trang", "existed_before": true, "assigned_role": "TEACHER", "username": "KTCN14", "init_password": "KTCN14", "first_login_tos": true, "task_desc": "Giảng viên - Ký cam kết lần đầu, Phát QR điểm danh, Theo dõi lớp & Báo hoãn", "assigned_days": ["27/11 07:15 (LOP_UAT_B)", "29/11 07:30 (LOP_UAT_A)", "02/12 14:00 (LOP_UAT_B)"]}, {"id": "KTCN15", "full_name": "Nguyễn Quang Huy", "existed_before": true, "assigned_role": "TEACHER", "username": "KTCN15", "init_password": "KTCN15", "first_login_tos": true, "task_desc": "Giảng viên - Ký cam kết lần đầu, Phát QR điểm danh, Theo dõi lớp & Báo hoãn", "assigned_days": ["27/11 08:15 (LOP_UAT_B)", "29/11 13:30 (LOP_UAT_A)", "03/12 07:30 (LOP_UAT_A)"]}, {"id": "KTCN16", "full_name": "Nguyễn Thị Thu Hương", "existed_before": true, "assigned_role": "TEACHER", "username": "KTCN16", "init_password": "KTCN16", "first_login_tos": true, "task_desc": "Giảng viên - Ký cam kết lần đầu, Phát QR điểm danh, Theo dõi lớp & Báo hoãn", "assigned_days": ["27/11 09:15 (LOP_UAT_B)", "29/11 08:00 (LOP_UAT_B)", "03/12 13:30 (LOP_UAT_A)"]}, {"id": "KTCN17", "full_name": "Trần Thị Thủy", "existed_before": true, "assigned_role": "TEACHER", "username": "KTCN17", "init_password": "KTCN17", "first_login_tos": true, "task_desc": "Giảng viên - Ký cam kết lần đầu, Phát QR điểm danh, Theo dõi lớp & Báo hoãn", "assigned_days": ["27/11 10:15 (LOP_UAT_B)", "29/11 14:00 (LOP_UAT_B)", "03/12 08:00 (LOP_UAT_B)"]}, {"id": "KTCN18", "full_name": "Đinh Đức Toàn", "existed_before": true, "assigned_role": "TEACHER", "username": "KTCN18", "init_password": "KTCN18", "first_login_tos": true, "task_desc": "Giảng viên - Ký cam kết lần đầu, Phát QR điểm danh, Theo dõi lớp & Báo hoãn", "assigned_days": ["27/11 13:15 (LOP_UAT_B)", "30/11 07:30 (LOP_UAT_A)", "03/12 14:00 (LOP_UAT_B)"]}, {"id": "KTCN19", "full_name": "Ngô Thế Anh Hào", "existed_before": true, "assigned_role": "TEACHER", "username": "KTCN19", "init_password": "KTCN19", "first_login_tos": true, "task_desc": "Giảng viên - Ký cam kết lần đầu, Phát QR điểm danh, Theo dõi lớp & Báo hoãn", "assigned_days": ["27/11 14:15 (LOP_UAT_B)", "30/11 13:30 (LOP_UAT_A)"]}, {"id": "KTCN20", "full_name": "Bùi Kim Oanh", "existed_before": true, "assigned_role": "TEACHER", "username": "KTCN20", "init_password": "KTCN20", "first_login_tos": true, "task_desc": "Giảng viên - Ký cam kết lần đầu, Phát QR điểm danh, Theo dõi lớp & Báo hoãn", "assigned_days": ["27/11 15:15 (LOP_UAT_B)", "30/11 08:00 (LOP_UAT_B)"]}];
+    const STUDENTS = [{"id": "SV_UAT_01", "full_name": "Nguyễn Minh Hải", "class_id": "LOP_UAT_A", "dept": "Kinh tế Hàng Hải"}, {"id": "SV_UAT_02", "full_name": "Trần Thu Trang", "class_id": "LOP_UAT_A", "dept": "Kinh tế Hàng Hải"}, {"id": "SV_UAT_03", "full_name": "Lê Hoàng Nam", "class_id": "LOP_UAT_A", "dept": "Kinh tế Hàng Hải"}, {"id": "SV_UAT_04", "full_name": "Phạm Lan Anh", "class_id": "LOP_UAT_A", "dept": "Kinh tế Hàng Hải"}, {"id": "UAT.2026001", "full_name": "Đỗ Quang Vinh", "class_id": "LOP_UAT_A", "dept": "Kinh tế Hàng Hải"}, {"id": "SV_UAT_05", "full_name": "Vũ Thị Ngọc Bích", "class_id": "LOP_UAT_B", "dept": "Logistics & Cảng"}, {"id": "SV_UAT_06", "full_name": "Hoàng Đức Mạnh", "class_id": "LOP_UAT_B", "dept": "Logistics & Cảng"}, {"id": "SV_UAT_07", "full_name": "Bùi Thảo Vy", "class_id": "LOP_UAT_B", "dept": "Logistics & Cảng"}, {"id": "SV_UAT_08", "full_name": "Vũ Đức Cường", "class_id": "LOP_UAT_B", "dept": "Thực tập DN"}, {"id": "SV_UAT_09", "full_name": "Nguyễn Thị Mai Linh", "class_id": "LOP_UAT_B", "dept": "Thực tập DN"}];
+    const WEEKLY = [{"date": "27/11/2026", "time": "07:00", "class_id": "LOP_UAT_A", "teacher_id": "KTCN05", "teacher_name": "Lê Thị Bình Nguyên", "subject": "Khai thác Cảng biển", "status": "Mở bình thường"}, {"date": "27/11/2026", "time": "08:00", "class_id": "LOP_UAT_A", "teacher_id": "KTCN06", "teacher_name": "Lê Thị Lĩnh", "subject": "Kinh tế Vận tải biển", "status": "Mở bình thường"}, {"date": "27/11/2026", "time": "09:00", "class_id": "LOP_UAT_A", "teacher_id": "KTCN07", "teacher_name": "Trần Thị Hải Thanh", "subject": "Giao nhận & Logistics", "status": "Mở bình thường"}, {"date": "27/11/2026", "time": "10:00", "class_id": "LOP_UAT_A", "teacher_id": "KTCN09", "teacher_name": "Đặng Thị Thanh Nhàn", "subject": "Luật Hàng Hải", "status": "Mở bình thường"}, {"date": "27/11/2026", "time": "11:00", "class_id": "LOP_UAT_A", "teacher_id": "KTCN10", "teacher_name": "Đàm Thị Ngọc Anh", "subject": "Quản trị Chuỗi cung ứng", "status": "Mở bình thường"}, {"date": "27/11/2026", "time": "13:00", "class_id": "LOP_UAT_A", "teacher_id": "KTCN11", "teacher_name": "Nguyễn Thị Phương", "subject": "Khai thác Cảng biển", "status": "Mở bình thường"}, {"date": "27/11/2026", "time": "14:00", "class_id": "LOP_UAT_A", "teacher_id": "KTCN12", "teacher_name": "Trương Nhật Phương", "subject": "Kinh tế Vận tải biển", "status": "Mở bình thường"}, {"date": "27/11/2026", "time": "15:00", "class_id": "LOP_UAT_A", "teacher_id": "KTCN13", "teacher_name": "Phạm Thị Thanh Thuỷ", "subject": "Giao nhận & Logistics", "status": "Mở bình thường"}, {"date": "27/11/2026", "time": "07:15", "class_id": "LOP_UAT_B", "teacher_id": "KTCN14", "teacher_name": "Đỗ Thị Thu Trang", "subject": "Luật Hàng Hải", "status": "Mở bình thường"}, {"date": "27/11/2026", "time": "08:15", "class_id": "LOP_UAT_B", "teacher_id": "KTCN15", "teacher_name": "Nguyễn Quang Huy", "subject": "Quản trị Chuỗi cung ứng", "status": "Mở bình thường"}, {"date": "27/11/2026", "time": "09:15", "class_id": "LOP_UAT_B", "teacher_id": "KTCN16", "teacher_name": "Nguyễn Thị Thu Hương", "subject": "Khai thác Cảng biển", "status": "Mở bình thường"}, {"date": "27/11/2026", "time": "10:15", "class_id": "LOP_UAT_B", "teacher_id": "KTCN17", "teacher_name": "Trần Thị Thủy", "subject": "Kinh tế Vận tải biển", "status": "Mở bình thường"}, {"date": "27/11/2026", "time": "13:15", "class_id": "LOP_UAT_B", "teacher_id": "KTCN18", "teacher_name": "Đinh Đức Toàn", "subject": "Giao nhận & Logistics", "status": "Mở bình thường"}, {"date": "27/11/2026", "time": "14:15", "class_id": "LOP_UAT_B", "teacher_id": "KTCN19", "teacher_name": "Ngô Thế Anh Hào", "subject": "Luật Hàng Hải", "status": "Mở bình thường"}, {"date": "27/11/2026", "time": "15:15", "class_id": "LOP_UAT_B", "teacher_id": "KTCN20", "teacher_name": "Bùi Kim Oanh", "subject": "Quản trị Chuỗi cung ứng", "status": "Mở bình thường"}, {"date": "27/11/2026", "time": "16:30", "class_id": "LOP_UAT_B", "teacher_id": "KTCN19", "teacher_name": "Ngô Thế Anh Hào", "subject": "Khai thác Cảng biển", "status": "Chờ BGH duyệt nghỉ"}, {"date": "28/11/2026", "time": "07:30", "class_id": "LOP_UAT_A", "teacher_id": "KTCN10", "teacher_name": "Đàm Thị Ngọc Anh", "subject": "Kinh tế Vận tải biển", "status": "Lịch tuần"}, {"date": "28/11/2026", "time": "13:30", "class_id": "LOP_UAT_A", "teacher_id": "KTCN11", "teacher_name": "Nguyễn Thị Phương", "subject": "Giao nhận & Logistics", "status": "Lịch tuần"}, {"date": "28/11/2026", "time": "08:00", "class_id": "LOP_UAT_B", "teacher_id": "KTCN12", "teacher_name": "Trương Nhật Phương", "subject": "Luật Hàng Hải", "status": "Lịch tuần"}, {"date": "28/11/2026", "time": "14:00", "class_id": "LOP_UAT_B", "teacher_id": "KTCN13", "teacher_name": "Phạm Thị Thanh Thuỷ", "subject": "Quản trị Chuỗi cung ứng", "status": "Lịch tuần"}, {"date": "29/11/2026", "time": "07:30", "class_id": "LOP_UAT_A", "teacher_id": "KTCN14", "teacher_name": "Đỗ Thị Thu Trang", "subject": "Giao nhận & Logistics", "status": "Lịch tuần"}, {"date": "29/11/2026", "time": "13:30", "class_id": "LOP_UAT_A", "teacher_id": "KTCN15", "teacher_name": "Nguyễn Quang Huy", "subject": "Luật Hàng Hải", "status": "Lịch tuần"}, {"date": "29/11/2026", "time": "08:00", "class_id": "LOP_UAT_B", "teacher_id": "KTCN16", "teacher_name": "Nguyễn Thị Thu Hương", "subject": "Quản trị Chuỗi cung ứng", "status": "Lịch tuần"}, {"date": "29/11/2026", "time": "14:00", "class_id": "LOP_UAT_B", "teacher_id": "KTCN17", "teacher_name": "Trần Thị Thủy", "subject": "Khai thác Cảng biển", "status": "Lịch tuần"}, {"date": "30/11/2026", "time": "07:30", "class_id": "LOP_UAT_A", "teacher_id": "KTCN18", "teacher_name": "Đinh Đức Toàn", "subject": "Luật Hàng Hải", "status": "Lịch tuần"}, {"date": "30/11/2026", "time": "13:30", "class_id": "LOP_UAT_A", "teacher_id": "KTCN19", "teacher_name": "Ngô Thế Anh Hào", "subject": "Quản trị Chuỗi cung ứng", "status": "Lịch tuần"}, {"date": "30/11/2026", "time": "08:00", "class_id": "LOP_UAT_B", "teacher_id": "KTCN20", "teacher_name": "Bùi Kim Oanh", "subject": "Khai thác Cảng biển", "status": "Lịch tuần"}, {"date": "30/11/2026", "time": "14:00", "class_id": "LOP_UAT_B", "teacher_id": "KTCN05", "teacher_name": "Lê Thị Bình Nguyên", "subject": "Kinh tế Vận tải biển", "status": "Lịch tuần"}, {"date": "01/12/2026", "time": "07:30", "class_id": "LOP_UAT_A", "teacher_id": "KTCN06", "teacher_name": "Lê Thị Lĩnh", "subject": "Quản trị Chuỗi cung ứng", "status": "Lịch tuần"}, {"date": "01/12/2026", "time": "13:30", "class_id": "LOP_UAT_A", "teacher_id": "KTCN07", "teacher_name": "Trần Thị Hải Thanh", "subject": "Khai thác Cảng biển", "status": "Lịch tuần"}, {"date": "01/12/2026", "time": "08:00", "class_id": "LOP_UAT_B", "teacher_id": "KTCN09", "teacher_name": "Đặng Thị Thanh Nhàn", "subject": "Kinh tế Vận tải biển", "status": "Lịch tuần"}, {"date": "01/12/2026", "time": "14:00", "class_id": "LOP_UAT_B", "teacher_id": "KTCN10", "teacher_name": "Đàm Thị Ngọc Anh", "subject": "Giao nhận & Logistics", "status": "Lịch tuần"}, {"date": "02/12/2026", "time": "07:30", "class_id": "LOP_UAT_A", "teacher_id": "KTCN11", "teacher_name": "Nguyễn Thị Phương", "subject": "Khai thác Cảng biển", "status": "Lịch tuần"}, {"date": "02/12/2026", "time": "13:30", "class_id": "LOP_UAT_A", "teacher_id": "KTCN12", "teacher_name": "Trương Nhật Phương", "subject": "Kinh tế Vận tải biển", "status": "Lịch tuần"}, {"date": "02/12/2026", "time": "08:00", "class_id": "LOP_UAT_B", "teacher_id": "KTCN13", "teacher_name": "Phạm Thị Thanh Thuỷ", "subject": "Giao nhận & Logistics", "status": "Lịch tuần"}, {"date": "02/12/2026", "time": "14:00", "class_id": "LOP_UAT_B", "teacher_id": "KTCN14", "teacher_name": "Đỗ Thị Thu Trang", "subject": "Luật Hàng Hải", "status": "Lịch tuần"}, {"date": "03/12/2026", "time": "07:30", "class_id": "LOP_UAT_A", "teacher_id": "KTCN15", "teacher_name": "Nguyễn Quang Huy", "subject": "Kinh tế Vận tải biển", "status": "Lịch tuần"}, {"date": "03/12/2026", "time": "13:30", "class_id": "LOP_UAT_A", "teacher_id": "KTCN16", "teacher_name": "Nguyễn Thị Thu Hương", "subject": "Giao nhận & Logistics", "status": "Lịch tuần"}, {"date": "03/12/2026", "time": "08:00", "class_id": "LOP_UAT_B", "teacher_id": "KTCN17", "teacher_name": "Trần Thị Thủy", "subject": "Luật Hàng Hải", "status": "Lịch tuần"}, {"date": "03/12/2026", "time": "14:00", "class_id": "LOP_UAT_B", "teacher_id": "KTCN18", "teacher_name": "Đinh Đức Toàn", "subject": "Quản trị Chuỗi cung ứng", "status": "Lịch tuần"}];
+
+    const PORTALS = [
+        { id: "qr_gv", color: "#0284c7", role: "GIẢNG VIÊN", title: "Phát QR & Điểm danh lớp", url: DOMAIN + "/admin_v10.html" },
+        { id: "qr_gvu", color: "#0f2460", role: "GIÁO VỤ & BGH", title: "Cổng Điều hành & Nhập Excel", url: DOMAIN + "/remote_gateway_v10.html" },
+        { id: "qr_sv1", color: "#0d9488", role: "SINH VIÊN (LẦN 1)", title: "Đăng ký Thiết bị", url: DOMAIN + "/setup_v10.html" },
+        { id: "qr_sv2", color: "#16a34a", role: "SINH VIÊN (HÀNG NGÀY)", title: "Điểm danh Lớp / Thực tập", url: DOMAIN + "/index_v10.html" },
+        { id: "qr_dn", color: "#d97706", role: "DOANH NGHIỆP", title: "Chấm công Thực tập", url: DOMAIN + "/business_v10.html" }
+    ];
+
+    const qrGrid = document.getElementById("qr-portal-grid");
+    PORTALS.forEach((p) => {
+        const card = document.createElement("div");
+        card.className = "qr-card";
+        card.style.borderTop = "5px solid " + p.color;
+        card.innerHTML = `
+            <div>
+                <span class="qr-role-tag" style="background:${p.color}">${p.role}</span>
+                <h3 style="margin:2px 0 4px; font-size:15px;">${p.title}</h3>
+                <div class="qr-box" id="${p.id}"></div>
+                <div class="qr-url">${p.url}</div>
+            </div>
+            <div class="btn-row">
+                <a class="btn" style="background:${p.color}" href="${p.url}" target="_blank">🌐 Mở trang</a>
+            </div>
+        `;
+        qrGrid.appendChild(card);
+        if (typeof QRCode !== "undefined") {
+            new QRCode(document.getElementById(p.id), { text: p.url, width: 138, height: 138, colorDark: "#0f2460", colorLight: "#ffffff" });
+        }
+    });
+
+    window.copyTxt = function(txt) {
+        navigator.clipboard.writeText(txt).then(() => {
+            const t = document.getElementById("toast");
+            t.innerText = "✅ Đã sao chép: " + txt;
+            t.style.display = "block";
+            setTimeout(() => t.style.display = "none", 1800);
+        });
+    };
+
+    const tabColors = { roster: "#0f2460", gv: "#0284c7", gvu: "#0d9488", bgh: "#7c3aed", sv: "#16a34a", dn: "#d97706", week: "#e11d48" };
+    window.switchRoleTab = function(key) {
+        document.querySelectorAll(".tab-btn").forEach((b) => {
+            const act = b.dataset.tab === key;
+            b.classList.toggle("active", act);
+            b.style.background = act ? tabColors[key] : "#e2e8f0";
+            b.style.color = act ? "white" : "#334155";
+        });
+        document.querySelectorAll(".tab-panel").forEach((p) => p.classList.toggle("active", p.id === "panel-" + key));
+    };
+    document.querySelectorAll(".tab-btn").forEach((b) => b.addEventListener("click", () => window.switchRoleTab(b.dataset.tab)));
+
+    // Render 20 thành viên + Tìm kiếm
+    const roleStyles = {
+        "DEAN_BGH": { label: "BGH / Trưởng Khoa", bg: "#7c3aed", portal: "remote_gateway_v10.html" },
+        "ACADEMIC": { label: "Giáo vụ Khoa", bg: "#0d9488", portal: "remote_gateway_v10.html" },
+        "TEACHER": { label: "Giảng viên", bg: "#0284c7", portal: "admin_v10.html" }
+    };
+
+    function renderRoster(filterText = "") {
+        const q = filterText.trim().toLowerCase();
+        const tb = document.getElementById("roster-tbody");
+        tb.innerHTML = "";
+        MEMBERS.filter(m => !q || m.id.toLowerCase().includes(q) || m.full_name.toLowerCase().includes(q) || m.assigned_role.toLowerCase().includes(q))
+        .forEach(m => {
+            const st = roleStyles[m.assigned_role] || roleStyles["TEACHER"];
+            const daysTxt = (m.assigned_days && m.assigned_days.length)
+                ? "<br><small style='color:#0284c7;'>📅 Lịch: " + m.assigned_days.slice(0, 3).join(" | ") + (m.assigned_days.length > 3 ? " ..." : "") + "</small>"
+                : "";
+            const firstBadge = m.first_login_tos ? "<span style='color:#dc2626;font-weight:bold;'>(Có ký cam kết lần đầu)</span>" : "<span style='color:#16a34a;'>(Vào thẳng)</span>";
+            tb.innerHTML += `
+                <tr>
+                    <td><b>${m.id}</b></td>
+                    <td><b>${m.full_name}</b> <button class="btn-copy" onclick="copyTxt('${m.full_name}')">Copy Chữ ký</button></td>
+                    <td><span class="role-pill" style="background:${st.bg}">${st.label}</span></td>
+                    <td>User: <code>${m.username}</code> <button class="btn-copy" onclick="copyTxt('${m.username}')">Copy</button><br>Pass: <code>${m.init_password}</code> <button class="btn-copy" onclick="copyTxt('${m.init_password}')">Copy</button> ${firstBadge}</td>
+                    <td><b>${st.portal}</b><br>${m.task_desc}${daysTxt}</td>
+                </tr>
+            `;
+        });
+    }
+    renderRoster();
+    document.getElementById("roster-search").addEventListener("input", (e) => renderRoster(e.target.value));
+
+    const stTb = document.getElementById("student-tbody");
+    STUDENTS.forEach(s => {
+        stTb.innerHTML += `<tr><td><code>${s.id}</code> <button class="btn-copy" onclick="copyTxt('${s.id}')">Copy</button></td><td>${s.full_name}</td><td>${s.class_id} (${s.dept})</td></tr>`;
+    });
+
+    const wkTb = document.getElementById("week-tbody");
+    WEEKLY.forEach(w => {
+        wkTb.innerHTML += `<tr><td><b>${w.date}</b></td><td>${w.time}</td><td><code>${w.class_id}</code></td><td>${w.teacher_id}</td><td>${w.teacher_name}</td><td>${w.subject}</td><td>${w.status}</td></tr>`;
+    });
+
+    // Vẽ sơ đồ tổng thể SVG
+    document.getElementById("master-diagram").innerHTML = `
+        <svg viewBox="0 0 1040 245" width="100%" style="min-width:740px;">
+            <defs><marker id="arM" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 1 L 10 5 L 0 9 z" fill="#475569"/></marker></defs>
+            <rect x="370" y="75" width="300" height="88" rx="16" fill="#0f2460" stroke="#38bdf8" stroke-width="2.5"/>
+            <text x="520" y="110" text-anchor="middle" fill="#fff" font-size="15" font-weight="bold">🏛️ HỆ THỐNG ĐÀO TẠO THÔNG MINH</text>
+            <text x="520" y="132" text-anchor="middle" fill="#bae6fd" font-size="12">Xác thực Vị trí • QR 10s • Khuôn mặt • Excel</text>
+            <text x="520" y="150" text-anchor="middle" fill="#7dd3fc" font-size="11.5">Tuần mô phỏng: 27/11/2026 → 03/12/2026</text>
+
+            <path d="M 250 48 L 368 100" stroke="#0d9488" stroke-width="2.5" stroke-dasharray="5,4" marker-end="url(#arM)"/>
+            <path d="M 250 192 L 368 140" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="5,4" marker-end="url(#arM)"/>
+            <path d="M 672 100 L 790 48" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="5,4" marker-end="url(#arM)"/>
+            <path d="M 672 140 L 790 192" stroke="#d97706" stroke-width="2.5" stroke-dasharray="5,4" marker-end="url(#arM)"/>
+            <path d="M 520 165 L 520 192" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arM)"/>
+
+            <g style="cursor:pointer" onclick="switchRoleTab('gvu')"><rect x="20" y="14" width="230" height="66" rx="12" fill="#f0fdfa" stroke="#0d9488" stroke-width="2.5"/><text x="135" y="42" text-anchor="middle" fill="#0f766e" font-size="13.5" font-weight="bold">📋 GIÁO VỤ (3 người)</text><text x="135" y="62" text-anchor="middle" fill="#334155" font-size="11.5">Nhập Excel • Lập lịch • Cấp QR</text></g>
+            <g style="cursor:pointer" onclick="switchRoleTab('bgh')"><rect x="20" y="160" width="230" height="66" rx="12" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2.5"/><text x="135" y="188" text-anchor="middle" fill="#6d28d9" font-size="13.5" font-weight="bold">🛡️ BGH / TRƯỞNG KHOA (2)</text><text x="135" y="208" text-anchor="middle" fill="#334155" font-size="11.5">Duyệt đơn hoãn • Xem Nhật ký</text></g>
+            <g style="cursor:pointer" onclick="switchRoleTab('gv')"><rect x="790" y="14" width="230" height="66" rx="12" fill="#eff6ff" stroke="#0284c7" stroke-width="2.5"/><text x="905" y="42" text-anchor="middle" fill="#0369a1" font-size="13.5" font-weight="bold">👨‍🏫 GIẢNG VIÊN (15 người)</text><text x="905" y="62" text-anchor="middle" fill="#334155" font-size="11.5">Phát QR lớp • Xem sĩ số • Hoãn ca</text></g>
+            <g style="cursor:pointer" onclick="switchRoleTab('dn')"><rect x="790" y="160" width="230" height="66" rx="12" fill="#fffbeb" stroke="#d97706" stroke-width="2.5"/><text x="905" y="188" text-anchor="middle" fill="#b45309" font-size="13.5" font-weight="bold">🏢 DOANH NGHIỆP</text><text x="905" y="208" text-anchor="middle" fill="#334155" font-size="11.5">Phát QR Thực tập • Chấm hộ</text></g>
+            <g style="cursor:pointer" onclick="switchRoleTab('sv')"><rect x="360" y="194" width="320" height="44" rx="12" fill="#f0fdf4" stroke="#16a34a" stroke-width="2.5"/><text x="520" y="221" text-anchor="middle" fill="#15803d" font-size="13.5" font-weight="bold">🎓 SINH VIÊN: Đăng ký mặt 3 góc → Quét QR</text></g>
+        </svg>`;
+
+    function drawFlow(cid, color, steps) {
+        const w = 200, gap = 32, pad = 12;
+        const tot = pad * 2 + steps.length * w + (steps.length - 1) * gap;
+        let h = `<svg viewBox="0 0 ${tot} 95" width="100%" style="min-width:740px;"><defs><marker id="a_${cid}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 1 L 10 5 L 0 9 z" fill="${color}"/></marker></defs>`;
+        steps.forEach((s, i) => {
+            const x = pad + i * (w + gap);
+            h += `<rect x="${x}" y="10" width="${w}" height="74" rx="10" fill="#fff" stroke="${color}" stroke-width="2"/>
+                  <circle cx="${x+20}" cy="30" r="11" fill="${color}"/><text x="${x+20}" y="34" text-anchor="middle" fill="#fff" font-size="11.5" font-weight="bold">${i+1}</text>
+                  <text x="${x+38}" y="34" fill="#0f172a" font-size="12.5" font-weight="bold">${s.t}</text>
+                  <text x="${x+12}" y="56" fill="#475569" font-size="11">${s.d1}</text>
+                  <text x="${x+12}" y="72" fill="#64748b" font-size="11">${s.d2}</text>`;
+            if (i < steps.length - 1) h += `<line x1="${x+w+3}" y1="47" x2="${x+w+gap-3}" y2="47" stroke="${color}" stroke-width="2.5" marker-end="url(#a_${cid})"/>`;
+        });
+        document.getElementById(cid).innerHTML = h + "</svg>";
+    }
+    drawFlow("flow-gv", "#0284c7", [{t:"Đăng nhập",d1:"User & Pass = Mã GV",d2:"Mở admin_v10.html"},{t:"Ký Số (Lần 1)",d1:"Copy đúng Họ Tên",d2:"Đổi MK GvKhaoSat@2026"},{t:"Phát Mã QR",d1:"Chọn ca & chế độ",d2:"Bật Vị trí -> Phát QR"},{t:"Xem / Báo hoãn",d1:"Refresh xem sĩ số",d2:"Hoặc gửi đơn hoãn"}]);
+    drawFlow("flow-gvu", "#0d9488", [{t:"Vào Cổng",d1:"remote_gateway_v10",d2:"Đăng nhập Giáo vụ"},{t:"Nhập Excel",d1:"Chọn loại & File mẫu",d2:"Tải lên & Kiểm tra lỗi"},{t:"Lập Lịch / SV",d1:"Điền biểu mẫu",d2:"Ký số đẩy Hàng đợi"},{t:"Cấp QR / Sửa SV",d1:"Phát QR thiết bị SV",d2:"Tìm sửa SV & Kỷ luật"}]);
+    drawFlow("flow-bgh", "#7c3aed", [{t:"Vào Cổng BGH",d1:"remote_gateway_v10",d2:"User ktcn01/ktcn03"},{t:"Ký Số (Nếu lần 1)",d1:"Nhập đúng Họ Tên",d2:"Đổi mật khẩu mới"},{t:"Duyệt Báo Hoãn",d1:"Mở Tab BGH",d2:"Bấm Duyệt / Từ chối"},{t:"Giám Sát",d1:"Tải Nhật ký kiểm toán",d2:"Đối soát toàn bộ hệ thống"}]);
+    drawFlow("flow-sv", "#16a34a", [{t:"Quét QR Khoa",d1:"Mở setup_v10.html",d2:"Quét mã tại Giáo vụ"},{t:"Ký Cam Kết",d1:"Nhập MSSV test",d2:"Ký nhận điện tử"},{t:"Quét Mặt 3 Góc",d1:"Thẳng • Trái • Phải",d2:"Lưu thiết bị cá nhân"},{t:"Điểm Danh Ngày",d1:"Mở index_v10.html",d2:"GPS + QR + Quay đầu"}]);
+    drawFlow("flow-dn", "#d97706", [{t:"Vào Cổng DN",d1:"Mở business_v10",d2:"DN_UAT_01 / DnUat@2026"},{t:"Chọn Chế Độ",d1:"1 lần hoặc 2 lần",d2:"Bấm Kích hoạt ngày"},{t:"SV Quét QR",d1:"SV_UAT_08 / 09",d2:"Quét trên index_v10"},{t:"Chấm Hộ Sự Cố",d1:"Ảnh chụp + Lý do",d2:"Xác minh đặc cách"}]);
+
+    // 4 Animations Canvas
+    const c1 = document.getElementById("cv-gps").getContext("2d"); let r1 = 0;
+    setInterval(() => {
+        c1.clearRect(0,0,260,175); c1.fillStyle="#ecfeff"; c1.fillRect(0,0,260,175);
+        c1.beginPath(); c1.arc(130,88,60,0,Math.PI*2); c1.fillStyle="rgba(22,163,74,.14)"; c1.fill();
+        c1.strokeStyle="#16a34a"; c1.lineWidth=2; c1.setLineDash([5,4]); c1.stroke(); c1.setLineDash([]);
+        r1 = (r1 + 1.5) % 60;
+        c1.beginPath(); c1.arc(130,88,r1,0,Math.PI*2); c1.strokeStyle=`rgba(2,132,199,${1-r1/60})`; c1.lineWidth=2; c1.stroke();
+        c1.beginPath(); c1.arc(130,88,7,0,Math.PI*2); c1.fillStyle="#0f2460"; c1.fill();
+        c1.fillStyle="#0f2460"; c1.font="bold 11px Segoe UI"; c1.fillText("Lớp / DN",108,108);
+        c1.beginPath(); c1.arc(166,64,5,0,Math.PI*2); c1.fillStyle="#16a34a"; c1.fill();
+        c1.fillStyle="#166534"; c1.fillText("✓ Hợp lệ",156,54);
+        c1.beginPath(); c1.arc(225,140,5,0,Math.PI*2); c1.fillStyle="#dc2626"; c1.fill();
+        c1.fillStyle="#dc2626"; c1.fillText("✕ Ngoài 300m",176,158);
+    }, 50);
+
+    const c2 = document.getElementById("cv-qr").getContext("2d"); let sec = 10, sd = 1;
+    setInterval(() => {
+        if (--sec <= 0) { sec = 10; sd++; }
+        c2.clearRect(0,0,260,175); c2.fillStyle="#f8fafc"; c2.fillRect(0,0,260,175);
+        c2.fillStyle="#fff"; c2.strokeStyle="#0284c7"; c2.lineWidth=2; c2.fillRect(80,14,100,100); c2.strokeRect(80,14,100,100);
+        for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
+            if ((r<3&&c<3)||(r<3&&c>4)||(r>4&&c<3)||(((r*7+c*13+sd*5)%3)===0)) {
+                c2.fillStyle="#0f2460"; c2.fillRect(90+c*10,24+r*10,8,8);
+            }
+        }
+        c2.fillStyle="#dc2626"; c2.font="bold 13px Segoe UI"; c2.fillText(`⏱ Tự đổi sau: ${sec}s`,78,138);
+        c2.fillStyle="#475569"; c2.font="11px Segoe UI"; c2.fillText("Chống chụp ảnh gửi hộ",70,158);
+    }, 1000);
+
+    const c3 = document.getElementById("cv-face").getContext("2d"); let tk = 0;
+    const flab = ["1. Nhìn THẲNG","2. Nghiêng TRÁI","3. Nghiêng PHẢI","4. Quay đầu Xác nhận"];
+    setInterval(() => {
+        tk++; const ph = Math.floor(tk/18)%4; const ox = ph===1?-12:(ph===2?12:(ph===3?Math.sin(tk*.4)*14:0));
+        c3.clearRect(0,0,260,175); c3.fillStyle="#0f172a"; c3.fillRect(0,0,260,175);
+        c3.beginPath(); c3.ellipse(130,78,40,52,0,0,Math.PI*2); c3.strokeStyle="#22c55e"; c3.lineWidth=3; c3.stroke();
+        c3.beginPath(); c3.arc(130+ox,78,24,0,Math.PI*2); c3.fillStyle="#fde68a"; c3.fill();
+        c3.fillStyle="#0f172a"; c3.beginPath(); c3.arc(122+ox,72,3,0,Math.PI*2); c3.fill(); c3.beginPath(); c3.arc(138+ox,72,3,0,Math.PI*2); c3.fill();
+        c3.beginPath(); c3.arc(130+ox,84,7,0,Math.PI); c3.strokeStyle="#0f172a"; c3.lineWidth=2; c3.stroke();
+        c3.fillStyle="#4ade80"; c3.font="bold 12.5px Segoe UI"; c3.fillText(flab[ph],68,155);
+    }, 80);
+
+    const c4 = document.getElementById("cv-excel").getContext("2d"); let exStep = 0;
+    setInterval(() => {
+        exStep = (exStep + 1) % 60;
+        const prog = exStep / 60;
+        c4.clearRect(0,0,260,175); c4.fillStyle="#f0fdfa"; c4.fillRect(0,0,260,175);
+        c4.fillStyle="#16a34a"; c4.fillRect(18,52,58,64);
+        c4.fillStyle="#fff"; c4.font="bold 13px Segoe UI"; c4.fillText("XLSX",28,88);
+        c4.fillStyle="#0f2460"; c4.fillRect(184,52,62,64);
+        c4.fillStyle="#fff"; c4.font="bold 12px Segoe UI"; c4.fillText("HỆ",205,80); c4.fillText("THỐNG",193,98);
+        const bx = 84 + prog * 90;
+        c4.fillStyle="#0284c7"; c4.beginPath(); c4.arc(bx, 84, 7, 0, Math.PI*2); c4.fill();
+        c4.fillStyle="#0f766e"; c4.font="bold 11.5px Segoe UI"; c4.fillText("Kiểm tra & Lưu vết tự động",50,148);
+    }, 60);
+})();
+</script>
+</body>
+</html>
